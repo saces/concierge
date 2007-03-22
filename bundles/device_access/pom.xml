@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>concierge-project</artifactId>
+		<groupId>ch.ethz.iks.concierge</groupId>
+		<version>0.6.2</version>
+	</parent>
+	<groupId>org.osgi</groupId>
+	<artifactId>device-api</artifactId>
+	<packaging>osgi-bundle</packaging>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+	    	<plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-compiler-plugin</artifactId>
+          		<configuration>
+	    			<source>1.2</source>
+	    			<target>1.1</target>
+	    			<optimize>true</optimize>
+	    			<debug>false</debug>
+	    		</configuration>
+	    	</plugin>		
+			<plugin>
+				<groupId>org.apache.felix.plugins</groupId>
+				<artifactId>maven-osgi-plugin</artifactId>
+				<version>0.9.0-incubator-SNAPSHOT</version>
+				<extensions>true</extensions>
+				<configuration>
+					<osgiManifest>
+						<bundleName>Device API</bundleName>
+						<exportPackage>org.osgi.service.device</exportPackage>
+					</osgiManifest>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi</artifactId>
+			<version>3.0</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>

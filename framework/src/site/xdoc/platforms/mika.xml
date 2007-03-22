@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Concierge on Mi|k|a</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Concierge on Devices with Mika VM">
+		<p>
+			We are testing Concierge on devices with <a href="http://www.k-embedded-java.com">/k/ Embedded</a> Mi|k|a VM. Once these tests are successful, Concierge will be able to run on a large range of embedded systems, for instance, on <a href="http://www.uclinux.org">uCLinux</a> driven platforms.
+        </p>
+		</section>
+	</body>
+</document>

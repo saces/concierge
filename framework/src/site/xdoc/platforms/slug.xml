@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Concierge on the Slug</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Concierge on the Slug">
+		<center>
+			<img src="/images/slug.jpg" alt="Slug"/>
+		</center>
+		<p>
+			Once <a href="http://www.nslu2-linux.org">unslung</a>, JamVM 1.4.3 can be installed (<code>ipkg install jamvm</code>). JamVM works out-of-the-box and behaves like standard Java 1.4 (except that the command is <code>/opt/bin/jamvm</code> and that it is open source :-). We have also tested Blackdown.
+        </p>
+		</section>
+	</body>
+</document>

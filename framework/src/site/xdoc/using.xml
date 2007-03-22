@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+	<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Projects using Concierge</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+	<section name="Projects using Concierge">
+		<p>
+		<table>
+			<tr>
+				<th>Project</th>
+				<th>Description</th>
+				<th>Link</th>
+			</tr>
+			<tr>
+				<td>flowSGi</td>
+				<td>Collaborative middleware for mobile devices based on OSGi</td>
+				<td><a href="http://flowsgi.inf.ethz.ch">flowSGi website</a></td>
+			</tr>
+			<tr>
+				<td>Xtream</td>
+				<td>IKS Stream Processing System. (Current research project of Michael Duller, ETH Zurich.)</td>
+				<td></td>
+			</tr>			
+		</table>
+		</p>
+		<p>
+			If you use Concierge in your project, please let us know and send an <a href="mailto:rjan@users.sourceforge.net">email</a>.
+		</p>
+	</section>
+	</body>
+</document>

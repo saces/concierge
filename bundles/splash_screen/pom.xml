@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>concierge-project</artifactId>
+		<groupId>ch.ethz.iks.concierge</groupId>
+		<version>0.6.2</version>
+	</parent>
+	<groupId>ch.ethz.iks.concierge</groupId>
+	<artifactId>splash_screen</artifactId>
+	<packaging>osgi-bundle</packaging>
+	<name>Concierge Splash Screen</name>
+	<description>A small bundle that displays a splash screen.</description>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>resources</directory>
+			</resource>
+		</resources>
+		<plugins>
+	    	<plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-compiler-plugin</artifactId>
+          		<configuration>
+	    			<source>1.2</source>
+	    			<target>1.1</target>
+	    			<optimize>true</optimize>
+	    			<debug>false</debug>
+	    		</configuration>
+	    	</plugin>		
+			<plugin>
+				<groupId>org.apache.felix.plugins</groupId>
+				<artifactId>maven-osgi-plugin</artifactId>
+				<version>0.9.0-incubator-SNAPSHOT</version>
+				<extensions>true</extensions>
+				<configuration>
+					<osgiManifest>
+						<bundleActivator>ch.ethz.iks.concierge.splash.SplashScreenActivator</bundleActivator>
+						<bundleName>Concierge Splash Screen</bundleName>
+						<bundleDescription>A small splash screen bundle.</bundleDescription>
+						<bundleVendor>Jan S. Rellermeyer, IKS, ETH Zurich</bundleVendor>
+					</osgiManifest>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi</artifactId>
+			<version>3.0</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>

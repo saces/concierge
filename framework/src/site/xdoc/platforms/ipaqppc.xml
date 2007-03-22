@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Concierge on iPAQ Windows Mobile</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Concierge on iPAQ Windows Mobile">
+		<center>
+			<img src="/images/ipaqwin.jpg" alt="iPAQ PocketPC"/>
+		</center>
+		<p>
+			Concierge has been tested with IBM J9 CDC. Something to keep in mind is that Windows PocketPC and Windows Mobile do not know the concept of the <i>current directory</i>. So even when Concierge is started from a subdirectory, 
+			all relative paths are interpreted relative to the file system root. To start Concierge from the subdirectory <i>/concierge</i>, create a link file in the following style:
+<source>
+165#"\Program Files\J9\PPRO10\bin\j9.exe" "-jcl:ppro10" -Dxargs=\concierge\init.xargs -cp \concierge\concierge-0.6.0.jar ch.ethz.iks.concierge.framework.Framework
+</source>		
+			and call the file, for instance, concierge.lnk
+        </p>
+		</section>
+	</body>
+</document>

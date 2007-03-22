@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Concierge on Nokia 9300i</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Concierge on Nokia 9300i">
+		<center>
+			<img src="/images/nokia9300i.jpg" alt="Nokia 9300i"/>
+		</center>
+		<p>
+			The Nokia 9300i is a Symbian 80 driven smartphone and comes out-of-the-box with a J9 CDC Personal Profile. Unfortunatly, the VM does not support <code>System.out</code> and <code>System.err</code>. But you can create the directory structure <code>logs/j9vm</code> and J9 will log stdout and stderr to files. Although Concierge contains the required fields in the manifest to be installed using the Nokia Application Installer, 
+			the framework refuses to run because of security constraints. The JAR is not signed by Nokia and thus runs with too resticted privileges. You can supply a <code>concierge.j9</code> file with the following content:
+<source>
+-cp c:\benchmarks\concierge-0.6.0.jar ch.ethz.iks.concierge.framework.Framework
+</source>
+			This file is a valid link that can be used to start the framework and it can be stored on the desktop, etc.	With this setup, Concierge runs fine. This platform is certainly one where a GUI can make sense (since there is no way of interaction through standard output). We have successfully run Concierge with the Oscar GUI shell. 			
+        </p>
+		</section>
+	</body>
+</document>

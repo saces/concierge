@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>concierge-project</artifactId>
+		<groupId>ch.ethz.iks.concierge</groupId>
+		<version>0.6.2</version>
+	</parent>
+	<groupId>ch.ethz.iks.concierge</groupId>
+	<artifactId>shell</artifactId>
+	<packaging>osgi-bundle</packaging>
+	<name>Concierge Shell</name>
+	<description>A minimal shell, extensible at runtime.</description>
+	<url>http://www.flowsgi.inf.ethz.ch</url>
+	<developers>
+		<developer>
+			<id>rjan</id>
+			<name>Jan S. Rellermeyer</name>
+			<email>rellermeyer_at_inf.ethz.ch</email>
+			<url>http://people.inf.ethz.ch/rjan</url>
+			<organization>IKS, ETH Zurich</organization>
+			<organizationUrl>http://www.iks.inf.ethz.ch</organizationUrl>
+			<roles>
+				<role>Project creator</role>
+				<role>Researcher</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+	    	<plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-compiler-plugin</artifactId>
+          		<configuration>
+	    			<source>1.2</source>
+	    			<target>1.1</target>
+	    			<optimize>true</optimize>
+	    			<debug>false</debug>
+	    		</configuration>
+	    	</plugin>		
+			<plugin>
+				<groupId>org.apache.felix.plugins</groupId>
+				<artifactId>maven-osgi-plugin</artifactId>
+				<version>0.9.0-incubator-SNAPSHOT</version>
+				<extensions>true</extensions>
+				<configuration>
+					<osgiManifest>
+						<bundleActivator>ch.ethz.iks.concierge.shell.ShellActivator</bundleActivator>
+						<bundleName>Concierge Shell</bundleName>
+						<bundleDescription>A shell.</bundleDescription>
+						<bundleVendor>Jan S. Rellermeyer, IKS, ETH Zurich</bundleVendor>
+						<importPackage>org.osgi.framework;specification-version=1.2, org.osgi.service.packageadmin;specification-version=1.1, org.osgi.service.startlevel;specification-version=1.0</importPackage>
+						<exportPackage>ch.ethz.iks.concierge.shell.commands</exportPackage>
+					</osgiManifest>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi</artifactId>
+			<version>3.0</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Concierge on Cobalt RaQ</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Concierge on Cobalt RaQ">
+		<center>
+			<img src="/images/cobalt.jpg" alt="cobalt"/>
+		</center>
+		<p>
+			The Cobalt RaQ is based on a Mipsel architecture and runs with Debian Linux. We have tested SableVM on the Cobalt and except some well known problems with the handling of double and long values, Concierge runs fine. 
+        </p>
+		</section>
+	</body>
+</document>

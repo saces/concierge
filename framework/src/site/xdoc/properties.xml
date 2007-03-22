@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+	<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Startup Properties</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Startup Properties">
+		<subsection name="init.xargs style">
+		<p>
+			Concierge supports Knopflerfish-style startup files. The <code>-Dxargs=</code><i>myxargsfile</i> property can be used to specify a specific startup file, otherwise Concierge searches for a file called <i>init.xargs</i>.
+			The following options are supported:
+			<table>
+			<tr>			
+				<td>-D<i>property</i>=<i>value</i></td>
+				<td>Set a system property. List of properties below shows all properties that affect the behavior of Concierge.</td>
+			</tr>
+			<tr>			
+				<td>-install <i>URL</i></td>
+				<td>Install a bundle. <i>URL</i> can be an URL to a file on a http web server or something in the form <i>file:/my/dir/my.jar</i>. If <code>ch.ethz.iks.concierge.jars</code> is set, everything which is not a full URL is interpreted as a path relative to the JAR directory URL.</td>
+			</tr>
+			<tr>			
+				<td>-start <i>URL</i></td>
+				<td>Start a bundle that has been installed before.</td>
+			</tr>
+			<tr>			
+				<td>-istart <i>URL</i></td>
+				<td>Install and start a bundle.</td>
+			</tr>
+			<tr>			
+				<td>-initlevel <i>level</i></td>
+				<td>Set the initial start level for all successive -install and -start commands.</td>
+			</tr>
+			<tr>			
+				<td>-startlevel <i>level</i></td>
+				<td>Set the start level of the framework.</td>
+			</tr>
+			<tr>			
+				<td>-init</td>
+				<td>Perform a clean start instead of a restart, even if a profile is set.</td>
+			</tr>			
+			</table>
+        </p>		
+		</subsection>
+		<subsection name="system.properties style">
+		<p>
+			Additionally, Oscar-style <code>system.properties</code> files are supported. A specific file can be set by the <code>-Dproperties=</code><i>my.properties</i> property.
+			The following properties are supported:
+						<table>
+			<tr>			
+				<td><code>osgi.auto.install</code></td>				
+				<td>a space delimited list of bundles that are installed.</td>
+			</tr>
+			<tr>			
+				<td><code>osgi.auto.install.<i>level</i></code></td>				
+				<td>a space delimited list of bundles that are installed on start level <i>level</i>.</td>
+			</tr>
+			<tr>			
+				<td><code>osgi.auto.start</code></td>				
+				<td>a space delimited list of bundles that are started.</td>
+			</tr>
+			<tr>			
+				<td><code>osgi.auto.start.<i>level</i></code></td>				
+				<td>a space delimited list of bundles that are started on start level .<i>level</i>.</td>
+			</tr>
+			<tr>			
+				<td><code>osgi.startlevel.framework</code></td>				
+				<td>the initial start level of the framework.</td>
+			</tr>
+			<tr>			
+				<td><code>osgi.startlevel.bundle</code></td>				
+				<td>the initial start level for newly installed bundles.</td>
+			</tr>
+			</table>
+        </p>		
+		</subsection>
+		<subsection name="Using profiles">
+		<p>
+			Profiles can be defined and used for restarts. From the command line, just start your Concierge framework and add the name of the profile as an argument. Or using an xargs files, the option <code>-profile <i>profileName</i></code> can be used and in property files, it is the <code>osgi.profile=<i>profile</i></code> property. <br/>
+			The idea of a profile is to have different separated setups of bundles that can be restarted at any time. Different to Oscar, Concierge does not require user interaction to use or define profiles.  
+        </p>		
+        <p>
+        	The <code>init</code> option can be used to control restart or clean start. If a profile is set, Concierge tries to restore the profile and otherwise performs a clean start and starts / installs all required bundles. By setting <code>init</code> (or the <code>osgi.init</code> property), it can be enforced that Concierge always performs a clean start, if the restart of the profile is not passed as argument in the following form:
+<source>
+java -jar concierge-0.6.0.jar <i>myprofile</i>
+</source>        	
+        </p>
+		</subsection>
+		<subsection name="List of properties">
+		<p>
+			Currently, Concierge supports the following properties:
+			<table>
+			<tr>
+				<th>Attribute</th>
+				<th>Default</th>
+				<th>Comment</th>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.basedir</code></td>
+				<td><i>.</i></td>
+				<td>All paths that are not explicitly defined are considered to be relative to the basedir.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.jars</code></td>
+				<td>= <code>basedir</code></td>
+				<td>The path where the bundle JARs can be found.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.storage</code></td>
+				<td><code>basedir</code><i>/storage</i></td>
+				<td>The path of the storage location. Can be used to allocate the framework's private storage on a different medium, for instance if Concierge is executed from a read-only medium.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.classloader.buffersize</code></td>
+				<td><i>2048</i> = 2048 Bytes</td>
+				<td>The buffer size for class loader I/O operations. Generally, it is a tradeoff of how many data can be read at once and how much time it takes to allocate the buffer memory. Experiments have shown that the size of 2k is the minimum on many devices. But this can depend on the average size of your bundles, the hardware architecture, disk block size, etc.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.log.enabled</code></td>
+				<td><i>false</i> = disabled</td>
+				<td>Enable the internal LogService of the Concierge framework. This allows the framework to write debug messages to the log. This is particularly useful for headless devices don't support <code>System.out</code>. Simply add a small <code>LogReader</code> that writes all log messages to a disk.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.log.buffersize</code></td>
+				<td><i>10</i> = ten entries.</td>
+				<td>Number of log entries that are buffered.</td>
+			</tr>			
+			<tr>
+				<td><code>ch.ethz.iks.concierge.log.level</code></td>
+				<td><i>1</i> = LOG_ERROR</td>
+				<td>The log level. Can be <i>0</i> = NONE, <i>1</i> = LOG_ERROR, <i>2</i> = LOG_WARNING, <i>3</i> = LOG_INFO or <i>4</i> = LOG_DEBUG. The larger level includes all smaller levels.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.debug.bundles</code></td>
+				<td><i>false</i> = disabled</td>
+				<td>Generate debug messages for bundle operations. Requires the log service to be enabled.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.debug.packages</code></td>
+				<td><i>false</i> = disabled</td>
+				<td>Generate debug messages for package operations. Requires the log service to be enabled.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.debug.services</code></td>
+				<td><i>false</i> = disabled</td>
+				<td>Generate debug messages for service operations. Requires the log service to be enabled.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.debug.classloading</code></td>
+				<td><i>false</i> = disabled</td>
+				<td>Generate debug messages for class loading operations. Requires the log service to be enabled.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.debug</code></td>
+				<td><i>false</i> = disabled</td>
+				<td>Generate full debug output. This is equivalent to <code>ch.ethz.iks.concierge.log.enabled=true</code>, <code>ch.ethz.iks.concierge.log.level=4</code>, <code>ch.ethz.iks.concierge.debug.bundles=true</code>, <code>ch.ethz.iks.concierge.debug.packages=true</code>, <code>ch.ethz.iks.concierge.debug.services=true</code>, and <code>ch.ethz.iks.concierge.debug.classloading=true</code>.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.strictStartup</code></td>
+				<td><i>false</i> = disabled</td>
+				<td>Strict startup means, Concierge terminates if one of the initially started bundle fails to install or if a warning occurs.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.decompressEmbedded</code></td>
+				<td><i>true</i> = enabled</td>
+				<td>Tells Concierge to decompress bundles containing embedded JARs. This can give a remarkable speedup if significant parts of the bundles' code reside inside of embedded JARs. For devices with highly constrained resources, this should be disabled.</td>
+			</tr>
+			<tr>
+				<td><code>ch.ethz.iks.concierge.security.enabled</code></td>
+				<td><i>false</i> = disabled</td>
+				<td>Enable OSGi security. Please note, that the security part is not yet 100% complete and not entirely tested. So use with care. Also note, that this property has no effect unless you also specify a Java SecurityManager for your VM.</td>
+			</tr>
+			</table>
+        </p>		
+		</subsection>
+		</section>
+	</body>
+</document>
