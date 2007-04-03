@@ -11,8 +11,12 @@
 	<meta http-equiv="robots" content="index, follow"/>
 	<body>
 		<section name="Concierge on Devices with Mika VM">
+		<center>
+			<img src="/images/mika.jpg" alt="Concierge on Mika on Linksys Router"/>
+		</center>
+				
 		<p>
-			We are testing Concierge on devices with <a href="http://www.k-embedded-java.com">/k/ Embedded</a> Mi|k|a VM. Once these tests are successful, Concierge will be able to run on a large range of embedded systems, for instance, on <a href="http://www.uclinux.org">uCLinux</a> driven platforms.
+			We are testing Concierge on a variety of devices with <a href="http://www.k-embedded-java.com">/k/ Embedded</a> Mi|k|a VM. One nice example was the Linksys WRT54GS that was used for the talk at EclipseCon 07. It was running Concierge on Mika on the <a href="http://openwrt.org">OpenWRT</a> firmware.
         </p>
 		</section>
 	</body>
