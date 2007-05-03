@@ -33,6 +33,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,6 +49,7 @@ import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -147,6 +149,15 @@ public final class Framework {
 	static boolean SECURITY_ENABLED;
 
 	/**
+	 * enable deep equality check on service listeners when adding and removing
+	 * from runtime instance. This is sometimes nessary due to the OSGi R3
+	 * implementation of the ServiceTracker. Different ServiceTrackers evaluate
+	 * as equal because they subclass Hashtable. Different Hashtables evaluate
+	 * to equal if they are empty.
+	 */
+	static boolean DEEP_SERVICE_LISTENER_CHECK;
+
+	/**
 	 * debug outputs from bundles ?
 	 */
 	static boolean DEBUG_BUNDLES;
@@ -170,6 +181,11 @@ public final class Framework {
 	 * the profile.
 	 */
 	private static String PROFILE;
+
+	/**
+	 * Version displayed upon startup and returned by System Bundle
+	 */
+	private static final String FRAMEWORK_VERSION = "1.0_RC1";
 
 	// registry data structures
 
@@ -324,7 +340,7 @@ public final class Framework {
 
 			System.out.println("------------------"
 					+ "---------------------------------------");
-			System.out.println("  Concierge OSGi on "
+			System.out.println("  Concierge OSGi " + FRAMEWORK_VERSION + " on "
 					+ properties.get("os.name") + " "
 					+ properties.get("os.version") + " starting ...");
 			System.out.println("-------------------"
@@ -334,18 +350,19 @@ public final class Framework {
 			int target = 0;
 			long time = 0;
 
-			//System.out.println("PROFILE NAME IS <" + profileName + ">");
-			
-			if (profileName != null && ! "".equals(profileName)) {
+			// System.out.println("PROFILE NAME IS <" + profileName + ">");
+
+			if (profileName != null && !"".equals(profileName)) {
 				time = System.currentTimeMillis();
 				PROFILE = profileName;
+				initialize();
 				launch();
 				target = restoreProfile();
 				if (target != -1) {
 					restart = true;
 				}
-			} 
-			
+			}
+
 			if (profileName == null || target == -1) {
 				// parse property file, if exists
 				final File propertyFile = new File(System.getProperty(
@@ -358,6 +375,7 @@ public final class Framework {
 							+ " not found");
 				}
 
+				initialize();
 				// parse init.xargs style file, if exists
 				final File startupFile = new File(System.getProperty("xargs",
 						"." + File.separatorChar + "init.xargs"));
@@ -424,6 +442,13 @@ public final class Framework {
 									try {
 										final String location = tokenizer
 												.nextToken();
+
+										if (!isBundle(location)) {
+											System.out
+													.println("IGNORING NON-BUNDLE "
+															+ location);
+											continue;
+										}
 										System.out.println("INSTALLING "
 												+ location);
 										BundleImpl bundle = installNewBundle(location);
@@ -488,6 +513,28 @@ public final class Framework {
 	}
 
 	/**
+	 * Given a file path, determine if file is a valid OSGi bundle.
+	 * 
+	 * @param location
+	 * @return
+	 */
+	private static boolean isBundle(final String location) {
+		// TODO Perhaps do real validation here by looking in the jar and seeing
+		// if the Manifest is valid.
+		//
+		// #rjan: opening the bundle and checking the Manifest is quite costy.
+		// A fail-early strategy might significantly slow down the startup.
+		// If the case that invalid bundles occur is rather rare, I would not
+		// introduce too much checking.#
+
+		if (location.toUpperCase().endsWith(".JAR")
+				|| location.toUpperCase().endsWith(".ZIP")) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * restart the framework.
 	 * 
 	 * @param restart
@@ -525,10 +572,7 @@ public final class Framework {
 		}
 	}
 
-	/**
-	 * create the setup with the properties and the internal framework flags.
-	 */
-	private static void launch() {
+	private static void initialize() {
 		BASEDIR = properties.getProperty("ch.ethz.iks.concierge.basedir", ".");
 		BUNDLE_LOCATION = properties.getProperty("ch.ethz.iks.concierge.jars",
 				properties.getProperty("org.knopflerfish.gosg.jars", "file:"
@@ -569,7 +613,14 @@ public final class Framework {
 				"ch.ethz.iks.concierge.decompressEmbedded", true);
 		SECURITY_ENABLED = getProperty(
 				"ch.ethz.iks.concierge.security.enabled", false);
+		DEEP_SERVICE_LISTENER_CHECK = getProperty(
+				"ch.ethz.iks.concierge.deepServiceListenerCheck", false);
+	}
 
+	/**
+	 * create the setup with the properties and the internal framework flags.
+	 */
+	private static void launch() {
 		// sanity checks
 		if (!LOG_ENABLED) {
 			if (DEBUG_BUNDLES || DEBUG_PACKAGES || DEBUG_SERVICES
@@ -701,7 +752,12 @@ public final class Framework {
 					final File files[];
 					final File jardir = new File(new URL(BUNDLE_LOCATION)
 							.getFile());
-					files = jardir.listFiles();
+					files = jardir.listFiles(new FilenameFilter() {
+						public boolean accept(File arg0, String arg1) {
+							return arg1.toUpperCase().endsWith(".JAR")
+									|| arg1.toUpperCase().endsWith(".ZIP");
+						}
+					});
 					if (files == null) {
 						warning("NO FILES FOUND IN " + BUNDLE_LOCATION);
 						break;
@@ -1463,13 +1519,34 @@ public final class Framework {
 			if (bundle.registeredServiceListeners == null) {
 				bundle.registeredServiceListeners = new ArrayList(1);
 			}
-			if (bundle.registeredServiceListeners.contains(listener)) {
+			if (isServiceListenerRegistered(listener)) {
 				serviceListeners.remove(entry);
 			} else {
 				bundle.registeredServiceListeners.add(listener);
 			}
 			serviceListeners.add(entry);
 		}
+		
+		/**
+		 * Determine if given service listener has been registered.
+		 * 
+		 * @param listener
+		 * @return <code>true</code> if the listener is registered.
+		 */
+		private boolean isServiceListenerRegistered(final ServiceListener listener) {
+		if (DEEP_SERVICE_LISTENER_CHECK) {
+			final Iterator iter = bundle.registeredServiceListeners.iterator();
+			while (iter.hasNext()) {
+				Object obj = iter.next();
+				if (listener == obj) {
+					return true;
+				}
+			}
+				return false;		
+			} else {
+				return bundle.registeredServiceListeners.contains(listener);
+			}
+		}		
 
 		/**
 		 * add a service listener.
@@ -1935,7 +2012,7 @@ public final class Framework {
 		/**
 		 * the properties.
 		 */
-		private final Dictionary props = new Hashtable(2);
+		private final Dictionary props = new Hashtable(3);
 
 		/**
 		 * the service reference.
@@ -1948,7 +2025,7 @@ public final class Framework {
 		 */
 		SystemBundle() {
 			props.put(Constants.BUNDLE_NAME, "System Bundle");
-
+			props.put(Constants.BUNDLE_VERSION, FRAMEWORK_VERSION);
 			bundleID_bundles.put(new Long(0), this);
 
 			final ServiceReference ref = new ServiceReferenceImpl(this, this,
@@ -2345,7 +2422,7 @@ public final class Framework {
 				}
 				final BundleImpl bundle = (BundleImpl) bundleArray[i];
 				final int offset;
-				if (up) {
+				if (up) {					
 					offset = bundle.currentStartlevel - startlevel - 1;
 				} else {
 					offset = startlevel - bundle.currentStartlevel;
@@ -2366,8 +2443,10 @@ public final class Framework {
 				for (int j = 0; j < toProcess.length; j++) {
 					try {
 						if (up) {
+							System.out.println("STARTING "	+ toProcess[j].location);
 							toProcess[j].startBundle();
 						} else {
+							System.out.println("STOPPING " + toProcess[j].location);
 							toProcess[j].stopBundle();
 						}
 					} catch (BundleException be) {
