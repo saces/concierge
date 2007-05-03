@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Concierge Tools for Eclipse Runtime Plug-in
+Bundle-SymbolicName: com.buglabs.osgi.concierge.runtime;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.buglabs.osgi.concierge.runtime.ConciergeRuntime
+Bundle-Vendor: Bug Labs, Inc.
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Eclipse-LazyStart: true
+Export-Package: com.buglabs.osgi.concierge.runtime

@@ -1,0 +1,7 @@
+ public class CLASS
+ {
+   public String generate(ProjectInfo projInfo)
+   {
+     return "";
+   }
+ }

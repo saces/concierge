@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="com.buglabs.osgi.concierge.ui.launch.ConciergeTabGroup"
+            id="com.buglabs.osgi.concierge.ui.launch.ConciergeTabGroup"
+            type="com.buglabs.osgi.concierge.launch.ConciergeLaunchConfigurationTabGroup"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="com.buglabs.osgi.concierge"
+            name="Concierge OSGi"/>
+      <wizard
+            category="com.buglabs.osgi.concierge"
+            class="com.buglabs.osgi.concierge.ui.wizards.newproject.NewConciergeProjectWizard"
+            icon="icons/CG_icon_16px.png"
+            id="com.buglabs.osgi.concierge.ui.wizards.NewConciergeProjectWizard"
+            name="Concierge OSGi Project"
+            project="true"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="com.buglabs.osgi.concierge.ui.objectContribution1"
+            objectClass="org.eclipse.core.resources.IProject">
+         <menu
+               id="com.buglabs.osgi.concierge.ui.menu.Concierge"
+               label="Concierge OSGi">
+            <separator name="group0"/>
+         </menu>
+         <action
+               class="com.buglabs.osgi.concierge.ui.actions.ConvertProjectToConciergeDelegate"
+               enablesFor="+"
+               icon="icons/CG_icon_16px.png"
+               id="com.buglabs.osgi.concierge.ui.actions.ConvertProjectToConcierge"
+               label="Convert to Concierge Project"
+               menubarPath="com.buglabs.osgi.concierge.ui.menu.Concierge/group0"/>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.exportWizards">
+      <category
+            id="com.buglabs.osgi.concierge.export"
+            name="Concierge OSGi"/>
+      <wizard
+            category="com.buglabs.osgi.concierge.export"
+            class="com.buglabs.osgi.concierge.ui.wizards.export.ExportBundlesWizard"
+            icon="icons/CG_icon_16px.png"
+            id="com.buglabs.osgi.concierge.wizards.export.ExportBundlesWizard"
+            name="OSGi Bundle"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="com.buglabs.osgi.concierge.launch.ConciergeLaunchConfigurationTabGroup"
+            icon="icons/CG_icon_16px.png"
+            id="com.buglabs.osgi.concierge.launch.ConciergeLaunchConfigurationTypeImage"/>
+   </extension>
+</plugin>

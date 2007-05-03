@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="com.buglabs.osgi.concierge.devtools"
+            name="Concierge DevTools"/>
+      <view
+            category="com.buglabs.osgi.concierge.devtools"
+            class="com.buglabs.osgi.concierge.devtools.views.BundleModelManagerView"
+            id="com.buglabs.osgi.concierge.devtools.views.BundleModelManagerView"
+            name="Bundle Model Manager"/>
+   </extension>
+
+</plugin>

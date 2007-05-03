@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Concierge Tools for Eclipse Core Plug-in
+Bundle-SymbolicName: com.buglabs.osgi.concierge.core;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.buglabs.osgi.concierge.core.OSGiCore
+Bundle-Vendor: Bug Labs, Inc.
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.debug.core,
+ org.eclipse.jdt.launching,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.ui,
+ com.buglabs.osgi.concierge.runtime,
+ org.eclipse.ui.ide
+Eclipse-LazyStart: true
+Export-Package: com.buglabs.osgi.concierge.core,
+ com.buglabs.osgi.concierge.core.utils,
+ com.buglabs.osgi.concierge.jdt,
+ com.buglabs.osgi.concierge.launch,
+ com.buglabs.osgi.concierge.natures,
+ com.buglabs.osgi.concierge.runtime.sourcelocators

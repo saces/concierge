@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+	<extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="com.buglabs.osgi.concierge.launch.ConciergeLaunchConfiguration"
+            id="com.buglabs.osgi.concierge.launch.ConciergeLaunchConfigurationTabGroup"
+            modes="run, debug"
+            name="Conscierge OSGi Framework"
+            sourceLocatorId="com.buglabs.osgi.concierge.runtime.sourcelocators.ConciergeSourceLocator"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.jdt.core.classpathContainerInitializer">
+      <classpathContainerInitializer
+            class="com.buglabs.osgi.concierge.jdt.ConciergeClasspathContainerInitializer"
+            id="com.buglabs.osgi.concierge.jdt.ConciergeClasspathContainerInitializer"/>
+      <classpathContainerInitializer
+            class="com.buglabs.osgi.concierge.jdt.OSGiBundleClassPathContainerInitializer"
+            id="com.buglabs.osgi.concierge.jdt.OSGiBundleClassPathContainerInitializer"/>
+   </extension>
+   <extension
+         id="com.buglabs.osgi.concierge.natures.ConciergeProjectNature"
+         name="Concierge Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="com.buglabs.osgi.concierge.natures.ConciergeProjectNature"/>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceLocators">
+      <sourceLocator
+            class="com.buglabs.osgi.concierge.runtime.sourcelocators.ConciergeSourceLocator"
+            id="com.buglabs.osgi.concierge.runtime.sourcelocators.ConciergeSourceLocator"
+            name="Concierge Source Locator"/>
+   </extension>
+</plugin>

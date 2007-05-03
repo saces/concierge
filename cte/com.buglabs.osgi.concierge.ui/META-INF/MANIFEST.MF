@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Concierge Tools for Eclipse Ui Plug-in
+Bundle-SymbolicName: com.buglabs.osgi.concierge.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.buglabs.osgi.concierge.ui.Activator
+Bundle-Vendor: Bug Labs, Inc.
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.debug.core,
+ org.eclipse.debug.ui,
+ com.buglabs.osgi.concierge.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.eclipse.ui.ide,
+ org.eclipse.jdt.launching,
+ org.eclipse.jdt.ui,
+ com.buglabs.osgi.concierge.core
+Eclipse-LazyStart: true
+Export-Package: com.buglabs.osgi.concierge.templates,
+ com.buglabs.osgi.concierge.ui,
+ com.buglabs.osgi.concierge.ui.actions,
+ com.buglabs.osgi.concierge.ui.info,
+ com.buglabs.osgi.concierge.ui.jobs,
+ com.buglabs.osgi.concierge.ui.launch,
+ com.buglabs.osgi.concierge.ui.wizards.export,
+ com.buglabs.osgi.concierge.ui.wizards.newproject

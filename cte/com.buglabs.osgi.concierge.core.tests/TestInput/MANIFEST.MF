@@ -1,0 +1,13 @@
+Manifest-Version: 2.0
+Bundle-Name: ProjA
+Bundle-Activator: proja.Activator
+Bundle-Version: 1.0.0
+Bundle-Vendor: 
+Import-Package: com.buglabs.osgi.concierge.jdt,
+ com.buglabs.osgi.concierge.runtime,
+ javax.servlet;version="2.3.0",
+ com.ibm.icu.text
+Export-Package: proja,
+ proja.pkg2
+Bundle-ClassPath: .,swt.jar,
+ draw2d.jar

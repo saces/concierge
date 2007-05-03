@@ -1,0 +1,36 @@
+<project name="bundles.all" default="bundles.all" basedir=".">
+
+    <!-- =================================================================== -->
+    <property name="eclipse.home" location="../com.eclipse.sdk/eclipse" />
+    <property name="base" location="../com.eclipse.sdk" />
+    <property name="builder" location="."/>
+    <property name="tmp.dir" location="build" />
+    <property name="eclipse.version" value="3.2.0.v20060603" />
+    <property name="projectName" value="com.buglabs.osgi.concierge.feature"/>
+        <property name="build.level" value="integration" />
+        <property name="bug.cvs" value=":pserver:anonymous@lurcher:/root" />
+
+    <!-- =================================================================== -->
+    <!-- clean                                                               -->
+    <!-- =================================================================== -->
+    <target name="clean">
+    
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- runpdebuild                                                         -->
+    <!-- =================================================================== -->
+    <target name="runpdebuild">
+        <exec dir="." executable="java">
+            <arg line="-cp ${eclipse.home}/startup.jar org.eclipse.core.launcher.Main -DbuildId=${meta.project.version} -Dbuilder=${builder} -DbuildDirectory=${tmp.dir} -Dbase=${base} -buildfile ${eclipse.home}/plugins/org.eclipse.pde.build_${eclipse.version}/scripts/build.xml -verbose -application org.eclipse.ant.core.antRunner"/>
+        </exec>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- bundles.all                                                         -->
+    <!-- =================================================================== -->
+    <target name="bundles.all">
+        <antcall target="runpdebuild">
+       </antcall>
+    </target>
+</project>

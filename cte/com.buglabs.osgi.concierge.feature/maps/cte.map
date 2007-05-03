@@ -1,0 +1,6 @@
+feature@com.buglabs.osgi.concierge.feature=integration,:pserver:anonymous@lurcher:/root
+plugin@com.buglabs.osgi.concierge.core=integration,:pserver:anonymous@lurcher:/root
+plugin@com.buglabs.osgi.concierge.runtime=integration,:pserver:anonymous@lurcher:/root
+plugin@com.buglabs.osgi.concierge.ui=integration,:pserver:anonymous@lurcher:/root
+plugin@com.buglabs.osgi.concierge.doc=integration,:pserver:anonymous@lurcher:/root
+plugin@com.buglabs.osgi.concierge.updatesite=integration,:pserver:anonymous@lurcher:/root

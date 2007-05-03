@@ -1,0 +1,6 @@
+<toc label="Concierge Tools for Eclipse">
+ <topic label="Concierge Tools for Eclipse Introduction" href="html/index.html"/>
+ <topic label="Getting Started" href="html/testdrive.html"/>
+ <topic label="Dynamic Design-time Classpath Management" href="html/classpath.html"/>
+ <topic label="Framework Notes" href="html/framework.html"/>
+</toc>

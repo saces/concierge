@@ -1,0 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Concierge Tools for Eclipse</title>
+</head>
+<body bgcolor="#ffffff">
+<table width="100%"><tr><td><h1>Concierge Tools for Eclipse (CTE)</h1></td><td halign="right"><img src="images/logos/CG_logo_web.jpg"/></td></tr></table>
+<h3>Dynamic Classpath Management</h3>
+<p>Concierge Tools for Eclipse manages the design-time classpath for your projects automatically.  Eclipse PDE does this with the classpath container named "Plug-in Dependencies".  
+CTE does this in a similar way by examining the <b>Exports-Package</b> and <b>Imports-Package</b> declarations of each manifest of each CTE project in your workspace.  CTE's classpath management uses two containers, 
+"Concierge OSGi" for core bundles, such as the Concierge framework and OSGi bundle.  The "OSGi Bundle Classpath" container holds references to other projects in your workspace that are
+contributing packages.  This classpath management function executes when you modify and save the manifest file of any CTE project in your workspace.</p>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<%@jet package="com.buglabs.osgi.concierge.templates" 
+	   class="GeneratorActivator"
+	   imports="com.buglabs.osgi.concierge.ui.info.ProjectInfo"
+	   skeleton="GeneratorActivator.skeleton"%>
+<%//Author: Angel Roman - roman@mdesystems.com%>
+<%
+if(projInfo.getActivatorPackage().length() > 0) {
+%>
+package <%=projInfo.getActivatorPackage()%>;
+<%
+}
+%>
+
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+
+public class <%=projInfo.getActivatorName()%> implements BundleActivator {
+
+	public void start(BundleContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void stop(BundleContext context) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+}
