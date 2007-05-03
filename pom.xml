@@ -1,68 +1,66 @@
-<?xml version="1.0" encoding="UTF-8"?><project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>concierge-project</artifactId>
-  <name>Concierge OSGi</name>
-  <packaging>pom</packaging>
   <groupId>ch.ethz.iks.concierge</groupId>
+  <artifactId>concierge-project</artifactId>
+  <packaging>pom</packaging>
+  <name>Concierge OSGi</name>
   <version>0.6.2</version>
-	<url>http://r-osgi.sourceforge.net</url>
-	<issueManagement>
-		<system>Sourceforge bug tracker</system>
-		<url>http://sourceforge.net/tracker/?group_id=158382&amp;atid=807609</url>
-	</issueManagement>
-	<developers>
-		<developer>
-			<id>rjan</id>
-			<name>Jan S. Rellermeyer</name>
-			<email>rellermeyer_at_inf.ethz.ch</email>
-			<url>http://people.inf.ethz.ch/rjan</url>
-			<organization>IKS, ETH Zurich</organization>
-			<organizationUrl>http://www.iks.inf.ethz.ch</organizationUrl>
-			<roles>
-				<role>Project creator</role>
-				<role>Researcher</role>
-			</roles>
-			<timezone>+1</timezone>
-		</developer>
-		<developer>
-			<id>kengilmer</id>
-			<name>Ken Gilmer</name>
-			<email>ken_at_buglabs.net</email>
-			<url></url>
-			<organization>Bug Labs, Inc.</organization>
-			<organizationUrl></organizationUrl>
-			<roles>
-				<role>Committer</role>
-				<role>HTTPService developer</role>
-			</roles>
-			<timezone>+6</timezone>
-		</developer>		
-	</developers>
-	<licenses>
-		<license>
-			<name>BSD license</name>
-			<url>../resources/LICENSE.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<scm>
-		<connection>scm:svn:https://concierge.svn.sourceforge.net/svnroot/concierge</connection>
-		<developerConnection>scm:svn:user@https://concierge.svn.sourceforge.net/svnroot/concierge</developerConnection>
-		<tag>Sourceforge SVN Repository</tag>
-		<url>http://concierge.svn.sourceforge.net</url>
-	</scm>
-	
-	<organization>
-		<name>IKS, ETH Zurich</name>
-		<url>http://www.iks.inf.ethz.ch</url>
-	</organization>
-
- 	<modules>
-    	<module>framework</module>
-    	<module>bundles/service_tracker</module>
-    	<module>bundles/splash_screen</module>
-    	<module>bundles/shell</module>
-    	<module>bundles/event</module>
-  	</modules>
-  	
+  <url>http://r-osgi.sourceforge.net</url>
+  <issueManagement>
+    <system>Sourceforge bug tracker</system>
+    <url>http://sourceforge.net/tracker/?group_id=158382&amp;atid=807609</url>
+  </issueManagement>
+  <developers>
+    <developer>
+      <id>rjan</id>
+      <name>Jan S. Rellermeyer</name>
+      <email>rellermeyer_at_inf.ethz.ch</email>
+      <url>http://people.inf.ethz.ch/rjan</url>
+      <organization>IKS, ETH Zurich</organization>
+      <organizationUrl>http://www.iks.inf.ethz.ch</organizationUrl>
+      <roles>
+        <role>Project creator</role>
+        <role>Researcher</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>kengilmer</id>
+      <name>Ken Gilmer</name>
+      <email>ken_at_buglabs.net</email>
+      <organization>Bug Labs, Inc.</organization>
+      <roles>
+        <role>Committer</role>
+        <role>HTTPService developer</role>
+      </roles>
+      <timezone>+6</timezone>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>BSD license</name>
+      <url>../resources/LICENSE.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:svn:https://concierge.svn.sourceforge.net/svnroot/concierge</connection>
+    <developerConnection>scm:svn:user@https://concierge.svn.sourceforge.net/svnroot/concierge</developerConnection>
+    <tag>Sourceforge SVN Repository</tag>
+    <url>http://concierge.svn.sourceforge.net</url>
+  </scm>
+  <organization>
+    <name>IKS, ETH Zurich</name>
+    <url>http://www.iks.inf.ethz.ch</url>
+  </organization>
+  <modules>
+    <module>framework</module>
+    <module>bundles/service_tracker</module>
+    <module>bundles/splash_screen</module>
+    <module>bundles/shell</module>
+    <module>bundles/event</module>
+    <module>bundles/http</module>
+  </modules>
 </project>
+

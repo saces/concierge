@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>concierge-project</artifactId>
+		<groupId>ch.ethz.iks.concierge</groupId>
+		<version>0.6.2</version>
+	</parent>
+	<groupId>com.buglabs.osgi</groupId>
+	<artifactId>http</artifactId>
+	<packaging>osgi-bundle</packaging>
+	<name>Http Service</name>
+
+	<build>
+		<plugins>
+	    	<plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-compiler-plugin</artifactId>
+          		<configuration>
+	    			<source>1.2</source>
+	    			<target>1.1</target>
+	    			<optimize>true</optimize>
+	    			<debug>false</debug>
+	    		</configuration>
+	    	</plugin>		
+			<plugin>
+				<groupId>org.apache.felix.plugins</groupId>
+				<artifactId>maven-osgi-plugin</artifactId>
+				<version>0.9.0-incubator-SNAPSHOT</version>
+				<extensions>true</extensions>
+				<configuration>
+					<osgiManifest>
+						<bundleActivator>com.buglabs.osgi.http.Activator</bundleActivator>
+						<bundleName>Concierge Shell</bundleName>
+						<bundleSymbolicName></bundleSymbolicName>						
+						<bundleVendor>Bug Labs, Inc.</bundleVendor>
+						<importPackage>org.osgi.framework, org.osgi.service.log</importPackage>
+						<exportPackage>javax.servlet, javax.servlet.http, javax.servlet.jsp, org.osgi.service.http</exportPackage>
+					</osgiManifest>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi</artifactId>
+			<version>3.0</version>
+			<scope>provided</scope>
+		</dependency>
+    	<dependency>
+      		<groupId>javax.servlet</groupId>
+      		<artifactId>servlet-api</artifactId>
+      		<version>2.3</version>
+    	</dependency>
+	</dependencies>	
+</project>
