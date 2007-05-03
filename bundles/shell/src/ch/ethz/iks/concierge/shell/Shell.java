@@ -277,7 +277,7 @@ public class Shell extends Thread implements ServiceListener {
 		 * @see ch.ethz.iks.concierge.shell.commands.ShellCommandGroup#getHelp()
 		 */
 		public String getHelp() {
-			return "Concierge Shell:\n\tbundles\n\tservices [<bundle>]\n\tinstall <URL of bundle>\n\tstart <bundleId>\n\tstop <bundleId>\n\tupdate <bundleId> [<URL>]\n\tuninstall <bundleId>\n\theaders <bundleId>\n\trestart (framework)\n\texit (framework)\n\tquit (shell)\n";
+			return "Concierge Shell:\n\tbundles\n\tservices [<bundle>]\n\tinstall <URL of bundle>\n\tstart <bundleId>\n\tstop <bundleId>\n\tupdate <bundleId> [<URL>]\n\tuninstall <bundleId>\n\theaders <bundleId>\n\tproperties <serviceId>\n\tprintenv \n\trestart (framework)\n\texit (framework)\n\tquit (shell)\n";
 		}
 
 		/**
@@ -302,11 +302,11 @@ public class Shell extends Thread implements ServiceListener {
 							.getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						buffer.append("[");
-						buffer.append(bundles[i].getBundleId());
+						buffer.append(formatId(bundles[i].getBundleId()));
 						buffer.append("] ");
 						buffer.append(status(bundles[i].getState()));
 						buffer.append(" ");
-						buffer.append(bundles[i].getLocation());
+						buffer.append(nameOrLocation(bundles[i]));
 						buffer.append("\r\n");
 					}
 					out.println(buffer.toString());
@@ -498,6 +498,14 @@ public class Shell extends Thread implements ServiceListener {
 					}
 					running = false;
 					return;
+				} else if (cmd.equals("printenv")) {
+					final String[] keys = (String[]) System.getProperties()
+							.keySet().toArray(
+									new String[System.getProperties().size()]);
+					for (int i = 0; i < keys.length; i++) {
+						final String val = System.getProperty(keys[i]);
+						out.println(keys[i] + " = " + val);
+					}
 				} else {
 					out.println("unknown command " + cmd);
 				}
@@ -512,6 +520,21 @@ public class Shell extends Thread implements ServiceListener {
 			} catch (InvalidSyntaxException e) {
 				e.printStackTrace(err);
 			}
+		}
+		
+		/**
+		 * Format the bundle id.
+		 * 
+		 * @param id
+		 * @return
+		 */
+		private String formatId(final long id) {
+			return (id < 10) ? " " + id : "" + id;
+		}
+
+		private String nameOrLocation(final Bundle b) {
+			final Object name = b.getHeaders().get("Bundle-Name");
+			return name != null ? name.toString() : b.getLocation();
 		}
 
 		/**
@@ -530,7 +553,7 @@ public class Shell extends Thread implements ServiceListener {
 			case Bundle.RESOLVED:
 				return ("(resolved)");
 			case Bundle.STARTING:
-				return ("starting)");
+				return ("(starting)   ");
 			case Bundle.STOPPING:
 				return ("(stopping)");
 			case Bundle.UNINSTALLED:
@@ -598,8 +621,13 @@ public class Shell extends Thread implements ServiceListener {
 				ExportedPackage[] packages = pkgAdmin
 						.getExportedPackages(args.length > 0 ? getBundle(args[0])
 								: null);
-				for (int i = 0; i < packages.length; i++) {
-					out.println(packages[i]);
+				if (packages == null) {
+					out.println("Package " + getBundle(args[0]).getBundleId()
+							+ " has no exported packages.");
+				} else {
+					for (int i = 0; i < packages.length; i++) {
+						out.println(packages[i]);
+					}
 				}
 			} else if (cmd == "refresh") {
 				pkgAdmin.refreshPackages(args.length == 0 ? null
