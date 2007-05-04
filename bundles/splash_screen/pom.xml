@@ -13,12 +13,6 @@
 	<description>A small bundle that displays a splash screen.</description>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>resources</directory>
-			</resource>
-		</resources>
 		<plugins>
 	    	<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
