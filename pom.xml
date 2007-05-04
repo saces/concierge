@@ -5,7 +5,7 @@
   <artifactId>concierge-project</artifactId>
   <packaging>pom</packaging>
   <name>Concierge OSGi</name>
-  <version>0.6.2</version>
+  <version>1.0_RC1</version>
   <url>http://r-osgi.sourceforge.net</url>
   <issueManagement>
     <system>Sourceforge bug tracker</system>
@@ -61,6 +61,7 @@
     <module>bundles/shell</module>
     <module>bundles/event</module>
     <module>bundles/http</module>
+    <module>cte</module>
   </modules>
 </project>
 

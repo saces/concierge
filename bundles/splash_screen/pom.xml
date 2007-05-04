@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>concierge-project</artifactId>
 		<groupId>ch.ethz.iks.concierge</groupId>
-		<version>0.6.2</version>
+		<version>1.0_RC1</version>
 	</parent>
 	<groupId>ch.ethz.iks.concierge</groupId>
 	<artifactId>splash_screen</artifactId>
