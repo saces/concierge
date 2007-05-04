@@ -9,7 +9,7 @@
 	<groupId>com.buglabs.osgi</groupId>
 	<artifactId>http</artifactId>
 	<packaging>osgi-bundle</packaging>
-	<name>Http Service</name>
+	<name>Concierge Http Service</name>
 
 	<build>
 		<plugins>

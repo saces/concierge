@@ -40,7 +40,7 @@
   <licenses>
     <license>
       <name>BSD license</name>
-      <url>../resources/LICENSE.txt</url>
+      <url>../licenses/LICENSE.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
