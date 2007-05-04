@@ -11,11 +11,10 @@
 	<packaging>jar</packaging>
 	<description>An OSGi R3 framework implementation for resource-constrained devices.</description>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<resources>
 			<resource>
 				<targetPath>META-INF</targetPath>
-				<directory>../resources</directory>
+				<directory>../licenses</directory>
 			</resource>
 		</resources>
 	    <plugins>
