@@ -11,25 +11,8 @@
 	<packaging>osgi-bundle</packaging>
 	<name>Concierge Shell</name>
 	<description>A minimal shell, extensible at runtime.</description>
-	<url>http://www.flowsgi.inf.ethz.ch</url>
-	<developers>
-		<developer>
-			<id>rjan</id>
-			<name>Jan S. Rellermeyer</name>
-			<email>rellermeyer_at_inf.ethz.ch</email>
-			<url>http://people.inf.ethz.ch/rjan</url>
-			<organization>IKS, ETH Zurich</organization>
-			<organizationUrl>http://www.iks.inf.ethz.ch</organizationUrl>
-			<roles>
-				<role>Project creator</role>
-				<role>Researcher</role>
-			</roles>
-			<timezone>+1</timezone>
-		</developer>
-	</developers>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 	    	<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
