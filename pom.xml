@@ -87,5 +87,12 @@
       <url>http://people.apache.org/repo/m2-snapshot-repository</url>
     </pluginRepository>
   </pluginRepositories>  
+  <distributionManagement>
+    <repository>
+      <id>iks-snapshots</id>
+      <name>ETH Zurich IKS Snapshots</name>
+      <url>scp://flowsgi.inf.ethz.ch/repository/maven2</url>
+    </repository>
+  </distributionManagement>  
 </project>
 
