@@ -63,5 +63,34 @@
     <module>bundles/http</module>
     <module>cte</module>
   </modules>
+  <repositories>
+    <repository>
+      <id>iks-repository</id>
+      <name>ETH Zurich IKS Repository</name>
+      <url>http://www.flowsgi.inf.ethz.ch/repository/maven2/</url>
+    </repository>
+    <repository>
+          <id>safehaus-repository</id>
+          <name>Safehaus Repository</name>
+          <url>http://m2.safehaus.org</url>
+    </repository>
+  </repositories> 
+  <pluginRepositories>
+    <pluginRepository>
+      <id>maven</id>
+      <name>maven repository</name>
+      <url>http://repo1.maven.org/maven2</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>snapshots</id>
+      <name>snapshot plugins</name>
+      <url>http://snapshots.maven.codehaus.org/maven2</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Plugins</name>
+      <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+    </pluginRepository>
+  </pluginRepositories>  
 </project>
 
