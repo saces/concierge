@@ -36,6 +36,7 @@ import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
@@ -49,7 +50,7 @@ import org.osgi.service.log.LogService;
  * @author ken
  * 
  */
-public class ServletContextImpl implements ServletContext {
+public class ServletContextImpl implements ServletContext, ServletConfig {
 
 	private final Dictionary initParams;
 
@@ -216,5 +217,14 @@ public class ServletContextImpl implements ServletContext {
 			return null;
 		}
 
+	}
+
+	public ServletContext getServletContext() {
+		
+		return this;
+	}
+
+	public String getServletName() {
+		return alias;
 	}
 }

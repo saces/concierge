@@ -145,14 +145,16 @@ public class HttpServer extends Thread {
 				// Construct the response object as we may want to pass an error
 				// back.
 				//OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-				HttpServletResponse response = new ServletResponseImp(connection.getOutputStream(), request);
+				HttpServletResponse response = new ServletResponseImpl(connection.getOutputStream(), request);
 
 				if (servlet == null) {
 					handleNonMatchingAlias(response);
 				} else {
 					if (authenticateRequest(name, request, response)) {
-						processRequest(getServlet(name), request, response);
-						response.flushBuffer();						
+						Servlet s = getServlet(name);
+						intializeServlet(name, s);
+						processRequest(s, request, response);
+						response.flushBuffer();
 					} else {
 						ssm.log(LogService.LOG_WARNING, "Client authentication unsuccesful.");
 					}
@@ -172,6 +174,10 @@ public class HttpServer extends Thread {
 				}
 			}
 		}
+	}
+
+	private void intializeServlet(String name, Servlet servlet) throws ServletException {
+		servlet.init(ssm.getServletConfig(name));
 	}
 
 	/**

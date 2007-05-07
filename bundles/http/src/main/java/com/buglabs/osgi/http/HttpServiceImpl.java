@@ -97,6 +97,7 @@ class HttpServiceImpl implements HttpService {
 		}
 
 		sm.addHttpContext(alias, context);
+		sm.addServletConfig(alias, (ServletConfig) httpContexts.get(context));
 
 		// OSGi R3 Section 14.2 - Each unique HttpContext should have a
 		// corresponding ServletContext

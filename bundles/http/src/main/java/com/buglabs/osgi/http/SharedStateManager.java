@@ -31,6 +31,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
@@ -50,6 +51,8 @@ public class SharedStateManager implements LogService {
 	volatile private LogService logService;
 
 	private Map httpContextMap;
+
+	private Map servletConfigMap;
 
 	public SharedStateManager(LogService logService) {
 		this.logService = logService;
@@ -89,9 +92,7 @@ public class SharedStateManager implements LogService {
 	}
 
 	public HttpContext getHttpContext(String name) {
-		synchronized (httpContextMap) {
-			return (HttpContext) httpContextMap.get(name);
-		}
+		return (HttpContext) httpContextMap.get(name);
 	}
 
 	/**
@@ -129,4 +130,21 @@ public class SharedStateManager implements LogService {
 			logService.log(sr, level, message);
 		}
 	}
+
+	public void addServletConfig(String alias, ServletConfig config) {
+		if (servletConfigMap == null) {
+			servletConfigMap = new Hashtable();
+		}
+
+		synchronized (httpContextMap) {
+			if (!servletConfigMap.containsKey(alias)) {
+				servletConfigMap.put(alias, config);
+			}
+		}
+	}
+	
+	public ServletConfig getServletConfig(String alias) {
+		return (ServletConfig) servletConfigMap.get(alias);
+	}
+
 }
