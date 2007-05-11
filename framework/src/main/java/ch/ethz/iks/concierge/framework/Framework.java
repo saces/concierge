@@ -350,8 +350,6 @@ public final class Framework {
 			int target = 0;
 			long time = 0;
 
-			// System.out.println("PROFILE NAME IS <" + profileName + ">");
-
 			if (profileName != null && !"".equals(profileName)) {
 				time = System.currentTimeMillis();
 				PROFILE = profileName;
@@ -370,22 +368,27 @@ public final class Framework {
 								+ "system.properties"));
 				if (propertyFile.exists()) {
 					processPropertyFile(propertyFile);
+					initialize();
 				} else if (System.getProperty("properties") != null) {
 					warning("Property file " + System.getProperty("properties")
 							+ " not found");
 				}
-
-				initialize();
+				
 				// parse init.xargs style file, if exists
 				final File startupFile = new File(System.getProperty("xargs",
 						"." + File.separatorChar + "init.xargs"));
 				if (startupFile.exists()) {
 					maxlevel = processXargsFile(startupFile);
+					initialize();
 				} else if (System.getProperty("xargs") != null) {
-					warning("Xargs file " + System.getProperty("xargs")
+					warning("xargs file " + System.getProperty("xargs")
 							+ " not found");
 				}
-
+				
+				if (!(startupFile.exists() || propertyFile.exists())) {
+					initialize();
+				}
+				
 				PROFILE = properties.getProperty("osgi.profile", "default");
 				launch();
 
