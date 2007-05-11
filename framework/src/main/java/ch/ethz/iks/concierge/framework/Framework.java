@@ -618,12 +618,7 @@ public final class Framework {
 				"ch.ethz.iks.concierge.security.enabled", false);
 		DEEP_SERVICE_LISTENER_CHECK = getProperty(
 				"ch.ethz.iks.concierge.deepServiceListenerCheck", false);
-	}
-
-	/**
-	 * create the setup with the properties and the internal framework flags.
-	 */
-	private static void launch() {
+		
 		// sanity checks
 		if (!LOG_ENABLED) {
 			if (DEBUG_BUNDLES || DEBUG_PACKAGES || DEBUG_SERVICES
@@ -663,7 +658,12 @@ public final class Framework {
 			System.err
 					.println("VM does not support the setting of system properties.");
 		}
+	}
 
+	/**
+	 * create the setup with the properties and the internal framework flags.
+	 */
+	private static void launch() {
 		// create the system bundle
 		systemBundle = new SystemBundle();
 		systemBundle.state = Bundle.STARTING;
