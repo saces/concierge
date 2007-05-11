@@ -391,6 +391,8 @@ public final class Framework {
 				
 				PROFILE = properties.getProperty("osgi.profile", "default");
 				launch();
+				
+				System.out.println("PROFILE IS " + PROFILE);
 
 				// if profile set, try to restart the profile
 				target = -1;
