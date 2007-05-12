@@ -411,9 +411,12 @@ final class BundleClassLoader extends ClassLoader {
 							Framework.export(this, exports, false);
 						}
 						if (Framework.DEBUG_CLASSLOADING) {
-							Framework.logger.log(LogService.LOG_INFO,
-									"BundleClassLoader: Missing import "
-											+ imports[i] + ". Resolving attempt terminated unsuccessfully.");
+							Framework.logger
+									.log(
+											LogService.LOG_INFO,
+											"BundleClassLoader: Missing import "
+													+ imports[i]
+													+ ". Resolving attempt terminated unsuccessfully.");
 						}
 						return false;
 					}
@@ -982,13 +985,15 @@ final class BundleClassLoader extends ClassLoader {
 			}
 		} else {
 			if (classpath.equals(".")) {
-				File file = new File(storageLocation + "content", filename);
+				File file = new File(storageLocation + File.separatorChar
+						+ "content", filename);
 				if (file.exists()) {
 					return new FileInputStream(file);
 				}
 				return null;
 			} else {
-				File file = new File(storageLocation + "content", classpath);
+				File file = new File(storageLocation + File.separatorChar
+						+ "content", classpath);
 				if (file.exists()) {
 					JarFile jar = new JarFile(file);
 					final ZipEntry entry = jar.getEntry(filename);
