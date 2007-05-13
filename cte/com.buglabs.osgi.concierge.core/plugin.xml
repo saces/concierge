@@ -7,7 +7,7 @@
             delegate="com.buglabs.osgi.concierge.launch.ConciergeLaunchConfiguration"
             id="com.buglabs.osgi.concierge.launch.ConciergeLaunchConfigurationTabGroup"
             modes="run, debug"
-            name="Conscierge OSGi Framework"
+            name="Concierge OSGi Framework"
             sourceLocatorId="com.buglabs.osgi.concierge.runtime.sourcelocators.ConciergeSourceLocator"
             sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer"/>
    </extension>

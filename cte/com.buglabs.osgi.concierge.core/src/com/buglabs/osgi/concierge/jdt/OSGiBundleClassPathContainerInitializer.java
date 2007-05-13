@@ -51,11 +51,11 @@ ClasspathContainerInitializer {
 		// TODO Auto-generated constructor stub
 	}
 
-	public void initialize(IPath containerPath, IJavaProject project)
+	public synchronized void initialize(IPath containerPath, IJavaProject project)
 	throws CoreException {
 		BundleModelManager bmm = OSGiCore.getDefault().getBundleModelManager();
 		
-		if(!bmm.getProjects().contains(project.getProject())) {
+		if(!bmm.hasProject(project.getProject())) {
 			bmm.addProject(project.getProject());
 			
 			JavaCore.setClasspathContainer(new Path(ID), 

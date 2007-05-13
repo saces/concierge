@@ -79,7 +79,7 @@ public class OSGiCore extends AbstractUIPlugin {
 
 	synchronized public BundleModelManager getBundleModelManager() {
 		if(bundleModelManager == null) {
-			bundleModelManager = new BundleModelManager();
+			bundleModelManager = BundleModelManager.getInstance();
 		}
 		
 		return bundleModelManager;

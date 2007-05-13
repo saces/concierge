@@ -52,45 +52,45 @@ import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
  * 
  */
 public class OSGiBundleClassPathContainer implements
-		IClasspathContainer {
+IClasspathContainer {
 
 	public static final String ID = "com.buglabs.osgi.concierge.jdt.OSGiBundleClassPathContainer";
-	
+
 	IJavaProject project;
 	Vector projectsOfInterest;
 	Vector jarsOfInterest;
 	private Vector cpes;
-	
+
 	public OSGiBundleClassPathContainer(IJavaProject project) {
 		this.project = project;
 		cpes = new Vector();
 		projectsOfInterest = new Vector();
 		jarsOfInterest = new Vector();
 	}
-	
+
 	public IClasspathEntry[] getClasspathEntries() {
 		//find projects that export packages this project is interested in.
 		addExportingProjects();
-		
+
 		//add jar files in Bundle-ClassPath header entry to classpaths
 		addBundleClassPathEntries();
-		
+
 		return (IClasspathEntry[]) cpes.toArray(new IClasspathEntry[cpes.size()]);
 	}
 
 	private void addBundleClassPathEntries() {
 		IFile manifest = ProjectUtils.getManifestFile(project.getProject());
-		
+
 		if(manifest != null) {
 			if(manifest.exists()) {
 				try {
 					List bundleCPElements = ManifestUtils.getBundleClassPath(manifest.getContents());
 					if(bundleCPElements != null) {
 						Iterator bcpeIter =  bundleCPElements.iterator();
-						
+
 						while(bcpeIter.hasNext()) {
 							String bcpeStr = (String) bcpeIter.next();
-							
+
 							if(!bcpeStr.equals(".") && !bcpeStr.equals("./")) {
 								//Support OSGi R3 Bundle-ClassPath entries, only jars
 								if(bcpeStr.endsWith(".jar")) {
@@ -108,7 +108,7 @@ public class OSGiBundleClassPathContainer implements
 							}
 						}
 					}
-					
+
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -126,10 +126,10 @@ public class OSGiBundleClassPathContainer implements
 		List imports = bmm.getProjectImports(project.getProject());
 
 		Iterator importIter = imports.iterator();
-		
+
 		while(importIter.hasNext()) {
 			String importStr = (String) importIter.next();
-			IProject exportingProject = findProjectThatExports(importStr);
+			IProject exportingProject = bmm.findProjectThatExports(importStr, project.getProject());
 			if(exportingProject != null) {
 				if(!projectsOfInterest.contains(exportingProject)) {
 					projectsOfInterest.add(exportingProject);
@@ -137,34 +137,6 @@ public class OSGiBundleClassPathContainer implements
 				}
 			}
 		}
-	}
-
-	private IProject findProjectThatExports(String importStr) {
-		BundleModelManager bmm = OSGiCore.getDefault().getBundleModelManager();
-		Iterator projectIter = bmm.getProjects().iterator();
-		
-		String splitImport[] = importStr.split(";");
-		importStr = splitImport[0];
-		
-		while(projectIter.hasNext()) {
-			IProject proj = (IProject) projectIter.next();
-			
-			if(proj != project.getProject()) {
-				
-				Iterator  exportIter = bmm.getProjectExports(proj).iterator();
-				while(exportIter.hasNext()) {
-					String exportStr = (String) exportIter.next();
-					String splitExport[] = exportStr.split(";");
-					exportStr = splitExport[0];
-					
-					if(exportStr.equals(importStr)) {
-						return proj;
-					}
-				}
-			}
-		}
-		
-		return null;
 	}
 
 	public String getDescription() {
