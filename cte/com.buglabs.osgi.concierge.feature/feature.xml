@@ -55,7 +55,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </license>
 
    <url>
-      <update label="Bug Labs Internal Development Site" url="http://perunga"/>
+      <update label="Bug Labs External Development Site" url="http://bugblade.com/cte"/>
    </url>
 
    <plugin
