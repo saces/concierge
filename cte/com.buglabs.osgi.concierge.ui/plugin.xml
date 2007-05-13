@@ -60,4 +60,15 @@
             icon="icons/CG_icon_16px.png"
             id="com.buglabs.osgi.concierge.launch.ConciergeLaunchConfigurationTypeImage"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.buglabs.osgi.concierge.ui.preferences.ConciergeRuntimePreferencePage"
+            id="com.buglabs.osgi.concierge.ui.preferences.ConciergeRuntimePreferencePage"
+            name="Concierge"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.buglabs.osgi.concierge.ui.preferences.PreferenceInitializer"/>
+   </extension>
 </plugin>

@@ -30,11 +30,13 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
+import com.buglabs.osgi.concierge.ui.Activator;
 import com.buglabs.osgi.concierge.ui.info.ProjectInfo;
 import com.buglabs.osgi.concierge.ui.jobs.CreateConciergeProject;
 
@@ -48,16 +50,30 @@ public class NewConciergeProjectWizard extends Wizard implements INewWizard {
 	private MainConciergeProjectPage mainPage;
 	private BundlePropertiesPage propertiesPage;
 	private ProjectInfo pinfo;
+	private IDialogSettings settings;
 
 	public NewConciergeProjectWizard() {
-		// TODO Auto-generated constructor stub
 		setWindowTitle("Concierge OSGi Project");
 		pinfo = new ProjectInfo();
+		
+		settings = Activator.getDefault().getDialogSettings().getSection(this.getClass().getName());
+		
+		if (settings == null) {
+			settings = Activator.getDefault().getDialogSettings().addNewSection(this.getClass().getName());
+		}
 	}
 
+	/**
+	 * Sets the dialog settings
+	 * @param settings
+	 */
+	protected void setSettings(IDialogSettings settings) {
+		this.settings = settings;
+	}
+	
 	public void addPages() {
 		mainPage = new MainConciergeProjectPage(pinfo);
-		propertiesPage = new BundlePropertiesPage(pinfo);
+		propertiesPage = new BundlePropertiesPage(pinfo, settings);
 		
 		addPage(mainPage);
 		addPage(propertiesPage);
@@ -79,6 +95,8 @@ public class NewConciergeProjectWizard extends Wizard implements INewWizard {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		propertiesPage.saveDefaults();
 		
 		return true;
 	}

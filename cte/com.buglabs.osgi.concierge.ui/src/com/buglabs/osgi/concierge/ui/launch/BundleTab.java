@@ -157,6 +157,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		cgViewer.setSorter(new ViewerSorter());
 		
 		new Label(cgViewerBoxComp, SWT.None).setText("Double-click bundle to change initial state.");
+		new Label(cgViewerBoxComp, SWT.NONE).setText("These bundles are configurable in the Concierge preference page.");
 		
 		Composite cgButtonComp = new Composite(cgViewerComp, SWT.None);
 		cgButtonComp.setLayout(StripGridLayoutMargins(new GridLayout()));

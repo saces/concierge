@@ -96,6 +96,7 @@ public class NewPropertyDialog extends Dialog {
 		});
 		valueText.setText(value);
 		
+		this.getShell().setText("Property");
 		
 		return main;
 	}

@@ -26,6 +26,7 @@
  */
 package com.buglabs.osgi.concierge.ui.wizards.newproject;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -35,6 +36,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -57,10 +59,13 @@ public class BundlePropertiesPage extends WizardPage {
 	private Text txtBundleVersion;
 	private Text txtActivator;
 	private Text txtBundleVendor;
+	private final IDialogSettings settings;
+	private Combo cmbExecutionEnvironment;
 
-	public BundlePropertiesPage(ProjectInfo pinfo) {
+	public BundlePropertiesPage(ProjectInfo pinfo, IDialogSettings settings) {
 		super(PAGE_TITLE, PAGE_TITLE, Activator.getDefault().getImageDescriptor(Activator.IMAGE_CG_LOGO_WIZARD));
 		projInfo = pinfo;
+		this.settings = settings;
 	}
 	
 	public boolean isPageComplete() {
@@ -74,9 +79,22 @@ public class BundlePropertiesPage extends WizardPage {
 			projInfo.setSymbolicName(pname);
 		}
 		
+		if (settings.get("Vendor") != null) {
+			projInfo.setVendor(settings.get("Vendor"));
+		}
+		
+		if (settings.get("ExecutionEnvironment") != null) {
+			projInfo.setExecutionEnvironment(settings.get("ExecutionEnvironment"));
+		}
+		
 		projInfo.setVersion("1.0.0");
 		projInfo.setActivator(ProjectUtils.formatNameToPackage(projInfo.getProjectName()) + ".Activator");
 		updateControls();
+	}
+	
+	public void saveDefaults() {
+		settings.put("Vendor", projInfo.getVendor());
+		settings.put("ExecutionEnvironment", projInfo.getExecutionEnvironment());
 	}
 	
 	private void updateControls() {
@@ -84,6 +102,7 @@ public class BundlePropertiesPage extends WizardPage {
 		txtBundleVersion.setText(projInfo.getVersion());
 		txtBundleVendor.setText(projInfo.getVendor());
 		txtActivator.setText(projInfo.getActivator());
+		cmbExecutionEnvironment.setText(projInfo.getExecutionEnvironment());
 	}
 
 	public void createControl(Composite parent) {
@@ -95,12 +114,13 @@ public class BundlePropertiesPage extends WizardPage {
 		
 		GridData gdBundleProps = new GridData(GridData.FILL_HORIZONTAL);
 		Group bundlePropsComp = new Group(top, SWT.BORDER);
-		bundlePropsComp.setText("Bundle Properties");
+		bundlePropsComp.setText("Bundle Properties");		
 		bundlePropsComp.setLayoutData(gdBundleProps);
 		bundlePropsComp.setLayout(new GridLayout(2, false));
 		
 		Label lblBundleSymbolicName = new Label(bundlePropsComp, SWT.NONE);
 		lblBundleSymbolicName.setText("Symbolic Name:");
+		lblBundleSymbolicName.setToolTipText("Symbolic-Name");
 		txtBundleSymbolicName = new Text(bundlePropsComp, SWT.BORDER);
 		txtBundleSymbolicName.setLayoutData(gdFillH);
 		txtBundleSymbolicName.addModifyListener(new ModifyListener(){
@@ -112,6 +132,7 @@ public class BundlePropertiesPage extends WizardPage {
 		
 		Label lblBundleVersion = new Label(bundlePropsComp, SWT.NONE);
 		lblBundleVersion.setText("Version:");
+		lblBundleVersion.setToolTipText("Bundle-Version");
 		txtBundleVersion = new Text(bundlePropsComp, SWT.BORDER);
 		txtBundleVersion.setLayoutData(gdFillH);
 		txtBundleVersion.addModifyListener(new ModifyListener(){
@@ -124,6 +145,7 @@ public class BundlePropertiesPage extends WizardPage {
 		
 		Label lblBundleVendor = new Label(bundlePropsComp, SWT.NONE);
 		lblBundleVendor.setText("Vendor:");
+		lblBundleVendor.setToolTipText("Bundle-Vendor");
 		txtBundleVendor = new Text(bundlePropsComp, SWT.BORDER);
 		txtBundleVendor.setLayoutData(gdFillH);
 		txtBundleVendor.addModifyListener(new ModifyListener(){
@@ -132,9 +154,26 @@ public class BundlePropertiesPage extends WizardPage {
 				projInfo.setVendor(((Text) e.widget).getText());
 				setPageComplete(true);
 			}});
+
+		Label lblExecutionEnvironment = new Label(bundlePropsComp, SWT.NONE);
+		lblExecutionEnvironment.setText("Execution Environment:");
+		lblExecutionEnvironment.setToolTipText("Bundle-RequiredExecutionEnvironment");		
+		cmbExecutionEnvironment = new Combo(bundlePropsComp, SWT.BORDER);
+		cmbExecutionEnvironment.setLayoutData(gdFillH);
+		cmbExecutionEnvironment.add("OSGi/Minimum-1.0");
+		cmbExecutionEnvironment.add("CDC-1.0/Foundation-1.0");
+		cmbExecutionEnvironment.addModifyListener(new ModifyListener() {
+
+			public void modifyText(ModifyEvent e) {
+				projInfo.setExecutionEnvironment(((Combo) e.widget).getText());
+				setPageComplete(true);
+			}
+			
+		});
 		
 		Label lblActivator = new Label(bundlePropsComp, SWT.NONE);
 		lblActivator.setText("Activator:");
+		lblActivator.setToolTipText("Bundle-Activator");
 		txtActivator = new Text(bundlePropsComp, SWT.BORDER);
 		txtActivator.setLayoutData(gdFillH);
 		txtActivator.addModifyListener(new ModifyListener(){

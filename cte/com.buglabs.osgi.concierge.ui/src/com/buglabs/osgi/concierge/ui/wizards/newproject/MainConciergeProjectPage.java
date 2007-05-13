@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -41,6 +42,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
 import com.buglabs.osgi.concierge.ui.Activator;
 import com.buglabs.osgi.concierge.ui.info.ProjectInfo;
 
@@ -114,13 +116,7 @@ public class MainConciergeProjectPage extends WizardPage {
 	}
 
 	private boolean isValidProjectName(String projectName) {
-		for (int i = 33; i < 45; ++i) {
-			if (hasCharacter(projectName, (char) i)) {
-				return false;
-			}
-		}
-		
-		return true;
+		return JavaConventions.validatePackageName(ProjectUtils.formatNameToPackage(projectName)).isOK();
 	}
 
 	private boolean hasCharacter(String str, char c) {

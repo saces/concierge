@@ -149,12 +149,28 @@ public class CreateConciergeProject extends WorkspaceModifyOperation {
 	
 	protected StringBuffer getManifestContents() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Manifest-Version: 2.0\n");
+		buffer.append("Manifest-Version: 1.0\n");
 		buffer.append("Bundle-Name: " + projInfo.getProjectName() + "\n");
-		buffer.append("Bundle-Activator: " + projInfo.getActivator() + "\n");
-		buffer.append("Bundle-SymbolicName: " + projInfo.getSymbolicName() + "\n");
-		buffer.append("Bundle-Version: " + projInfo.getVersion() + "\n");
-		buffer.append("Bundle-Vendor: " + projInfo.getVendor() + "\n");
+		
+		if(!projInfo.getActivator().trim().equals("")) {
+			buffer.append("Bundle-Activator: " + projInfo.getActivator() + "\n");
+		}
+		
+		if(!projInfo.getSymbolicName().trim().equals("")) {
+			buffer.append("Bundle-SymbolicName: " + projInfo.getSymbolicName() + "\n");
+		}
+		
+		if(!projInfo.getVersion().trim().equals("")) {
+			buffer.append("Bundle-Version: " + projInfo.getVersion() + "\n");
+		}
+		
+		if(!projInfo.getVendor().trim().equals("")) {
+			buffer.append("Bundle-Vendor: " + projInfo.getVendor() + "\n");
+		}
+		
+		if(!projInfo.getExecutionEnvironment().trim().equals("")) {
+			buffer.append("Bundle-RequiredExecutionEnvironment: " + projInfo.getExecutionEnvironment() + "\n");
+		}
 		
 		return buffer;
 	}

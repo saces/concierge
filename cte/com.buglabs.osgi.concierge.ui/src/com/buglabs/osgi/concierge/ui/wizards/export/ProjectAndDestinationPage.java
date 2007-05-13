@@ -35,14 +35,13 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -57,7 +56,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 
-import com.buglabs.osgi.concierge.natures.ConciergeProjectNature;
 import com.buglabs.osgi.concierge.ui.info.BundleExportInfo;
 
 /**
@@ -82,15 +80,14 @@ public class ProjectAndDestinationPage extends WizardPage {
 	private String natureID;
 
 	private static final String exportDirectoriesKey = "Directories";
-	
-	public ProjectAndDestinationPage(BundleExportInfo expinfo,
-			IDialogSettings settings, String natureID) {
+
+	public ProjectAndDestinationPage(BundleExportInfo expinfo, IDialogSettings settings, String natureID) {
 		super(PAGE_NAME, PAGE_DESC, null);
 		this.expinfo = expinfo;
 		this.dialogSettings = settings;
 		this.natureID = natureID;
 	}
-	
+
 	public boolean isPageComplete() {
 		setErrorMessage(null);
 		setMessage("Select a project or set of projects to export and the desired location.");
@@ -150,8 +147,7 @@ public class ProjectAndDestinationPage extends WizardPage {
 
 			}
 
-			public void inputChanged(Viewer viewer, Object oldInput,
-					Object newInput) {
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 				// TODO Auto-generated method stub
 
 			}
@@ -184,6 +180,7 @@ public class ProjectAndDestinationPage extends WizardPage {
 
 		viewer.getTable().setHeaderVisible(true);
 		viewer.getTable().setLinesVisible(true);
+		viewer.setSorter(new ViewerSorter());
 		viewer.setInput(ResourcesPlugin.getWorkspace().getRoot());
 
 		setCheckState(viewer, expinfo);
@@ -194,7 +191,7 @@ public class ProjectAndDestinationPage extends WizardPage {
 
 		compLocation.setLayout(new GridLayout(3, false));
 		Label lblLocation = new Label(compLocation, SWT.NONE);
-		lblLocation.setText("Location:");
+		lblLocation.setText("Directory:");
 
 		txtLocation = new Combo(compLocation, SWT.BORDER);
 		loadPreviousSelections(txtLocation);
@@ -218,8 +215,7 @@ public class ProjectAndDestinationPage extends WizardPage {
 			}
 
 			public void widgetSelected(SelectionEvent e) {
-				DirectoryDialog d = new DirectoryDialog(getContainer()
-						.getShell());
+				DirectoryDialog d = new DirectoryDialog(getContainer().getShell());
 				String dir = d.open();
 
 				if (dir != null) {
@@ -249,11 +245,14 @@ public class ProjectAndDestinationPage extends WizardPage {
 	 * @param viewer2
 	 * @param expinfo2
 	 */
-	private void setCheckState(CheckboxTableViewer viewer2,
-			BundleExportInfo expinfo2) {
-		viewer2.setCheckedElements(expinfo2.getSelectedProjects().toArray(
-				new IProject[expinfo2.getSelectedProjects().size()]));
+	private void setCheckState(CheckboxTableViewer viewer2, BundleExportInfo expinfo2) {
+		viewer2.setCheckedElements(expinfo2.getSelectedProjects().toArray(new IProject[expinfo2.getSelectedProjects().size()]));
 		expinfo2.getProjects().addAll(expinfo2.getSelectedProjects());
+
+		//Ensure the first checked element is visible in the list.
+		if (expinfo2.getSelectedProjects().toArray(new IProject[expinfo2.getSelectedProjects().size()]).length > 0) {
+			viewer2.reveal(expinfo2.getSelectedProjects().toArray(new IProject[expinfo2.getSelectedProjects().size()])[0]);
+		}
 	}
 
 	public BundleExportInfo getBundleExportInfo() {
@@ -261,8 +260,8 @@ public class ProjectAndDestinationPage extends WizardPage {
 	}
 
 	public void updateDialogStoredState() {
-		List existing = new ArrayList( Arrays.asList(txtLocation.getItems()));
-		
+		List existing = new ArrayList(Arrays.asList(txtLocation.getItems()));
+
 		if (!existing.contains(txtLocation.getText())) {
 			existing.add(0, txtLocation.getText());
 			dialogSettings.put(exportDirectoriesKey, (String[]) existing.toArray(new String[existing.size()]));

@@ -37,6 +37,7 @@ public class ProjectInfo {
 	private String activator;
 	private String vendor;
 	private String symbolicName;
+	private String executionEnvironment;
 	private boolean generateActivator;
 	
 	public ProjectInfo(){
@@ -46,6 +47,7 @@ public class ProjectInfo {
 		activator = "";
 		projectName = "";
 		generateActivator = true;
+		executionEnvironment = "";
 	}
 	
 	public String getProjectName() {
@@ -124,5 +126,13 @@ public class ProjectInfo {
 		}
 		
 		return name.toLowerCase();
+	}
+
+	public String getExecutionEnvironment() {
+		return executionEnvironment;
+	}
+
+	public void setExecutionEnvironment(String executionEnvironment) {
+		this.executionEnvironment = executionEnvironment;
 	}
 }
