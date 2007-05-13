@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <feature url="features/com.buglabs.osgi.concierge.feature_1.0.0.qualifier.jar" id="com.buglabs.osgi.concierge.feature" version="1.0.0.qualifier">
-      <category name="com.buglabs"/>
+      <category name="OSGi Tools"/>
    </feature>
-   <category-def name="com.buglabs" label="Bug Labs, Inc."/>
+   <category-def name="OSGi Tools" label="Bug Labs, Inc."/>
 </site>
