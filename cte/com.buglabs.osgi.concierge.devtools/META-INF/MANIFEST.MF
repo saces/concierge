@@ -4,7 +4,7 @@ Bundle-Name: Devtools Plug-in
 Bundle-SymbolicName: com.buglabs.osgi.concierge.devtools;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Activator: com.buglabs.osgi.concierge.devtools.Activator
-Bundle-Vendor: BUGLABS
+Bundle-Vendor: Bug Labs, Inc.
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
