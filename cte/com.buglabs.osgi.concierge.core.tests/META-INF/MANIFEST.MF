@@ -4,7 +4,7 @@ Bundle-Name: Tests Plug-in
 Bundle-SymbolicName: com.buglabs.osgi.concierge.core.tests
 Bundle-Version: 1.0.0
 Bundle-Activator: com.buglabs.osgi.concierge.core.tests.Activator
-Bundle-Vendor: BUGLABS
+Bundle-Vendor: Bug Labs, Inc.
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
