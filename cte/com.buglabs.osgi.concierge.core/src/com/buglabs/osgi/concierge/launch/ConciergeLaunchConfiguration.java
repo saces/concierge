@@ -183,8 +183,6 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 		fw.write(contents);
 		fw.close();
 
-		System.out.println("wrote " + file.getAbsolutePath());
-
 		return file;
 	}
 
