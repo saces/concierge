@@ -61,6 +61,7 @@
     <module>bundles/shell</module>
     <module>bundles/event</module>
     <module>bundles/http</module>
+    <module>bundles/gui</module>
     <module>cte</module>
   </modules>
   <repositories>
