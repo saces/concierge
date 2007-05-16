@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Concierge Tools for Eclipse Ui Plug-in
+Bundle-Name: Concierge Tools for Eclipse UI Plug-in
 Bundle-SymbolicName: com.buglabs.osgi.concierge.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.buglabs.osgi.concierge.ui.Activator
