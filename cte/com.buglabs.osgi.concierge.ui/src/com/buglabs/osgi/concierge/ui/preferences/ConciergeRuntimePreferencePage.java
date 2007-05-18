@@ -130,9 +130,9 @@ public class ConciergeRuntimePreferencePage extends FieldEditorPreferencePage im
 					}
 				}
 			} catch (IOException e) {
-				MessageDialog.openError(getShell(), "Error", "An error occured while adding library: " + e.getMessage());
+				MessageDialog.openError(getShell(), "Error", "An error occurred while adding library: " + e.getMessage());
 			} catch (URISyntaxException e) {
-				MessageDialog.openError(getShell(), "Error", "An error occured while adding library: " + e.getMessage());
+				MessageDialog.openError(getShell(), "Error", "An error occurred while adding library: " + e.getMessage());
 			}
 
 			return null;
