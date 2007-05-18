@@ -29,8 +29,10 @@ package com.buglabs.osgi.concierge.ui.launch;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.eclipse.core.resources.IProject;
@@ -42,18 +44,21 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
-import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.ComboBoxCellEditor;
+import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.ICheckStateListener;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -63,8 +68,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
 import com.buglabs.osgi.concierge.launch.ConciergeLaunchConfiguration;
 import com.buglabs.osgi.concierge.natures.ConciergeProjectNature;
@@ -85,12 +92,12 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 	private Button selectAll;
 	private Button selectNone;
 	private Button initializeButton = null;
-	
+
 	private Button continueButton;
 
 	private Group bundleGroup;
 
-	private List installMap;
+	private List installList;
 
 	private Group cgBundleGroup;
 
@@ -104,7 +111,22 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 	private List cgLaunchBundles;
 
-	private List cgInstallMap;
+	private List cgInstallList;
+
+	private Map startLevelMap;
+
+	public static final String NAME = "Name";
+	public static final String INITIAL_STATE = "Initial State";
+	public static final String START_LEVEL = "Start Level";
+	public static final String[] COLUMN_PROPERTIES = {NAME, INITIAL_STATE, START_LEVEL};
+	public static final Integer INITIAL_STATE_INSTALL = new Integer(0);
+	public static final Integer INITIAL_STATE_START = new Integer(1);
+	public static final String INSTALL = "Install";
+	public static final String START = "Start";
+
+	private String frameworkStartLevel;
+
+	private Spinner frameworkStartLevelSpinner;
 
 	public BundleTab() {
 	}
@@ -116,21 +138,36 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		continueButton = new Button(main, SWT.RADIO);
 		continueButton.setText("Continue with pre-existing state");
-		
+
 		initializeButton = new Button(main, SWT.RADIO);
 		initializeButton.setText("Initialize Runtime (Clear any previous state)");
-		
+
 		Composite spaceComp = new Composite(main, SWT.None);
 		spaceComp.setLayout(new GridLayout());
 		spaceComp.setLayoutData(new GridData(GridData.FILL_BOTH));
-		
+
 		new Label(spaceComp, SWT.None).setText("  ");
+
+		Composite frameworkStartLevelComp = new Composite(spaceComp, SWT.NONE);
+		frameworkStartLevelComp.setLayout(new GridLayout(2, false));
+		frameworkStartLevelComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		Label lblFrameworkStartLevel = new Label(frameworkStartLevelComp, SWT.NONE);
+		lblFrameworkStartLevel.setText("Framework Start Level: ");
+		
+		frameworkStartLevelSpinner = new Spinner(frameworkStartLevelComp, SWT.NONE);
+		frameworkStartLevelSpinner.setValues(1, 1, 10, 0, 1, 1);
+		frameworkStartLevelSpinner.addModifyListener(new ModifyListener(){
+
+			public void modifyText(ModifyEvent e) {
+				frameworkStartLevel = "" + ((Spinner) e.widget).getSelection();
+				refreshDialog();
+			}});
 		
 		cgBundleGroup = new Group(spaceComp, SWT.None);
 		cgBundleGroup.setText("Concierge Bundles");
 		cgBundleGroup.setLayout(new GridLayout());
 		cgBundleGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		Composite cgViewerComp = new Composite(cgBundleGroup, SWT.None);
 		cgViewerComp.setLayout(StripGridLayoutMargins(new GridLayout(2, false)));
 		cgViewerComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -140,25 +177,17 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		GridData gdata = new GridData(GridData.FILL_HORIZONTAL);
 		gdata.heightHint = 120;
 		cgViewerBoxComp.setLayoutData(gdata);
-		cgViewer = CheckboxTableViewer.newCheckList(cgViewerBoxComp, SWT.FULL_SELECTION | SWT.BORDER);
-		cgViewer.getTable().setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		cgViewer = createBundleViewer(cgViewerBoxComp, true);
 		cgViewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
-					cgLaunchBundles = Arrays.asList(cgViewer.getCheckedElements());
+				cgLaunchBundles = Arrays.asList(cgViewer.getCheckedElements());
 				refreshDialog();
 			}
 		});
-		cgViewer.getTable().setHeaderVisible(true);
-		cgViewer.getTable().setLinesVisible(true);
-		addTableColumns(cgViewer);
-		cgViewer.setContentProvider(new ConciergeCoreBundleProvider());
-		cgViewer.setLabelProvider(new ConciergeCoreBundleLabelProvider());
-		cgViewer.addDoubleClickListener(new ChangeCoreBundleStartStateListener());
-		cgViewer.setSorter(new ViewerSorter());
-		
-		new Label(cgViewerBoxComp, SWT.None).setText("Double-click bundle to change initial state.");
+
 		new Label(cgViewerBoxComp, SWT.NONE).setText("These bundles are configurable in the Concierge preference page.");
-		
+
 		Composite cgButtonComp = new Composite(cgViewerComp, SWT.None);
 		cgButtonComp.setLayout(StripGridLayoutMargins(new GridLayout()));
 		cgButtonComp.setLayoutData(new GridData(GridData.FILL_VERTICAL));
@@ -179,7 +208,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		});
 
-		
+
 		cgSelectNone = new Button(cgButtonComp, SWT.None);
 		cgSelectNone.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
 		cgSelectNone.setText("Deselect All");
@@ -195,16 +224,16 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 			}
 
 		});
-		
-		
+
+
 		// ----------------------------
-		
+
 		bundleGroup = new Group(spaceComp, SWT.None);
 		bundleGroup.setText("Workspace Bundles");
 		bundleGroup.setLayout(new GridLayout());
 		bundleGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		
+
 		Composite viewerComp = new Composite(bundleGroup, SWT.None);
 		viewerComp.setLayout(StripGridLayoutMargins(new GridLayout(2, false)));
 		viewerComp.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -212,24 +241,15 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		Composite viewerBoxComp = new Composite(viewerComp, SWT.NONE);
 		viewerBoxComp.setLayout(StripGridLayoutMargins(new GridLayout()));
 		viewerBoxComp.setLayoutData(new GridData(GridData.FILL_BOTH));
-		viewer = CheckboxTableViewer.newCheckList(viewerBoxComp, SWT.FULL_SELECTION | SWT.BORDER);
+		viewer = createBundleViewer(viewerBoxComp, false);
 		viewer.getTable().setLayoutData(new GridData(GridData.FILL_BOTH));
 		viewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
-					launchBundles = Arrays.asList(viewer.getCheckedElements());
+				launchBundles = Arrays.asList(viewer.getCheckedElements());
 				refreshDialog();
 			}
 		});
-		viewer.getTable().setHeaderVisible(true);
-		viewer.getTable().setLinesVisible(true);
-		addTableColumns(viewer);
-		viewer.setContentProvider(new ConciergeProjectProvider());
-		viewer.setLabelProvider(new ConciergeProjectLabelProvider());
-		viewer.addDoubleClickListener(new ChangeBundleStartStateListener());
-		viewer.setSorter(new ViewerSorter());
-		
-		new Label(viewerBoxComp, SWT.None).setText("Double-click bundle to change initial state.");
-		
+
 		Composite buttonComp = new Composite(viewerComp, SWT.None);
 		buttonComp.setLayout(StripGridLayoutMargins(new GridLayout()));
 		buttonComp.setLayoutData(new GridData(GridData.FILL_VERTICAL));
@@ -250,7 +270,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		});
 
-		
+
 		selectNone = new Button(buttonComp, SWT.None);
 		selectNone.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
 		selectNone.setText("Deselect All");
@@ -266,7 +286,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 			}
 
 		});
-		
+
 		initializeButton.addSelectionListener(new SelectionListener() {
 
 			public void widgetDefaultSelected(SelectionEvent arg0) {}
@@ -279,21 +299,52 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		setControl(main);
 	}
-	
+
+	private CheckboxTableViewer createBundleViewer(Composite cgViewerBoxComp, boolean isCore) {
+		CheckboxTableViewer tviewer = CheckboxTableViewer.newCheckList(cgViewerBoxComp, SWT.FULL_SELECTION | SWT.BORDER);
+
+		Table table = tviewer.getTable();
+		table.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		TableColumn tc = new TableColumn(table, SWT.NONE);
+		tc.setText(NAME);
+		tc.setWidth(150);
+		tc = new TableColumn(table, SWT.NONE);
+		tc.setText(INITIAL_STATE);
+		tc.setWidth(90);
+		tc = new TableColumn(table, SWT.NONE);
+		tc.setText(START_LEVEL);
+		tc.setWidth(90);
+
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+
+		//Add Cell Editors
+		CellEditor[] cellEditors = new CellEditor[]{new TextCellEditor(table, SWT.READ_ONLY),
+				new ComboBoxCellEditor(table, new String[]{"Install", "Start"}, SWT.READ_ONLY),
+				new ComboBoxCellEditor(table, new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, SWT.READ_ONLY)};
+
+		tviewer.setColumnProperties(COLUMN_PROPERTIES);
+
+		if(isCore) {
+			tviewer.setCellModifier(new CoreBundleCellModifier(this));
+			tviewer.setContentProvider(new ConciergeCoreBundleProvider());
+			tviewer.setLabelProvider(new ConciergeCoreBundleLabelProvider());
+		} else {
+			tviewer.setCellModifier(new BundleCellModifier(this));
+			tviewer.setContentProvider(new ConciergeCoreBundleProvider());
+			tviewer.setLabelProvider(new ConciergeProjectLabelProvider());
+		}
+
+		tviewer.setCellEditors(cellEditors);
+		tviewer.setSorter(new ViewerSorter());
+
+		return tviewer;
+	}
+
 	protected void refreshDialog() {
 		setDirty(true);
 		updateLaunchConfigurationDialog();
-	}
-
-	private void addTableColumns(CheckboxTableViewer viewer2) {
-		Table t = viewer2.getTable();
-		TableColumn tc = new TableColumn(t, SWT.None);
-		tc.setWidth(240);
-		tc.setText("Name");
-		
-		tc = new TableColumn(t, SWT.None);
-		tc.setWidth(70);
-		tc.setText("Initial State");
 	}
 
 	private void setViewerEnabled(boolean state) {
@@ -302,7 +353,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		viewer.getControl().setEnabled(state);
 		viewer.setAllGrayed(!state);
 		bundleGroup.setEnabled(state);
-		
+
 		cgSelectAll.setEnabled(state);
 		cgSelectNone.setEnabled(state);
 		cgViewer.getControl().setEnabled(state);
@@ -323,31 +374,35 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 			e1.printStackTrace();
 			allBundles = new Vector();
 		}
-		
+
 
 		viewer.setInput(allBundles);
-		try {
-			
-			launchBundles = configuration.getAttribute(ConciergeLaunchConfiguration.LAUNCH_BUNDLE_LIST_CONFIG, new ArrayList());
-			installMap = configuration.getAttribute(ConciergeLaunchConfiguration.INSTALL_MAP, new ArrayList());
-			viewer.setCheckedElements(launchBundles.toArray());
 
+		try {
+
+			launchBundles = configuration.getAttribute(ConciergeLaunchConfiguration.LAUNCH_BUNDLE_LIST_CONFIG, new ArrayList());
+			installList = configuration.getAttribute(ConciergeLaunchConfiguration.INSTALL_MAP, new ArrayList());
+			startLevelMap = configuration.getAttribute(ConciergeLaunchConfiguration.START_LEVEL_MAP, new HashMap());
+			viewer.setCheckedElements(launchBundles.toArray());
+			frameworkStartLevel = configuration.getAttribute(ConciergeLaunchConfiguration.FRAMEWORK_START_LEVEL, "1");
+			frameworkStartLevelSpinner.setSelection(Integer.parseInt(frameworkStartLevel));
+			
 			if (configuration.getAttribute(ConciergeLaunchConfiguration.INITIALIZE_RUNTIME, true)) {
 				initializeButton.setSelection(true);
 			} else {
 				continueButton.setSelection(true);
 			}
-			
+
 			setViewerEnabled(initializeButton.getSelection());
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		viewer.refresh();
-		
+
 		List cgFiles = ConciergeRuntime.getDefault().getConciergeJars();
-		
+
 		File frameworkJar = null;
 		for (Iterator i = cgFiles.iterator(); i.hasNext();) {
 			File f = (File) i.next();
@@ -355,102 +410,45 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 				frameworkJar = f;
 			}
 		}
-		
+
 		cgFiles.remove(frameworkJar);
-		
+
 		coreBundles = filesToStrings(cgFiles);
 		cgViewer.setInput(coreBundles);
 		try {
 			cgLaunchBundles = configuration.getAttribute(ConciergeLaunchConfiguration.LAUNCH_CORE_BUNDLE_LIST_CONFIG, new ArrayList());
-			cgInstallMap = configuration.getAttribute(ConciergeLaunchConfiguration.CORE_INSTALL_MAP, new ArrayList());
+			cgInstallList = configuration.getAttribute(ConciergeLaunchConfiguration.CORE_INSTALL_MAP, new ArrayList());
 			cgViewer.setCheckedElements(cgLaunchBundles.toArray());
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ConciergeLaunchConfiguration.LAUNCH_BUNDLE_LIST_CONFIG, launchBundles);
-		configuration.setAttribute(ConciergeLaunchConfiguration.INSTALL_MAP, installMap);
-		
+		configuration.setAttribute(ConciergeLaunchConfiguration.INSTALL_MAP, installList);
+
 		configuration.setAttribute(ConciergeLaunchConfiguration.LAUNCH_CORE_BUNDLE_LIST_CONFIG, cgLaunchBundles);
-		configuration.setAttribute(ConciergeLaunchConfiguration.CORE_INSTALL_MAP, cgInstallMap);
-		
+		configuration.setAttribute(ConciergeLaunchConfiguration.CORE_INSTALL_MAP, cgInstallList);
+
 		configuration.setAttribute(ConciergeLaunchConfiguration.INITIALIZE_RUNTIME, initializeButton.getSelection());
+		configuration.setAttribute(ConciergeLaunchConfiguration.START_LEVEL_MAP, startLevelMap);
+		configuration.setAttribute(ConciergeLaunchConfiguration.FRAMEWORK_START_LEVEL, frameworkStartLevel);
 	}
 
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ConciergeLaunchConfiguration.LAUNCH_BUNDLE_LIST_CONFIG, new ArrayList(0));
 		configuration.setAttribute(ConciergeLaunchConfiguration.INSTALL_MAP, new ArrayList());
 		configuration.setAttribute(ConciergeLaunchConfiguration.INITIALIZE_RUNTIME, true);
-		
+
 		configuration.setAttribute(ConciergeLaunchConfiguration.LAUNCH_CORE_BUNDLE_LIST_CONFIG, new ArrayList(0));
 		configuration.setAttribute(ConciergeLaunchConfiguration.CORE_INSTALL_MAP, new ArrayList());
+		configuration.setAttribute(ConciergeLaunchConfiguration.START_LEVEL_MAP, new HashMap());
+		configuration.setAttribute(ConciergeLaunchConfiguration.FRAMEWORK_START_LEVEL, "1");
 	}
 
-	private class ConciergeProjectProvider implements IStructuredContentProvider {
-
-		public Object[] getElements(Object inputElement) {
-
-			return ((List) inputElement).toArray(new String[((List) inputElement).size()]);
-		}
-
-		public void dispose() {
-
-		}
-
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-
-		}
-
-	}
-
-	private class ConciergeProjectLabelProvider implements ITableLabelProvider {
-
-		public Image getColumnImage(Object element, int columnIndex) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public String getColumnText(Object element, int columnIndex) {
-			switch(columnIndex) {
-			case 0:
-				return (String) element;
-			case 1:
-				if (installMap == null || !installMap.contains(element)) {
-					return "Start";
-				} else {
-					return "Install";
-				}
-			}
-			
-			return "";
-		}
-
-		public void addListener(ILabelProviderListener listener) {
-			// TODO Auto-generated method stub
-
-		}
-
-		public void dispose() {
-			// TODO Auto-generated method stub
-
-		}
-
-		public boolean isLabelProperty(Object element, String property) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public void removeListener(ILabelProviderListener listener) {
-			// TODO Auto-generated method stub
-
-		}
-
-	}
-	
 	private class ConciergeCoreBundleProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
@@ -464,116 +462,16 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 
 		}
-
 	}
 
-	private class ConciergeCoreBundleLabelProvider implements ITableLabelProvider {
-
-		public Image getColumnImage(Object element, int columnIndex) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public String getColumnText(Object element, int columnIndex) {
-			File f = new File((String) element);
-			switch(columnIndex) {
-			case 0:
-				return f.getName();
-			case 1:
-				if (cgInstallMap == null || !cgInstallMap.contains(element)) {
-					return "Start";
-				} else {
-					return "Install";
-				}
-			}
-			
-			return "";
-		}
-
-		public void addListener(ILabelProviderListener listener) {
-			// TODO Auto-generated method stub
-
-		}
-
-		public void dispose() {
-			// TODO Auto-generated method stub
-
-		}
-
-		public boolean isLabelProperty(Object element, String property) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public void removeListener(ILabelProviderListener listener) {
-			// TODO Auto-generated method stub
-
-		}
-
-	}
-	
 	private static List filesToStrings(List files) {
 		List fileStrings = new ArrayList();
-				
+
 		for (Iterator i = files.iterator(); i.hasNext();) {
 			fileStrings.add(((File)i.next()).getAbsolutePath());
 		}
-		
+
 		return fileStrings;
-	}
-	
-	private class ChangeBundleStartStateListener implements IDoubleClickListener {
-
-		public void doubleClick(DoubleClickEvent event) {
-			IStructuredSelection s = (IStructuredSelection) event.getSelection();
-			
-			Object o = s.getFirstElement();
-			//Workaround to trigger button updates
-			ArrayList tmpList = new ArrayList();
-				
-			tmpList.addAll(installMap);
-			
-			installMap.clear();
-			
-			if (tmpList.contains(o)) {
-				tmpList.remove(o);
-			} else {
-				tmpList.add(o);
-			}
-
-			installMap = tmpList;
-			
-			viewer.refresh();
-			refreshDialog();
-		}
-		
-	}
-	
-	private class ChangeCoreBundleStartStateListener implements IDoubleClickListener {
-
-		public void doubleClick(DoubleClickEvent event) {
-			IStructuredSelection s = (IStructuredSelection) event.getSelection();
-			
-			Object o = s.getFirstElement();
-			//Workaround to trigger button updates
-			ArrayList tmpList = new ArrayList();
-				
-			tmpList.addAll(cgInstallMap);
-			
-			cgInstallMap.clear();
-			
-			if (tmpList.contains(o)) {
-				tmpList.remove(o);
-			} else {
-				tmpList.add(o);
-			}
-
-			cgInstallMap = tmpList;
-			
-			cgViewer.refresh();
-			refreshDialog();
-		}
-		
 	}
 
 	/**
@@ -619,5 +517,77 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		layout.marginWidth = 0;
 
 		return layout;
+	}
+
+	private class CoreBundleCellModifier extends AbstractBundleCellModifier {
+
+		public CoreBundleCellModifier(BundleTab tab) {
+			super(tab);
+		}
+		protected List getInstallList() {
+			return cgInstallList;
+		}
+
+		protected Map getStartMap() {
+			return startLevelMap;
+		}
+
+		protected void setInstallList(List list) {
+			cgInstallList = list;
+		}
+
+		protected void setStartMap(Map map) {
+			startLevelMap = map;
+		}
+		protected Viewer getViewer() {
+			return cgViewer;
+		}
+
+	}
+
+	private class BundleCellModifier extends AbstractBundleCellModifier {
+
+		public BundleCellModifier(BundleTab tab) {
+			super(tab);
+		}
+		protected List getInstallList() {
+			return installList;
+		}
+
+		protected Map getStartMap() {
+			return startLevelMap;
+		}
+
+		protected void setInstallList(List list) {
+			installList = list;
+		}
+
+		protected void setStartMap(Map map) {
+			startLevelMap = map;
+		}
+		protected Viewer getViewer() {
+			return viewer;
+		}
+	}
+
+	private class ConciergeCoreBundleLabelProvider extends AbstractBundleLabelProvider {
+
+		protected List getInstallList() {
+			return cgInstallList;
+		}
+
+		protected Map getStartLevelMap() {
+			return startLevelMap;
+		}
+	}
+	
+	private class ConciergeProjectLabelProvider  extends AbstractBundleLabelProvider {
+		protected List getInstallList() {
+			return installList;
+		}
+
+		protected Map getStartLevelMap() {
+			return startLevelMap;
+		}
 	}
 }

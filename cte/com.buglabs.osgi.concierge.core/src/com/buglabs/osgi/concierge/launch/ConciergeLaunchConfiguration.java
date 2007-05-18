@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -71,15 +74,21 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 
 	public static final String SYSTEM_PROPERTIES = "SYSTEM_PROPERTIES";
 
-	public static final String INSTALL_MAP = "START_MAP";
+	public static final String INSTALL_MAP = "INSTALL_MAP";
 
 	public static final String LAUNCH_CORE_BUNDLE_LIST_CONFIG = "LAUNCH_CORE_BUNDLE_LIST_CONFIG";
 
 	public static final String CORE_INSTALL_MAP = "CORE_INSTALL_MAP";
 
+	public static final String START_LEVEL_MAP = "START_LEVEL_MAP";
+	
+	public static final String FRAMEWORK_START_LEVEL = "FRAMEWORK_START_LEVEL";
+	
 	private File propsFile;
 
 	private File initXargsFile;
+	
+	private HashMap jarToProjectName = new HashMap();
 
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 
@@ -198,26 +207,50 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 		// configuration.
 		if (configuration.getAttribute(ConciergeLaunchConfiguration.INITIALIZE_RUNTIME, true)) {
 			buffer.append("-init\n");
+			buffer.append("-startlevel " + getFrameworkStartLevel(configuration) + "\n");
 		}
 
 		// get init.xargs content
 		List workspaceBundles = getWorkspaceBundles(configuration);
 		// export workspace projects as jars
 		List projectJars = exportProjectsAsjars(workspaceBundles);
-
 		List jars = getBundleJars(configuration);
 		jars.addAll(projectJars);
 
 		List installBundles = getInstallBundles(configuration);
 		installBundles.addAll(getCoreInstallBundles(configuration));
 		Iterator iter = jars.iterator();
-
+		
+		Map startLevel = getStartLevelMap(configuration);
+		
 		while (iter.hasNext()) {
 			File jar = (File) iter.next();
+			String key = "";
+			
+			if(jarToProjectName.containsKey(jar)) {
+				key = (String) jarToProjectName.get(jar);
+			} else {
+				key = jar.getAbsolutePath();
+			}
+			
+			if(!startLevel.containsKey(key)) {
+				buffer.append("-initlevel 1\n");
+			} else {
+				buffer.append("-initlevel " + startLevel.get(key) + "\n"); 
+			}
+			
 			buffer.append(getInitialCommand(jar, installBundles) + jar.toURI().toString() + "\n");
 		}
 
 		return buffer;
+	}
+
+	protected String getFrameworkStartLevel(ILaunchConfiguration configuration) throws CoreException {
+		return configuration.getAttribute(FRAMEWORK_START_LEVEL, "1");
+	}
+	
+	protected Map getStartLevelMap(ILaunchConfiguration configuration) throws CoreException {
+		return configuration.getAttribute(START_LEVEL_MAP, new HashMap());
 	}
 
 	protected List getWorkspaceBundles(ILaunchConfiguration configuration) throws CoreException {
@@ -337,6 +370,9 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 	}
 
 	private List exportProjectsAsjars(List workspaceBundles) throws CoreException, IOException {
+		
+		jarToProjectName.clear();
+		
 		Vector jars = new Vector();
 
 		File bundlesLoc = getBundlesLocation();
@@ -356,6 +392,7 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 			if (workspaceBundles.contains(proj.getName())) {
 				File jar = ProjectUtils.exporToJar(bundlesLoc, proj);
 				jars.add(jar);
+				jarToProjectName.put(jar, proj.getName());
 			}
 		}
 
