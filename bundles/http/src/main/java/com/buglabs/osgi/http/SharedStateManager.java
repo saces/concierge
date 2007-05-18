@@ -78,7 +78,7 @@ public class SharedStateManager implements LogService {
 	public boolean hasServlet(String name) {
 		return map.containsKey(name);
 	}
-	
+
 	public void addHttpContext(String alias, HttpContext context) {
 		if (httpContextMap == null) {
 			httpContextMap = new Hashtable();
@@ -108,27 +108,19 @@ public class SharedStateManager implements LogService {
 	}
 
 	public void log(int level, String message, Throwable exception) {
-		if (logService != null) {
-			logService.log(level, message, exception);
-		}
+		logService.log(level, message, exception);
 	}
 
 	public void log(int level, String message) {
-		if (logService != null) {
-			logService.log(level, message);
-		}
+		logService.log(level, message);
 	}
 
 	public void log(ServiceReference sr, int level, String message, Throwable exception) {
-		if (logService != null) {
-			logService.log(sr, level, message, exception);
-		}
+		logService.log(sr, level, message, exception);
 	}
 
 	public void log(ServiceReference sr, int level, String message) {
-		if (logService != null) {
-			logService.log(sr, level, message);
-		}
+		logService.log(sr, level, message);
 	}
 
 	public void addServletConfig(String alias, ServletConfig config) {
@@ -142,7 +134,7 @@ public class SharedStateManager implements LogService {
 			}
 		}
 	}
-	
+
 	public ServletConfig getServletConfig(String alias) {
 		return (ServletConfig) servletConfigMap.get(alias);
 	}

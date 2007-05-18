@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -123,7 +124,7 @@ class ServletRequestImpl implements HttpServletRequest {
 					// this is a normal header line
 
 					int cl = line.indexOf(':');
-					
+
 					lastKey = line.substring(0, cl).trim();
 					value = line.substring(cl + 1).trim();
 
@@ -167,7 +168,7 @@ class ServletRequestImpl implements HttpServletRequest {
 
 			while (is.available() > 0) {
 				br = is.read(buff);
-				
+
 				for (int i = 0; i < br; ++i) {
 					b = buff[i];
 					if (isHeader) {
@@ -181,7 +182,7 @@ class ServletRequestImpl implements HttpServletRequest {
 					}
 				}
 			}
-			
+
 			body = bb.toArray();
 			return hb.toString();
 
@@ -374,13 +375,12 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public void removeAttribute(String arg0) {
-		// TODO Auto-generated method stub
+		throw new RuntimeException("This feature is not implmemented: removeAttribute()");
 
 	}
 
 	public void setAttribute(String arg0, Object arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setAttribute()");
 	}
 
 	public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
@@ -408,13 +408,11 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Cookie[] getCookies() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getCookies()");
 	}
 
 	public long getDateHeader(String arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("This feature is not implmemented: getDateHeader()");
 	}
 
 	public String getHeader(String arg0) {
@@ -422,18 +420,33 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Enumeration getHeaderNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return Collections.enumeration(headerMap.keySet());
 	}
 
-	public Enumeration getHeaders(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public Enumeration getHeaders(final String arg0) {
+		return new Enumeration() {
+			boolean finished = false;
+
+			public boolean hasMoreElements() {
+				return finished;
+			}
+
+			public Object nextElement() {
+				finished = true;
+
+				return headerMap.get(arg0);
+			}
+		};
 	}
 
 	public int getIntHeader(String arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+		Object o = headerMap.get(arg0);
+
+		if (o != null) {
+			return Integer.parseInt(o.toString());
+		}
+
+		return -1;
 	}
 
 	public String getMethod() {
@@ -471,8 +484,7 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getRemoteUser() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getRemoteUser()");
 	}
 
 	public String getRequestURI() {
@@ -480,57 +492,47 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public StringBuffer getRequestURL() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getRequestURL()");
 	}
 
 	public String getRequestedSessionId() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getRequestedSessionId()");
 	}
 
 	public String getServletPath() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getServletPath()");
 	}
 
 	public HttpSession getSession() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getSession()");
 	}
 
 	public HttpSession getSession(boolean arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getSession()");
 	}
 
 	public Principal getUserPrincipal() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getUserPrincipal()");
 	}
 
 	public boolean isRequestedSessionIdFromCookie() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("This feature is not implmemented: isRequestedSessionIdFromCookie()");
 	}
 
 	public boolean isRequestedSessionIdFromURL() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("This feature is not implmemented: isRequestedSessionIdFromURL()");
 	}
 
 	public boolean isRequestedSessionIdFromUrl() {
-		// TODO Auto-generated method stub
+		// Deprecated per Servlet API javadoc
 		return false;
 	}
 
 	public boolean isRequestedSessionIdValid() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("This feature is not implmemented: isRequestedSessionIdValid()");
 	}
 
 	public boolean isUserInRole(String arg0) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -558,6 +560,11 @@ class ServletRequestImpl implements HttpServletRequest {
 
 	}
 
+	/**
+	 * 
+	 * @author kgilmer
+	 * 
+	 */
 	private class ServletInputStreamImpl extends ServletInputStream {
 
 		private ByteArrayInputStream is;
@@ -569,9 +576,14 @@ class ServletRequestImpl implements HttpServletRequest {
 		public int read() throws IOException {
 			return is.read();
 		}
-
 	}
 
+	/**
+	 * An ADT to parse request header.
+	 * 
+	 * @author kgilmer
+	 * 
+	 */
 	private class HeaderStack {
 		int[] elements = { 0, 0, 0, 0 };
 

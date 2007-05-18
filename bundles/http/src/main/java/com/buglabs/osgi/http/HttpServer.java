@@ -50,9 +50,9 @@ import org.osgi.service.log.LogService;
  */
 public class HttpServer extends Thread {
 
-	private static final int CLIENT_TIMEOUT = 10;
+	private static final int CLIENT_TIMEOUT = 6;
 
-	private static final int MAX_CLIENT_RETRY = 50000;
+	private static final int MAX_CLIENT_RETRY = 5000;
 
 	private final int port;
 
@@ -63,7 +63,6 @@ public class HttpServer extends Thread {
 	public HttpServer(int port, SharedStateManager sm) {
 		this.port = port;
 		this.ssm = sm;
-
 	}
 
 	public void initialize() throws IOException {
@@ -72,6 +71,7 @@ public class HttpServer extends Thread {
 
 	public void run() {
 		Socket connection = null;
+
 		while (true) {
 			try {
 				ssm.log(LogService.LOG_INFO, "HTTP Server waiting for connections...");
@@ -84,10 +84,9 @@ public class HttpServer extends Thread {
 					socket.close();
 					return;
 				}
-
 				ssm.log(LogService.LOG_DEBUG, "Http Server received new request.");
-				
-				// Now we wait until the client is sending us bytes, or give up if we wait too long.
+				// Now we wait until the client is sending us bytes, or give up
+				// if we wait too long.
 				int reqCount = 0;
 				while (reqCount < MAX_CLIENT_RETRY && connection.getInputStream().available() == 0) {
 					try {
@@ -102,17 +101,18 @@ public class HttpServer extends Thread {
 						}
 					}
 				}
-				
-				// Chech to see if we have bytes available after max wait.  If not, abort.
+				ssm.log(LogService.LOG_DEBUG, "Server checked " + reqCount + " times before getting data from client.");
+
+				// Chech to see if we have bytes available after max wait. If
+				// not, abort.
 				if (connection.getInputStream().available() == 0) {
 					ssm.log(LogService.LOG_WARNING, "Client did not send any data, aborting connection.");
 					continue;
 				}
-				
+
 				// Build the HttpServletRequest object based on the client
 				// connection.
 				HttpServletRequest request = new ServletRequestImpl(connection, ssm);
-
 				// Determine relative path from HTTP headers.
 				String name = getAlias(request);
 
@@ -122,9 +122,9 @@ public class HttpServer extends Thread {
 
 				// Make sure relative path is valid
 				SharedStateManager.validateAlias(name);
-
 				// Check to see if relative path as is maps to a registered
 				// servlet.
+
 				Servlet servlet = getServlet(name);
 
 				if (servlet != null) {
@@ -144,7 +144,8 @@ public class HttpServer extends Thread {
 
 				// Construct the response object as we may want to pass an error
 				// back.
-				//OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+				// OutputStreamWriter writer = new
+				// OutputStreamWriter(connection.getOutputStream());
 				HttpServletResponse response = new ServletResponseImpl(connection.getOutputStream(), request);
 
 				if (servlet == null) {

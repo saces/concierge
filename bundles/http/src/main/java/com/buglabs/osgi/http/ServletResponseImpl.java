@@ -42,8 +42,9 @@ import com.buglabs.osgi.http.pub.DynamicByteBuffer;
 
 /**
  * Basic HttpServletResponse implementation for Bug Labs HTTP Server.
+ * 
  * @author ken
- *
+ * 
  */
 public class ServletResponseImpl implements HttpServletResponse {
 	private static final String SPACE = " ";
@@ -76,8 +77,7 @@ public class ServletResponseImpl implements HttpServletResponse {
 
 	public void flushBuffer() throws IOException {
 		if (isBinaryResponse) {
-			byte [] m = binaryBuffer.getBytes();
-			System.out.println("size: " + m.length);
+			byte[] m = binaryBuffer.getBytes();
 			outputStream.write(m);
 			outputStream.flush();
 		} else if (!isBinaryResponse && writer != null) {
@@ -90,25 +90,25 @@ public class ServletResponseImpl implements HttpServletResponse {
 
 	public ServletOutputStream getOutputStream() throws IOException {
 		isBinaryResponse = true;
-		
+
 		if (binaryBuffer != null) {
-			//throw error, can only be called once.
+			// throw error, can only be called once.
 			throw new IOException("Can only get output stream once.");
 		}
-		
+
 		binaryBuffer = new BinaryOutputBuffer();
-		
+
 		writeHeaders(binaryBuffer);
-		
+
 		return binaryBuffer;
 	}
 
 	public PrintWriter getWriter() throws IOException {
 		if (writer != null) {
-			//throw error, can only be called once.
+			// throw error, can only be called once.
 			throw new IOException("can only get writer once.");
 		}
-		
+
 		writeHeaders(outputStream);
 		OutputStreamWriter osw = new OutputStreamWriter(outputStream, writerEncoding);
 		writer = new PrintWriter(osw, true);
@@ -160,47 +160,40 @@ public class ServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void addCookie(Cookie arg0) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: addCookie()");
 	}
 
 	public void addDateHeader(String arg0, long arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: addDateHeader()");
 	}
 
 	public void addHeader(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: addHeader()");
 	}
 
 	public void addIntHeader(String arg0, int arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: addIntHeader()");
 	}
 
 	public boolean containsHeader(String arg0) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("This feature is not implmemented: addIntHeader()");
 	}
 
 	public String encodeRedirectURL(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: encodeRedirectURL()");
 	}
 
 	public String encodeRedirectUrl(String arg0) {
-		// TODO Auto-generated method stub
+		// Deprecated per Servlet API javadoc
 		return null;
 	}
 
 	public String encodeURL(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: encodeURL()");
 	}
 
 	public String encodeUrl(String arg0) {
-		// TODO Auto-generated method stub
+		// Deprecated per Servlet API javadoc
 		return null;
 	}
 
@@ -225,38 +218,31 @@ public class ServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void sendRedirect(String arg0) throws IOException {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: sendRedirect()");
 	}
 
 	public void setDateHeader(String arg0, long arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setDateHeader()");
 	}
 
 	public void setHeader(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setHeader()");
 	}
 
 	public void setIntHeader(String arg0, int arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setIntHeader()");
 	}
 
 	public void setStatus(int arg0) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setStatus()");
 	}
 
 	public void setStatus(int arg0, String arg1) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setStatus()");
 	}
 
 	public int getBufferSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("This feature is not implmemented: getBufferSize()");
 	}
 
 	public String getCharacterEncoding() {
@@ -264,28 +250,23 @@ public class ServletResponseImpl implements HttpServletResponse {
 	}
 
 	public Locale getLocale() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("This feature is not implmemented: getLocale()");
 	}
 
 	public void reset() {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: reset()");
 	}
 
 	public void resetBuffer() {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: resetBuffer()");
 	}
 
 	public void setBufferSize(int arg0) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setBufferSize()");
 	}
 
 	public void setContentLength(int arg0) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setContentLength()");
 	}
 
 	public void setContentType(String arg0) {
@@ -302,8 +283,7 @@ public class ServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void setLocale(Locale arg0) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("This feature is not implmemented: setLocale()");
 	}
 
 	/**
@@ -381,6 +361,7 @@ public class ServletResponseImpl implements HttpServletResponse {
 
 	/**
 	 * Generate simple http error messages.
+	 * 
 	 * @param arg0
 	 * @param message
 	 * @return
@@ -395,11 +376,12 @@ public class ServletResponseImpl implements HttpServletResponse {
 				+ request.getServerName() + " at " + request.getRequestURI() + " on port " + request.getServerPort()
 				+ "</address></body></html>";
 	}
-	
+
 	/**
 	 * A ServelOutputStream that buffers writes until getBytes() is called.
+	 * 
 	 * @author ken
-	 *
+	 * 
 	 */
 	private class BinaryOutputBuffer extends ServletOutputStream {
 
@@ -408,14 +390,14 @@ public class ServletResponseImpl implements HttpServletResponse {
 		public BinaryOutputBuffer() {
 			dbb = new DynamicByteBuffer();
 		}
-		
+
 		public void write(int arg0) throws IOException {
-			dbb.append((byte) arg0);					
+			dbb.append((byte) arg0);
 		}
-		
+
 		public byte[] getBytes() {
 			return dbb.toArray();
 		}
-		
+
 	}
 }
