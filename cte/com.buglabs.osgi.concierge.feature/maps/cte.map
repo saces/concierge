@@ -1,6 +1,6 @@
-feature@com.buglabs.osgi.concierge.feature=integration,:pserver:anonymous@lurcher:/root
-plugin@com.buglabs.osgi.concierge.core=integration,:pserver:anonymous@lurcher:/root
-plugin@com.buglabs.osgi.concierge.runtime=integration,:pserver:anonymous@lurcher:/root
-plugin@com.buglabs.osgi.concierge.ui=integration,:pserver:anonymous@lurcher:/root
-plugin@com.buglabs.osgi.concierge.doc=integration,:pserver:anonymous@lurcher:/root
-plugin@com.buglabs.osgi.concierge.updatesite=integration,:pserver:anonymous@lurcher:/root
+feature@com.buglabs.osgi.concierge.feature=SVN,trunk,https://ierge.svn.sourceforge.net/svnroot/concierge/trunk/cte
+plugin@com.buglabs.osgi.concierge.core=SVN,trunk,https://ierge.svn.sourceforge.net/svnroot/concierge/trunk/cte
+plugin@com.buglabs.osgi.concierge.runtime=SVN,trunk,https://ierge.svn.sourceforge.net/svnroot/concierge/trunk/cte
+plugin@com.buglabs.osgi.concierge.ui=SVN,trunk,https://concierge.svn.sourceforge.net/svnroot/concierge/trunk/cte
+plugin@com.buglabs.osgi.concierge.doc=SVN,trunk,https://concierge.svn.sourceforge.net/svnroot/concierge/trunk/cte
+plugin@com.buglabs.osgi.concierge.updatesite=SVN,trunk,https://concierge.svn.sourceforge.net/svnroot/concierge/trunk/cte
