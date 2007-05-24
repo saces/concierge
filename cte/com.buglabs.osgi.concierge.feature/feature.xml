@@ -6,7 +6,7 @@
       provider-name="Bug Labs, Inc."
       plugin="com.buglabs.osgi.concierge.ui">
 
-   <description url="http://buglabs.net/software/concierge_tools">
+   <description url="http://concierge.sourceforge.net">
       Concierge Tools for Eclipse provides basic design-time and run-time
 support for the Concierge OSGi framework.  Concierge is a R3
 OSGi implementation designed to be small and fast, and is ideal
