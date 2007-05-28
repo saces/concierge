@@ -373,7 +373,7 @@ public final class Framework {
 					warning("Property file " + System.getProperty("properties")
 							+ " not found");
 				}
-				
+
 				// parse init.xargs style file, if exists
 				final File startupFile = new File(System.getProperty("xargs",
 						"." + File.separatorChar + "init.xargs"));
@@ -384,11 +384,11 @@ public final class Framework {
 					warning("xargs file " + System.getProperty("xargs")
 							+ " not found");
 				}
-				
+
 				if (!(startupFile.exists() || propertyFile.exists())) {
 					initialize();
 				}
-				
+
 				PROFILE = properties.getProperty("osgi.profile", "default");
 				launch();
 
@@ -580,10 +580,6 @@ public final class Framework {
 		BUNDLE_LOCATION = properties.getProperty("ch.ethz.iks.concierge.jars",
 				properties.getProperty("org.knopflerfish.gosg.jars", "file:"
 						+ BASEDIR));
-		STORAGE_LOCATION = properties.getProperty(
-				"ch.ethz.iks.concierge.storage", BASEDIR + File.separatorChar
-						+ "storage")
-				+ File.separatorChar + PROFILE + File.separatorChar;
 		CLASSLOADER_BUFFER_SIZE = getProperty(
 				"ch.ethz.iks.concierge.classloader.buffersize", 2048);
 		LOG_ENABLED = getProperty("ch.ethz.iks.concierge.log.enabled", false);
@@ -618,7 +614,20 @@ public final class Framework {
 				"ch.ethz.iks.concierge.security.enabled", false);
 		DEEP_SERVICE_LISTENER_CHECK = getProperty(
 				"ch.ethz.iks.concierge.deepServiceListenerCheck", false);
-		
+
+		final String ADDITIONAL_PACKAGES = properties
+				.getProperty("org.osgi.framework.system.packages");
+
+		if (ADDITIONAL_PACKAGES != null) {
+			final StringTokenizer tokenizer = new StringTokenizer(
+					ADDITIONAL_PACKAGES, ",");
+			final int len = tokenizer.countTokens();
+			for (int i = 0; i < len; i++) {
+				BundleClassLoader.FRAMEWORK_PACKAGES.add(tokenizer.nextToken()
+						.trim());
+			}
+		}
+
 		// sanity checks
 		if (!LOG_ENABLED) {
 			if (DEBUG_BUNDLES || DEBUG_PACKAGES || DEBUG_SERVICES
@@ -658,12 +667,19 @@ public final class Framework {
 			System.err
 					.println("VM does not support the setting of system properties.");
 		}
+
 	}
 
 	/**
 	 * create the setup with the properties and the internal framework flags.
 	 */
 	private static void launch() {
+		STORAGE_LOCATION = properties.getProperty(
+				"ch.ethz.iks.concierge.storage", properties.getProperty(
+						"org.osgi.framework.dir", BASEDIR + File.separatorChar
+								+ "storage"))
+				+ File.separatorChar + PROFILE + File.separatorChar;
+
 		// create the system bundle
 		systemBundle = new SystemBundle();
 		systemBundle.state = Bundle.STARTING;
@@ -1529,27 +1545,29 @@ public final class Framework {
 			}
 			serviceListeners.add(entry);
 		}
-		
+
 		/**
 		 * Determine if given service listener has been registered.
 		 * 
 		 * @param listener
 		 * @return <code>true</code> if the listener is registered.
 		 */
-		private boolean isServiceListenerRegistered(final ServiceListener listener) {
-		if (DEEP_SERVICE_LISTENER_CHECK) {
-			final Iterator iter = bundle.registeredServiceListeners.iterator();
-			while (iter.hasNext()) {
-				Object obj = iter.next();
-				if (listener == obj) {
-					return true;
+		private boolean isServiceListenerRegistered(
+				final ServiceListener listener) {
+			if (DEEP_SERVICE_LISTENER_CHECK) {
+				final Iterator iter = bundle.registeredServiceListeners
+						.iterator();
+				while (iter.hasNext()) {
+					Object obj = iter.next();
+					if (listener == obj) {
+						return true;
+					}
 				}
-			}
-				return false;		
+				return false;
 			} else {
 				return bundle.registeredServiceListeners.contains(listener);
 			}
-		}		
+		}
 
 		/**
 		 * add a service listener.
@@ -2425,7 +2443,7 @@ public final class Framework {
 				}
 				final BundleImpl bundle = (BundleImpl) bundleArray[i];
 				final int offset;
-				if (up) {					
+				if (up) {
 					offset = bundle.currentStartlevel - startlevel - 1;
 				} else {
 					offset = startlevel - bundle.currentStartlevel;
@@ -2446,10 +2464,12 @@ public final class Framework {
 				for (int j = 0; j < toProcess.length; j++) {
 					try {
 						if (up) {
-							System.out.println("STARTING "	+ toProcess[j].location);
+							System.out.println("STARTING "
+									+ toProcess[j].location);
 							toProcess[j].startBundle();
 						} else {
-							System.out.println("STOPPING " + toProcess[j].location);
+							System.out.println("STOPPING "
+									+ toProcess[j].location);
 							toProcess[j].stopBundle();
 						}
 					} catch (BundleException be) {

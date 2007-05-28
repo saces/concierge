@@ -140,7 +140,7 @@ final class BundleClassLoader extends ClassLoader {
 	/**
 	 * the packages provided by the framework.
 	 */
-	private static final HashSet FRAMEWORK_PACKAGES = new HashSet(4);
+	static final HashSet FRAMEWORK_PACKAGES = new HashSet(4);
 	static {
 		FRAMEWORK_PACKAGES.add("org.osgi.framework");
 		FRAMEWORK_PACKAGES.add("org.osgi.service.log");
