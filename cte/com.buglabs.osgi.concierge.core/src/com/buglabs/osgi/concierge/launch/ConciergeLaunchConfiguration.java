@@ -83,6 +83,7 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 	public static final String START_LEVEL_MAP = "START_LEVEL_MAP";
 	
 	public static final String FRAMEWORK_START_LEVEL = "FRAMEWORK_START_LEVEL";
+	public static final String JVM_ARGUMENTS = "com.buglabs.osgi.concierge.ui.launch.jvmArgs";
 	
 	private File propsFile;
 
@@ -122,6 +123,10 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 				if (initXargsFile.exists()) {
 					vmargs.add("-Dxargs=" + initXargsFile.getAbsolutePath());
 				}
+			}
+			
+			if (configuration.getAttribute(JVM_ARGUMENTS, "") != "") {
+				vmargs.add(configuration.getAttribute(JVM_ARGUMENTS, ""));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
