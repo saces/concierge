@@ -98,6 +98,10 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 
 	private Button editPropButton;
 
+	private Text jvmArgs;
+
+	protected String jvmArgStr;
+
 	public SystemPropertiesTab() {
 		// systemProps = new Hashtable();
 	}
@@ -252,7 +256,7 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 		gdata.horizontalSpan = 2;
 		propComp.setLayoutData(gdata);
 
-		propViewer = new TableViewer(propComp, SWT.None | SWT.FULL_SELECTION);
+		propViewer = new TableViewer(propComp, SWT.None | SWT.FULL_SELECTION | SWT.BORDER);
 		gdata = new GridData(GridData.FILL_HORIZONTAL);
 		gdata.heightHint = 90;
 		propViewer.getTable().setLayoutData(gdata);
@@ -339,7 +343,27 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 			}
 
 		});
+		
+		Group jvmArgGroup = new Group(main, SWT.NONE);
+		jvmArgGroup.setText("VM Arguments");
+		jvmArgGroup.setLayout(new GridLayout());
+		gdata = new GridData(GridData.FILL_HORIZONTAL);
+		gdata.horizontalSpan = 2;
+		jvmArgGroup.setLayoutData(gdata);
+		
+		jvmArgs = new Text(jvmArgGroup, SWT.MULTI | SWT.V_SCROLL | SWT.BORDER);
+		gdata = new GridData(GridData.FILL_BOTH);
+		gdata.heightHint = 60;
+		jvmArgs.setLayoutData(gdata);
+		jvmArgs.addModifyListener(new ModifyListener() {
 
+			public void modifyText(ModifyEvent e) {
+				jvmArgStr = jvmArgs.getText();
+				refreshDialog();
+			}
+
+		});
+		
 		setControl(main);
 	}
 
@@ -359,6 +383,8 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 			enableSecurity.addSelectionListener(new BooleanSelectionListener("ch.ethz.iks.concierge.security.enabled", enableSecurity));
 
 			String ll = (String) systemProps.get("ch.ethz.iks.concierge.log.level");
+			
+			jvmArgStr = configuration.getAttribute(ConciergeLaunchConfiguration.JVM_ARGUMENTS, "");
 
 			if (ll != null) {
 				switch (Integer.parseInt(ll)) {
@@ -381,6 +407,11 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 			if (bundleDir != null && bundleDir.length() > 0) {
 				bundleLocation.setText(bundleDir);
 			}
+			
+			String args = configuration.getAttribute(ConciergeLaunchConfiguration.JVM_ARGUMENTS, "");
+			if (args != null) {
+				jvmArgs.setText(args);
+			}
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -390,6 +421,7 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ConciergeLaunchConfiguration.SYSTEM_PROPERTIES, systemProps);
+		configuration.setAttribute(ConciergeLaunchConfiguration.JVM_ARGUMENTS, jvmArgStr);
 		propViewer.setInput(systemProps);
 	}
 
@@ -448,21 +480,16 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 			return props.keySet().toArray(new String[props.size()]);
 		}
 
-		public void dispose() {
-			// TODO Auto-generated method stub
-
+		public void dispose() {			
 		}
 
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			// TODO Auto-generated method stub
-
 		}
 	}
 
 	private class PropertyLabelProvider implements ITableLabelProvider {
 
 		public Image getColumnImage(Object element, int columnIndex) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -482,24 +509,16 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 		}
 
 		public void addListener(ILabelProviderListener listener) {
-			// TODO Auto-generated method stub
-
 		}
 
 		public void dispose() {
-			// TODO Auto-generated method stub
-
 		}
 
 		public boolean isLabelProperty(Object element, String property) {
-			// TODO Auto-generated method stub
 			return false;
 		}
 
 		public void removeListener(ILabelProviderListener listener) {
-			// TODO Auto-generated method stub
-
 		}
-
 	}
 }

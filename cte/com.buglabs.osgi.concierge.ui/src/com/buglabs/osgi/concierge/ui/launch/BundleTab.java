@@ -136,25 +136,27 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		main.setLayout(new GridLayout());
 		main.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		continueButton = new Button(main, SWT.RADIO);
+		Composite topComp = new Composite(main, SWT.None);
+		topComp.setLayout(new GridLayout(2, false));
+		topComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		Composite topSideComp = new Composite(topComp, SWT.None);
+		topSideComp.setLayout(new GridLayout());
+		topSideComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		continueButton = new Button(topSideComp, SWT.RADIO);
 		continueButton.setText("Continue with pre-existing state");
-
-		initializeButton = new Button(main, SWT.RADIO);
+		
+		initializeButton = new Button(topSideComp, SWT.RADIO);
 		initializeButton.setText("Initialize Runtime (Clear any previous state)");
-
-		Composite spaceComp = new Composite(main, SWT.None);
-		spaceComp.setLayout(new GridLayout());
-		spaceComp.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		new Label(spaceComp, SWT.None).setText("  ");
-
-		Composite frameworkStartLevelComp = new Composite(spaceComp, SWT.NONE);
+		
+		Composite frameworkStartLevelComp = new Composite(topComp, SWT.None);
 		frameworkStartLevelComp.setLayout(new GridLayout(2, false));
-		frameworkStartLevelComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		frameworkStartLevelComp.setLayoutData(new GridData(GridData.FILL_BOTH));
 		Label lblFrameworkStartLevel = new Label(frameworkStartLevelComp, SWT.NONE);
 		lblFrameworkStartLevel.setText("Framework Start Level: ");
 		
-		frameworkStartLevelSpinner = new Spinner(frameworkStartLevelComp, SWT.NONE);
+		frameworkStartLevelSpinner = new Spinner(frameworkStartLevelComp, SWT.BORDER);
 		frameworkStartLevelSpinner.setValues(1, 1, 10, 0, 1, 1);
 		frameworkStartLevelSpinner.addModifyListener(new ModifyListener(){
 
@@ -162,7 +164,11 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 				frameworkStartLevel = "" + ((Spinner) e.widget).getSelection();
 				refreshDialog();
 			}});
-		
+
+		Composite spaceComp = new Composite(main, SWT.None);
+		spaceComp.setLayout(new GridLayout());
+		spaceComp.setLayoutData(new GridData(GridData.FILL_BOTH));
+
 		cgBundleGroup = new Group(spaceComp, SWT.None);
 		cgBundleGroup.setText("Concierge Bundles");
 		cgBundleGroup.setLayout(new GridLayout());
