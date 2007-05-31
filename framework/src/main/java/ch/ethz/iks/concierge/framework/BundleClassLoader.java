@@ -769,6 +769,8 @@ final class BundleClassLoader extends ClassLoader {
 			return null;
 		}
 
+		System.out.println("NATIVE LIBRARIES: " + nativeLibraries);
+		
 		final String lib = (String) nativeLibraries.get(System
 				.mapLibraryName(libname));
 		if (lib == null) {
