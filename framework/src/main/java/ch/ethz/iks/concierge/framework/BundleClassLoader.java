@@ -769,7 +769,6 @@ final class BundleClassLoader extends ClassLoader {
 			return null;
 		}
 
-		System.out.println("NATIVE LIBRARIES: " + nativeLibraries);
 		
 		final String lib = (String) nativeLibraries.get(System
 				.mapLibraryName(libname));
@@ -856,12 +855,18 @@ final class BundleClassLoader extends ClassLoader {
 				+ (String) Framework.properties.get("os.version");
 		final Locale language = new Locale((String) Framework.properties
 				.get("org.osgi.framework.language"));
+		final String processor = ((String) Framework.properties.get("os.arch")).intern();
 
-		Boolean n = null;
-		Boolean v = null;
-		Boolean l = null;
+		boolean n = false;
+		boolean no_n = true;
+		boolean l = false;
+		boolean no_l = true;
+		boolean v = false;
+		boolean no_v = true;
+		boolean p = false;
+		boolean no_p = false;
+
 		for (int i = 0; i < nativeStrings.length; i++) {
-
 			if (nativeStrings[i].indexOf(";") == -1) {
 				nativeLibraries
 						.put(
@@ -872,45 +877,43 @@ final class BundleClassLoader extends ClassLoader {
 			} else {
 				StringTokenizer tokenizer = new StringTokenizer(
 						nativeStrings[i], ";");
+				String lib = null;
 
-				String lastToken = null;
 				while (tokenizer.hasMoreTokens()) {
 					final String token = tokenizer.nextToken();
-					if (token.startsWith("osname")) {
-						if (token.equalsIgnoreCase(osname)) {
-							if (n == null) {
-								n = Boolean.TRUE;
+					final int a = token.indexOf("=");
+					if (a > -1) {
+						final String criterium = token.substring(0, a).trim().intern();
+						final String value = token.substring(a+1).trim().intern();
+						if (criterium == "osname") {
+							n |= value.equalsIgnoreCase(osname);
+							no_n = false;
+						} else if (criterium == "osversion") {
+							v |= Package.matches(";" + value, osversion); 
+							no_v = false;
+						} else if (criterium == "language") {
+							l |= new Locale(value).getLanguage().equals(language); 
+							no_l = false;	
+						} else if (criterium == "processor") {
+							if (processor == "x86" || processor == "pentium" || processor == "i386" || processor == "i486" || processor == "i586" || processor == "i686") {
+								p |= (value == "x86" || value == "pentium" || value == "i386" || value == "i486" || value == "i586" || value == "i686");
+							} else {
+								p |= value.equalsIgnoreCase(processor);
 							}
-						} else {
-							n = Boolean.FALSE;
-						}
-					} else if (token.startsWith("osversion")) {
-						if (Package.matches(";" + token, osversion)) {
-							if (v == null) {
-								v = Boolean.TRUE;
-							}
-						} else {
-							v = Boolean.FALSE;
-						}
-					} else if (token.startsWith("language")) {
-						if (new Locale(token).getLanguage().equals(language)) {
-							if (l == null) {
-								l = Boolean.TRUE;
-							}
-						} else {
-							l = Boolean.FALSE;
+							no_p = false;
 						}
 					} else {
-						if (lastToken != null && n != Boolean.FALSE
-								&& v != Boolean.FALSE && l != Boolean.FALSE) {
-							nativeLibraries.put((pos = lastToken
-									.lastIndexOf("/")) > -1 ? lastToken
-									.substring(pos + 1) : lastToken,
-									stripTrailing(lastToken));
-							n = v = l = null;
-						}
-						lastToken = token;
+							lib = token;
 					}
+                                                if (lib != null && (no_p || p) && (no_n || n)
+                                                                && (no_v || v) && (no_l || l)) {
+                                                        nativeLibraries.put((pos = lib
+                                                                        .lastIndexOf("/")) > -1 ? lib
+                                                                        .substring(pos + 1) : lib,
+                                                                        stripTrailing(lib));
+                                                        p = n = v = l = false;
+                                                        no_p = no_n = no_v = no_l = false;
+						}
 				}
 			}
 		}
