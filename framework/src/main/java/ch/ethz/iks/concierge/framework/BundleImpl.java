@@ -664,7 +664,7 @@ final class BundleImpl implements Bundle {
 			be.printStackTrace();
 			throw be;
 		} catch (Exception e) {
-			Framework.logger.log(LogService.LOG_ERROR, e.getMessage(), e);
+			e.printStackTrace();
 			throw new BundleException("Could not update bundle " + toString(),
 					e);
 		}
