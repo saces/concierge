@@ -164,8 +164,8 @@ final class BundleImpl implements Bundle {
 				permissions.add(new FilePermission(Framework.STORAGE_LOCATION
 						+ bundleID, "read,write,execute,delete"));
 				domain = new ProtectionDomain(new CodeSource(new URL("file:"
-						+ Framework.STORAGE_LOCATION + bundleID), (java.security.cert.Certificate[]) null),
-						permissions);
+						+ Framework.STORAGE_LOCATION + bundleID),
+						(java.security.cert.Certificate[]) null), permissions);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -661,8 +661,10 @@ final class BundleImpl implements Bundle {
 				updateMetadata();
 			}
 		} catch (BundleException be) {
+			Framework.logger.log(LogService.LOG_ERROR, be.getMessage(), be);
 			throw be;
 		} catch (Exception e) {
+			Framework.logger.log(LogService.LOG_ERROR, e.getMessage(), e);
 			throw new BundleException("Could not update bundle " + toString(),
 					e);
 		}
