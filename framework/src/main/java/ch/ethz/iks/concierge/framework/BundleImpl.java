@@ -661,7 +661,7 @@ final class BundleImpl implements Bundle {
 				updateMetadata();
 			}
 		} catch (BundleException be) {
-			Framework.logger.log(LogService.LOG_ERROR, be.getMessage(), be);
+			be.printStackTrace();
 			throw be;
 		} catch (Exception e) {
 			Framework.logger.log(LogService.LOG_ERROR, e.getMessage(), e);
