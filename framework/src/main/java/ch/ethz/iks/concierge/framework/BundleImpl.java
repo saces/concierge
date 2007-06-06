@@ -661,10 +661,8 @@ final class BundleImpl implements Bundle {
 				updateMetadata();
 			}
 		} catch (BundleException be) {
-			be.printStackTrace();
 			throw be;
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new BundleException("Could not update bundle " + toString(),
 					e);
 		}
