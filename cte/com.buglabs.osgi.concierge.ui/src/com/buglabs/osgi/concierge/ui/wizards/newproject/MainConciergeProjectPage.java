@@ -102,8 +102,6 @@ public class MainConciergeProjectPage extends WizardPage {
 			return false;
 		}
 		
-		
-		
 		IProject proj = wsroot.getProject(projInfo.getProjectName());
 		if(proj.exists()) {
 			setErrorMessage("A project with the name " + projInfo.getProjectName() + " already exists");
@@ -116,6 +114,10 @@ public class MainConciergeProjectPage extends WizardPage {
 	}
 
 	private boolean isValidProjectName(String projectName) {
+		if (projectName.indexOf('$') > -1) {
+			return false;
+		}
+		
 		return JavaConventions.validatePackageName(ProjectUtils.formatNameToPackage(projectName)).isOK();
 	}
 
