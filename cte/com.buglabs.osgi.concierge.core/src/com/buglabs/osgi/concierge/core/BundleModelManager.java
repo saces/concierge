@@ -129,6 +129,7 @@ public class BundleModelManager implements IResourceChangeListener {
 		if(manifest != null) {
 			if(manifest.exists()) {
 				List importedPackages = ManifestUtils.getImportedPackages(manifest.getContents());
+				importedPackages.addAll(ManifestUtils.getDynamicallyImportedPackages(manifest.getContents()));
 				List exportedPackages = ManifestUtils.getExportedPackages(manifest.getContents());
 
 				projectImports.put(project, importedPackages);

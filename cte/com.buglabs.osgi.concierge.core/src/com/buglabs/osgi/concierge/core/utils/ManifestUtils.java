@@ -82,4 +82,8 @@ public class ManifestUtils {
 
 		return packages;
 	}
+
+	public static List getDynamicallyImportedPackages(InputStream contents) throws IOException {
+		return getCSV("DynamicImport-Package", contents);
+	}
 }
