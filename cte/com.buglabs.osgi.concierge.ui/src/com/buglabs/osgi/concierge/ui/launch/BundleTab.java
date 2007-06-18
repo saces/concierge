@@ -27,6 +27,9 @@
 package com.buglabs.osgi.concierge.ui.launch;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +37,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -73,6 +79,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.buglabs.osgi.concierge.core.utils.ManifestUtils;
+import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
 import com.buglabs.osgi.concierge.launch.ConciergeLaunchConfiguration;
 import com.buglabs.osgi.concierge.natures.ConciergeProjectNature;
 import com.buglabs.osgi.concierge.runtime.ConciergeRuntime;
@@ -80,7 +88,7 @@ import com.buglabs.osgi.concierge.runtime.ConciergeRuntime;
 /**
  * 
  * @author Ken Gilmer - ken@buglabs.net
- *
+ * 
  */
 public class BundleTab extends AbstractLaunchConfigurationTab {
 
@@ -89,8 +97,11 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 	private List allBundles;
 
 	private CheckboxTableViewer viewer;
+
 	private Button selectAll;
+
 	private Button selectNone;
+
 	private Button initializeButton = null;
 
 	private Button continueButton;
@@ -116,12 +127,19 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 	private Map startLevelMap;
 
 	public static final String NAME = "Name";
+
 	public static final String INITIAL_STATE = "Initial State";
+
 	public static final String START_LEVEL = "Start Level";
-	public static final String[] COLUMN_PROPERTIES = {NAME, INITIAL_STATE, START_LEVEL};
+
+	public static final String[] COLUMN_PROPERTIES = { NAME, INITIAL_STATE, START_LEVEL };
+
 	public static final Integer INITIAL_STATE_INSTALL = new Integer(0);
+
 	public static final Integer INITIAL_STATE_START = new Integer(1);
+
 	public static final String INSTALL = "Install";
+
 	public static final String START = "Start";
 
 	private String frameworkStartLevel;
@@ -139,31 +157,32 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		Composite topComp = new Composite(main, SWT.None);
 		topComp.setLayout(new GridLayout(2, false));
 		topComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		Composite topSideComp = new Composite(topComp, SWT.None);
 		topSideComp.setLayout(new GridLayout());
 		topSideComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		continueButton = new Button(topSideComp, SWT.RADIO);
 		continueButton.setText("Continue with pre-existing state");
-		
+
 		initializeButton = new Button(topSideComp, SWT.RADIO);
 		initializeButton.setText("Initialize Runtime (Clear any previous state)");
-		
+
 		Composite frameworkStartLevelComp = new Composite(topComp, SWT.None);
 		frameworkStartLevelComp.setLayout(new GridLayout(2, false));
 		frameworkStartLevelComp.setLayoutData(new GridData(GridData.FILL_BOTH));
 		Label lblFrameworkStartLevel = new Label(frameworkStartLevelComp, SWT.NONE);
 		lblFrameworkStartLevel.setText("Framework Start Level: ");
-		
+
 		frameworkStartLevelSpinner = new Spinner(frameworkStartLevelComp, SWT.BORDER);
 		frameworkStartLevelSpinner.setValues(1, 1, 10, 0, 1, 1);
-		frameworkStartLevelSpinner.addModifyListener(new ModifyListener(){
+		frameworkStartLevelSpinner.addModifyListener(new ModifyListener() {
 
 			public void modifyText(ModifyEvent e) {
 				frameworkStartLevel = "" + ((Spinner) e.widget).getSelection();
 				refreshDialog();
-			}});
+			}
+		});
 
 		Composite spaceComp = new Composite(main, SWT.None);
 		spaceComp.setLayout(new GridLayout());
@@ -214,7 +233,6 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		});
 
-
 		cgSelectNone = new Button(cgButtonComp, SWT.None);
 		cgSelectNone.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
 		cgSelectNone.setText("Deselect All");
@@ -231,14 +249,12 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		});
 
-
 		// ----------------------------
 
 		bundleGroup = new Group(spaceComp, SWT.None);
 		bundleGroup.setText("Workspace Bundles");
 		bundleGroup.setLayout(new GridLayout());
 		bundleGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
-
 
 		Composite viewerComp = new Composite(bundleGroup, SWT.None);
 		viewerComp.setLayout(StripGridLayoutMargins(new GridLayout(2, false)));
@@ -276,7 +292,6 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		});
 
-
 		selectNone = new Button(buttonComp, SWT.None);
 		selectNone.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
 		selectNone.setText("Deselect All");
@@ -295,9 +310,10 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		initializeButton.addSelectionListener(new SelectionListener() {
 
-			public void widgetDefaultSelected(SelectionEvent arg0) {}
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
 
-			public void widgetSelected(SelectionEvent arg0) {		
+			public void widgetSelected(SelectionEvent arg0) {
 				setViewerEnabled(initializeButton.getSelection());
 				refreshDialog();
 			}
@@ -325,20 +341,20 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
-		//Add Cell Editors
-		CellEditor[] cellEditors = new CellEditor[]{new TextCellEditor(table, SWT.READ_ONLY),
-				new ComboBoxCellEditor(table, new String[]{"Install", "Start"}, SWT.READ_ONLY),
-				new ComboBoxCellEditor(table, new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, SWT.READ_ONLY)};
+		// Add Cell Editors
+		CellEditor[] cellEditors = new CellEditor[] { new TextCellEditor(table, SWT.READ_ONLY),
+				new ComboBoxCellEditor(table, new String[] { "Install", "Start" }, SWT.READ_ONLY),
+				new ComboBoxCellEditor(table, new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, SWT.READ_ONLY) };
 
 		tviewer.setColumnProperties(COLUMN_PROPERTIES);
 
-		if(isCore) {
+		if (isCore) {
 			tviewer.setCellModifier(new CoreBundleCellModifier(this));
 			tviewer.setContentProvider(new ConciergeCoreBundleProvider());
 			tviewer.setLabelProvider(new ConciergeCoreBundleLabelProvider());
 		} else {
 			tviewer.setCellModifier(new BundleCellModifier(this));
-			tviewer.setContentProvider(new ConciergeCoreBundleProvider());
+			tviewer.setContentProvider(new ConciergeProjectBundleProvider());
 			tviewer.setLabelProvider(new ConciergeProjectLabelProvider());
 		}
 
@@ -381,7 +397,6 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 			allBundles = new Vector();
 		}
 
-
 		viewer.setInput(allBundles);
 
 		try {
@@ -392,7 +407,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 			viewer.setCheckedElements(launchBundles.toArray());
 			frameworkStartLevel = configuration.getAttribute(ConciergeLaunchConfiguration.FRAMEWORK_START_LEVEL, "1");
 			frameworkStartLevelSpinner.setSelection(Integer.parseInt(frameworkStartLevel));
-			
+
 			if (configuration.getAttribute(ConciergeLaunchConfiguration.INITIALIZE_RUNTIME, true)) {
 				initializeButton.setSelection(true);
 			} else {
@@ -458,7 +473,22 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 	private class ConciergeCoreBundleProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
-			return ((List)inputElement).toArray(new String[((List) inputElement).size()]);
+			return ((List) inputElement).toArray(new String[((List) inputElement).size()]);
+		}
+
+		public void dispose() {
+
+		}
+
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+
+		}
+	}
+	
+	private class ConciergeProjectBundleProvider implements IStructuredContentProvider {
+
+		public Object[] getElements(Object inputElement) {
+			return ((List) inputElement).toArray(new IProject[((List) inputElement).size()]);
 		}
 
 		public void dispose() {
@@ -474,7 +504,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		List fileStrings = new ArrayList();
 
 		for (Iterator i = files.iterator(); i.hasNext();) {
-			fileStrings.add(((File)i.next()).getAbsolutePath());
+			fileStrings.add(((File) i.next()).getAbsolutePath());
 		}
 
 		return fileStrings;
@@ -501,13 +531,13 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 				} else if (resource.getType() == IResource.PROJECT) {
 					IProject project = (IProject) resource;
 					if (project.isOpen() && project.hasNature(ConciergeProjectNature.ID)) {
-						projects.add(project.getName());
+						projects.add(project);
 					}
 				}
 
 				return false;
 			}
-		});		
+		});
 
 		return projects;
 	}
@@ -530,6 +560,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		public CoreBundleCellModifier(BundleTab tab) {
 			super(tab);
 		}
+
 		protected List getInstallList() {
 			return cgInstallList;
 		}
@@ -545,6 +576,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		protected void setStartMap(Map map) {
 			startLevelMap = map;
 		}
+
 		protected Viewer getViewer() {
 			return cgViewer;
 		}
@@ -556,6 +588,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		public BundleCellModifier(BundleTab tab) {
 			super(tab);
 		}
+
 		protected List getInstallList() {
 			return installList;
 		}
@@ -571,12 +604,65 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		protected void setStartMap(Map map) {
 			startLevelMap = map;
 		}
+
 		protected Viewer getViewer() {
 			return viewer;
 		}
 	}
 
 	private class ConciergeCoreBundleLabelProvider extends AbstractBundleLabelProvider {
+
+		public String getColumnText(Object element, int columnIndex) {
+			File f = new File((String) element);
+			switch (columnIndex) {
+			case 0:
+				try {
+					return getBundleName(f);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return f.getName();
+			case 1:
+				if (getInstallList() == null || !getInstallList().contains(element)) {
+					return "Start";
+				} else {
+					return "Install";
+				}
+			case 2:
+				// Start Level
+				if (getStartLevelMap() != null && getStartLevelMap().containsKey(element)) {
+					int value = Integer.parseInt(getStartLevelMap().get(element).toString());
+					return new Integer(value).toString();
+				} else {
+					// Default start level for concierge
+					return "1";
+				}
+			}
+			return "";
+		}
+
+		protected String getBundleName(File f) throws IOException {
+			Manifest m = (new JarFile(f)).getManifest();
+			String name = null;
+
+			if (m != null) {
+				name = m.getMainAttributes().getValue("Bundle-SymbolicName");
+
+				if (name == null) {
+					name = m.getMainAttributes().getValue("Bundle-Name");
+
+					if (name == null) {
+						name = f.getName();
+					}
+				}
+			}
+
+			return name;
+		}
 
 		protected List getInstallList() {
 			return cgInstallList;
@@ -586,8 +672,63 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 			return startLevelMap;
 		}
 	}
-	
-	private class ConciergeProjectLabelProvider  extends AbstractBundleLabelProvider {
+
+	private class ConciergeProjectLabelProvider extends AbstractBundleLabelProvider {
+		public String getColumnText(Object element, int columnIndex) {
+			IProject p = (IProject) element;
+			switch (columnIndex) {
+			case 0:
+				try {
+					return getBundleName(p);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return p.getName();
+			case 1:
+				if (getInstallList() == null || !getInstallList().contains(element)) {
+					return "Start";
+				} else {
+					return "Install";
+				}
+			case 2:
+				// Start Level
+				if (getStartLevelMap() != null && getStartLevelMap().containsKey(element)) {
+					int value = Integer.parseInt(getStartLevelMap().get(element).toString());
+					return new Integer(value).toString();
+				} else {
+					// Default start level for concierge
+					return "1";
+				}
+			}
+			return "";
+		}
+
+		protected String getBundleName(IProject p) throws IOException, CoreException {
+				String name = p.getName();
+				Manifest m = new Manifest(ProjectUtils.getManifestFile(p).getContents());
+
+				name = m.getMainAttributes().getValue("Bundle-SymbolicName");
+
+				if (name == null || name.trim().length() < 1) {
+					name = m.getMainAttributes().getValue("Bundle-Name");
+
+					if (name == null) {
+						name = p.getName();
+					}
+				}
+
+			
+
+			return name;
+		}
+
 		protected List getInstallList() {
 			return installList;
 		}

@@ -1,8 +1,11 @@
 package com.buglabs.osgi.concierge.ui.launch;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
