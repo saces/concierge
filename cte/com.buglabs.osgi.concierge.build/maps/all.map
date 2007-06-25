@@ -1,0 +1,5 @@
+feature@com.buglabs.osgi.concierge.feature=COPY,/home/kgilmer/dev/workspaces/Concierge.sourceforge.net,com.buglabs.osgi.concierge.feature
+plugin@com.buglabs.osgi.concierge.runtime=COPY,/home/kgilmer/dev/workspaces/Concierge.sourceforge.net,com.buglabs.osgi.concierge.runtime
+plugin@com.buglabs.osgi.concierge.ui=COPY,/home/kgilmer/dev/workspaces/Concierge.sourceforge.net,com.buglabs.osgi.concierge.ui
+plugin@com.buglabs.osgi.concierge.core=COPY,/home/kgilmer/dev/workspaces/Concierge.sourceforge.net,com.buglabs.osgi.concierge.core
+plugin@com.buglabs.osgi.concierge.doc=COPY,/home/kgilmer/dev/workspaces/Concierge.sourceforge.net,com.buglabs.osgi.concierge.doc
