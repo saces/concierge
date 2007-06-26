@@ -1,5 +1,34 @@
 <project name="Generated">
   <target name="fetch.svn.all">
-    <!-- use pluginbuilder editor to change content -->
+    <antcall target="svn.co">
+      <param name="target" value="features"/>
+      <param name="element.id" value="com.buglabs.osgi.concierge.feature"/>
+      <param name="project.name" value="/trunk/cte/com.buglabs.osgi.concierge.feature"/>
+      <param name="url" value="https://concierge.svn.sourceforge.net/svnroot/concierge"/>
+    </antcall>
+    <antcall target="svn.co">
+      <param name="target" value="plugins"/>
+      <param name="element.id" value="com.buglabs.osgi.concierge.runtime"/>
+      <param name="project.name" value="/trunk/cte/com.buglabs.osgi.concierge.runtime"/>
+      <param name="url" value="https://concierge.svn.sourceforge.net/svnroot/concierge"/>
+    </antcall>
+    <antcall target="svn.co">
+      <param name="target" value="plugins"/>
+      <param name="element.id" value="com.buglabs.osgi.concierge.ui"/>
+      <param name="project.name" value="/trunk/cte/com.buglabs.osgi.concierge.ui"/>
+      <param name="url" value="https://concierge.svn.sourceforge.net/svnroot/concierge"/>
+    </antcall>
+    <antcall target="svn.co">
+      <param name="target" value="plugins"/>
+      <param name="element.id" value="com.buglabs.osgi.concierge.core"/>
+      <param name="project.name" value="/trunk/cte/com.buglabs.osgi.concierge.core"/>
+      <param name="url" value="https://concierge.svn.sourceforge.net/svnroot/concierge"/>
+    </antcall>
+    <antcall target="svn.co">
+      <param name="target" value="plugins"/>
+      <param name="element.id" value="com.buglabs.osgi.concierge.doc"/>
+      <param name="project.name" value="/trunk/cte/com.buglabs.osgi.concierge.doc"/>
+      <param name="url" value="https://concierge.svn.sourceforge.net/svnroot/concierge"/>
+    </antcall>
   </target>
 </project>
