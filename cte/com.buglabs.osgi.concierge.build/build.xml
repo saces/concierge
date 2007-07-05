@@ -197,5 +197,9 @@
 version.full: ${version.full}
 version.qualifier: ${version.qualifier}</echo>
 	</target>
+	
+	<target name="prepare">
+			<mkdir dir="test.eclipse.zip" />
+	</target>
 
 </project>

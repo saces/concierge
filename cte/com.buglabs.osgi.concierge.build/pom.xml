@@ -1,0 +1,55 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>concierge-project</artifactId>
+		<groupId>ch.ethz.iks.concierge</groupId>
+		<version>1.0_RC1</version>
+	</parent>
+	<name>Concierge Plugin for Eclipse</name>
+	<groupId>com.buglabs.osgi.concierge</groupId>
+	<artifactId>plugins</artifactId>
+	<packaging>jar</packaging>
+	<build>
+	  <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>compile</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <tasks>
+                <property name="project" value="com.buglabs.osgi.concierge.feature"/>
+                <property name="buildId" value="automaticBuild"/>
+                <property name="buildLabel" value="automaticBuildLabel"/>
+                <property name="build.level" value="integration"/>
+                <property name="product.version" value="${pom.currentVersion}"/>
+                <property name="meta.project.version" value="${pom.currentVersion}"/>
+                <property name="test.eclipse.zip" location="${basedir}/eclipse"/>
+                <ant antfile="${basedir}/build.xml" inheritRefs="true">
+				  <target name="prepare" />
+                  <target name="main"/>
+                </ant>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+       </plugin>
+       </plugins>
+    </build>
+	<distributionManagement>
+		<site>
+			<id>sourceforge-site</id>
+			<url>scp://shell.sourceforge.net/home/groups/c/co/concierge/htdocs/cte</url>
+		</site>
+		<repository>
+      		<id>iks-snapshots</id>
+      		<name>ETH Zurich IKS Snapshots</name>
+      		<url>scp://flowsgi.inf.ethz.ch/repository/maven2</url>
+    	</repository>
+	</distributionManagement>
+</project>
