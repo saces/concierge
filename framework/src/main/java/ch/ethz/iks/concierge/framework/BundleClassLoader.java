@@ -39,10 +39,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -771,6 +773,13 @@ final class BundleClassLoader extends ClassLoader {
 
 		final String lib = (String) nativeLibraries.get(System
 				.mapLibraryName(libname));
+
+		if (Framework.DEBUG_CLASSLOADING) {
+			Framework.logger.log(LogService.LOG_DEBUG, "Requested " + libname);
+			Framework.logger.log(LogService.LOG_INFO, "Native libraries "
+					+ nativeLibraries);
+		}
+
 		if (lib == null) {
 			return null;
 		}
@@ -854,12 +863,11 @@ final class BundleClassLoader extends ClassLoader {
 				+ (String) Framework.properties.get("os.version");
 		final Locale language = new Locale((String) Framework.properties
 				.get("org.osgi.framework.language"));
-		final String cpu = ((String) Framework.properties.get("os.arch")).intern();			
-		final String processor = ((cpu == "pentium"
-				|| cpu == "i386"
-				|| cpu == "i486"
-				|| cpu == "i586"
-				|| cpu == "i686") ? "x86" : cpu).intern();
+		final String cpu = ((String) Framework.properties.get("os.arch"))
+				.intern();
+		final String processor = ((cpu == "pentium" || cpu == "i386"
+				|| cpu == "i486" || cpu == "i586" || cpu == "i686") ? "x86"
+				: cpu).intern();
 
 		boolean n = false;
 		boolean no_n = true;
@@ -869,7 +877,8 @@ final class BundleClassLoader extends ClassLoader {
 		boolean no_v = true;
 		boolean p = false;
 		boolean no_p = false;
-
+		final List libs = new ArrayList();
+		
 		for (int i = 0; i < nativeStrings.length; i++) {
 			if (nativeStrings[i].indexOf(";") == -1) {
 				nativeLibraries
@@ -881,8 +890,7 @@ final class BundleClassLoader extends ClassLoader {
 			} else {
 				StringTokenizer tokenizer = new StringTokenizer(
 						nativeStrings[i], ";");
-				String lib = null;
-
+				
 				while (tokenizer.hasMoreTokens()) {
 					final String token = tokenizer.nextToken();
 					final int a = token.indexOf("=");
@@ -912,18 +920,23 @@ final class BundleClassLoader extends ClassLoader {
 							no_p = false;
 						}
 					} else {
-						lib = token;
-					}
-					if (lib != null && (no_p || p) && (no_n || n)
-							&& (no_v || v) && (no_l || l)) {
-						nativeLibraries.put(
-								(pos = lib.lastIndexOf("/")) > -1 ? lib
-										.substring(pos + 1) : lib,
-								stripTrailing(lib));
-						p = n = v = l = false;
-						no_p = no_n = no_v = no_l = false;
+						libs.add(token.trim());
+					}					
+				}
+				if (!libs.isEmpty() && (no_p || p) && (no_n || n)
+						&& (no_v || v) && (no_l || l)) {
+					final String[] libraries = (String[]) libs
+							.toArray(new String[libs.size()]);
+					for (int c = 0; c < libraries.length; c++) {
+						nativeLibraries.put((pos = libraries[c]
+								.lastIndexOf("/")) > -1 ? libraries[c]
+								.substring(pos + 1) : libraries[c],
+								stripTrailing(libraries[c]));
 					}
 				}
+				p = n = v = l = false;
+				no_p = no_n = no_v = no_l = true;
+				libs.clear();
 			}
 		}
 	}
