@@ -382,6 +382,12 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 					decompressEmbedded));
 			enableSecurity.addSelectionListener(new BooleanSelectionListener("ch.ethz.iks.concierge.security.enabled", enableSecurity));
 
+			String el = (String) systemProps.get("ch.ethz.iks.concierge.log.enabled");
+			
+			if (el != null && el.equals("true")) {
+				enableLogger.setSelection(true);
+			}
+			
 			String ll = (String) systemProps.get("ch.ethz.iks.concierge.log.level");
 			
 			jvmArgStr = configuration.getAttribute(ConciergeLaunchConfiguration.JVM_ARGUMENTS, "");
