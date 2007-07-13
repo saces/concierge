@@ -45,6 +45,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -342,11 +343,11 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 		if (isCore) {
 			tviewer.setCellModifier(new CoreBundleCellModifier(this));
-			tviewer.setContentProvider(new ConciergeCoreBundleProvider());
+			tviewer.setContentProvider(new ConciergeBundleProvider());
 			tviewer.setLabelProvider(new ConciergeCoreBundleLabelProvider());
 		} else {
 			tviewer.setCellModifier(new BundleCellModifier(this));
-			tviewer.setContentProvider(new ConciergeProjectBundleProvider());
+			tviewer.setContentProvider(new ConciergeBundleProvider());
 			tviewer.setLabelProvider(new ConciergeProjectLabelProvider());
 		}
 
@@ -462,25 +463,10 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		configuration.setAttribute(ConciergeLaunchConfiguration.FRAMEWORK_START_LEVEL, "1");
 	}
 
-	private class ConciergeCoreBundleProvider implements IStructuredContentProvider {
+	private class ConciergeBundleProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
 			return ((List) inputElement).toArray(new String[((List) inputElement).size()]);
-		}
-
-		public void dispose() {
-
-		}
-
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-
-		}
-	}
-	
-	private class ConciergeProjectBundleProvider implements IStructuredContentProvider {
-
-		public Object[] getElements(Object inputElement) {
-			return ((List) inputElement).toArray(new IProject[((List) inputElement).size()]);
 		}
 
 		public void dispose() {
@@ -523,7 +509,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 				} else if (resource.getType() == IResource.PROJECT) {
 					IProject project = (IProject) resource;
 					if (project.isOpen() && project.hasNature(ConciergeProjectNature.ID)) {
-						projects.add(project);
+						projects.add(project.getName());
 					}
 				}
 
@@ -667,7 +653,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 	private class ConciergeProjectLabelProvider extends AbstractBundleLabelProvider {
 		public String getColumnText(Object element, int columnIndex) {
-			IProject p = (IProject) element;
+			IProject p = ResourcesPlugin.getWorkspace().getRoot().getProject((String) element);
 			switch (columnIndex) {
 			case 0:
 				try {
