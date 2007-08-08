@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Concierge on Nokia 9300i</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Concierge on Sony Ericson M600i">
+		<center>
+			<img src="/images/SE_M600i.jpg" alt="Sony Ericson M600i running Concierge"/>
+		</center>
+		<p>
+		Mike Duller from ETH Zurich has successfully run Concierge on a Sony Ericson M600i. He used this <a href="/goodies/conciergelauncher-1.0.zip">launcher</a> and the following
+		init.xargs file to get it running on the j9.
+		</p>
+<source>
+# uncomment the following line if you want to relocate concierge's basedir
+# from its private application directory to the memory stick
+#-Dch.ethz.iks.concierge.basedir=d:\other\concierge
+-Dch.ethz.iks.concierge.jars=file:d:\other\concierge\bundles
+-Dch.ethz.iks.concierge.log.enabled=true
+-Dch.ethz.iks.concierge.log.level=4
+
+-init
+
+-istart splash_screen-0.6.2.jar 
+</source>
+		<p>Thanks, Mike.</p>
+		</section>
+	</body>
+</document>

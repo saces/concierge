@@ -7,7 +7,7 @@
 		<version>1.0_RC1</version>
 	</parent>
 	<groupId>ch.ethz.iks.concierge</groupId>
-	<artifactId>concierge.gui</artifactId>
+	<artifactId>concierge_gui</artifactId>
 	<packaging>osgi-bundle</packaging>
 	<name>Concierge GUI</name>
 

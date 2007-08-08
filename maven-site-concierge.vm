@@ -263,7 +263,6 @@
             <img alt="$i18n.getString( "site-renderer", $locale, "template.builtby" ) Maven" src="$relativePath/images/maven-feather.png"></img>
           </a>
 		<center>
-		<center>
 		<a href="http://sourceforge.net/projects/concierge">
       	  <img src="http://sourceforge.net/sflogo.php?group_id=175861&amp;type=3" border="0" alt="sf logo"/>
     		</a>

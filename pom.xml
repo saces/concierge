@@ -55,13 +55,13 @@
     <url>http://www.iks.inf.ethz.ch</url>
   </organization>
   <modules>
-    <module>framework</module>
     <module>bundles/service_tracker</module>
     <module>bundles/splash_screen</module>
     <module>bundles/shell</module>
     <module>bundles/event</module>
     <module>bundles/http</module>
     <module>bundles/gui</module>
+    <module>framework</module>
     <module>cte</module>
   </modules>
   <repositories>

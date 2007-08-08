@@ -12,11 +12,12 @@
 	<body>
 		<section name="Overview">
 		<p>
-			<b>Current release: 0.6.2</b><br/>
-			Improved the shell bundle. Fixed a bug in the event admin backport<br/><br/>
+			<b>Current release: 1.0_RC1</b><br/>
+			Fixed an issue with the native code loading.<br/>
+			Eclipse Plugin released<br/>
 		</p>
 		<p>
-			Concierge is an optimized <a href="http://www.osgi.org">OSGi</a> R3 framework implementations with a file footprint of under 80 kBytes. This makes it ideal for mobile or embedded devices. Typically, these devices have VMs that are more focused on compactness and less optimized. For instance, purely interpreting VMs often kill the performance of existing OSGi framework implementations. The design of Concierge has been developed with respect to such platforms. Concierge uses resources in a very careful way and is able to provide significantly better performance in resource-constrained environments. 
+			Concierge is an optimized <a href="http://www.osgi.org">OSGi</a> R3 framework implementations with a file footprint of about 80 kBytes. This makes it ideal for mobile or embedded devices. Typically, these devices have VMs that are more focused on compactness and less optimized. For instance, purely interpreting VMs often kill the performance of existing OSGi framework implementations. The design of Concierge has been developed with respect to such platforms. Concierge uses resources in a very careful way and is able to provide significantly better performance in resource-constrained environments. 
         </p>
         <p>
 			Compatibility and interoperability with existing OSGi framework implementations was an important aspect during the design and implementation of Concierge. To allow for easy testing and migration, Concierge supports both <a href="http://www.knopflerfish.org">Knopflerfish</a>-like <code>init.xargs</code> startup files and <a href="http://oscar.objectweb.org">Oscar</a> style <code>system.properties</code>. So to test Concierge with your existing OSGi setup, just place the framework JAR in your working directory and in most cases, it should be able to run without special adaptations. To read more about migrating from existing setups, have a look at <a href="userguide.html">Getting Started</a>. A full overview of all configurable features is given in <a href="properties.html">Startup Properties</a>.

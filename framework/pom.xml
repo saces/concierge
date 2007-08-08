@@ -18,6 +18,59 @@
 			</resource>
 		</resources>
 	    <plugins>
+	    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            	<phase>package</phase>
+            		<goals>
+              			<goal>copy</goal>
+            		</goals>
+            			<configuration>
+              				<artifactItems>
+                				<artifactItem>
+				  					<groupId>ch.ethz.iks.concierge</groupId>
+			      					<artifactId>service-tracker</artifactId>
+		          					<version>${pom.version}</version>
+                  					<type>jar</type>
+                  					<overWrite>true</overWrite>
+                				</artifactItem>              
+                				<artifactItem>
+				  					<groupId>ch.ethz.iks.concierge</groupId>
+			      					<artifactId>concierge_gui</artifactId>
+		          					<version>${pom.version}</version>
+                  					<type>jar</type>
+                  					<overWrite>true</overWrite>
+                				</artifactItem>
+                				<artifactItem>
+				  					<groupId>ch.ethz.iks.concierge</groupId>
+			      					<artifactId>splash_screen</artifactId>
+		          					<version>${pom.version}</version>
+                  					<type>jar</type>
+                  					<overWrite>true</overWrite>
+                				</artifactItem>
+                				<artifactItem>
+				  					<groupId>ch.ethz.iks.concierge</groupId>
+			      					<artifactId>event-admin</artifactId>
+		          					<version>${pom.version}</version>
+                  					<type>jar</type>
+                  					<overWrite>true</overWrite>
+                				</artifactItem>
+                				<artifactItem>
+				  					<groupId>ch.ethz.iks.concierge</groupId>
+			  	  					<artifactId>shell</artifactId>
+	              					<version>${pom.version}</version>
+                  					<type>jar</type>
+                  					<overWrite>true</overWrite>
+                				</artifactItem>                                
+              				</artifactItems>
+              				<outputDirectory>src/site/resources/bundles</outputDirectory>
+            			</configuration>
+          			</execution>
+        		</executions>
+      		</plugin>	    
 	    	<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
         		<artifactId>maven-compiler-plugin</artifactId>

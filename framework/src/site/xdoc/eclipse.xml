@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+	<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Eclipse Integration</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Eclipse Integration">
+		<subsection name="CTE">
+		<p>
+			<a href="http://www.buglabs.net">BugLabs</a> have contributed a full Eclipse integration for Concierge. With the Concierge Tools for Eclipse (CTE), 
+			developers can write their (R3) bundles in Eclipse and run or debug them directly inside the IDE.    
+        </p>
+		<p>
+			The Concierge Tools for Eclipse can be installed via the update site:
+<source>
+			http://concierge.sourceforge.net/cte/update
+</source>			 
+		</p>		
+        </subsection>
+        <subsection name="Screenshots">
+        <p>
+        <img src="/cte/project_wizard.png"/><br/>
+        Create new Concierge projects with the project wizard.
+        </p>
+        <p>
+        <img src="/cte/run.jpg"/><br/>
+        Run Concierge applications directly in Eclipse.
+        </p>
+        <p>
+        <img src="/cte/debug.png"/><br/>
+        Debug Concierge applications in Eclipse.        
+        </p>
+        </subsection>
+		</section>
+	</body>
+</document>
