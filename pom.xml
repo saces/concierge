@@ -32,7 +32,7 @@
       <organization>Bug Labs, Inc.</organization>
       <roles>
         <role>Committer</role>
-        <role>HTTPService developer</role>
+        <role>HTTPService, Eclipse Plugin</role>
       </roles>
       <timezone>+6</timezone>
     </developer>
@@ -45,8 +45,8 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://concierge.svn.sourceforge.net/svnroot/concierge</connection>
-    <developerConnection>scm:svn:user@https://concierge.svn.sourceforge.net/svnroot/concierge</developerConnection>
+    <connection>scm:svn:https://concierge.svn.sourceforge.net/svnroot</connection>
+    <developerConnection>scm:svn:user@https://concierge.svn.sourceforge.net/svnroot</developerConnection>
     <tag>Sourceforge SVN Repository</tag>
     <url>http://concierge.svn.sourceforge.net</url>
   </scm>
