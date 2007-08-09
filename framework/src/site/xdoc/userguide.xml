@@ -16,12 +16,12 @@
 			If you have a Knopflerfish or Oscar setup, you don't have to change much. Just place the Concierge framework JAR in your working directory. Concierge is able to run with your existing <code>init.xargs</code> file or with your <code>system.properties</code>. You might have to adjust some startup properties. Additionally, Concierge does not feature the ServiceTracker service as part of the framework. So if your existing setup makes use of the service tracker, add the Concierge ServiceTracker bundle to your configuration. 
         </p>
 		<p>
-			By default, Concierge runs with no shell. To have a shell, just add the <a href="/bundles/index.html">shell-0.6.0.jar</a> to the initially started bundles. This shell is very small but features most things that you will need for managing and controlling your OSGi framework. Indeed, there is no fancy 3D-animated high-color Swing-based GUI. Remember, Concierge was designed for resource-constrained devices. And there is no reason to have an optimized and low-overhead framework implementation and then add a fat GUI that has a multiple of the framework's size. Maybe, we will create a minimalistic GUI for basic management functionalities one day (at least on SymbianOS, this makes some sense). So far, if you insist on having a GUI, you can, for instance, use the one from Knopflerfish or Oscar. They run perfectly fine with Concierge (well, the Knopflerfish Desktop of course requires your platform to support Swing :-). 
+			By default, Concierge runs with no shell. To have a shell, just add the <a href="/bundles/index.html">shell-X.jar</a> to the initially started bundles. This shell is very small but features most things that you will need for managing and controlling your OSGi framework. For controlling Concierge graphically on small devices, there is a simple AWT-based GUI which should run on most platforms. Headless platforms can be controlled remotely by <a href="http://r-osgi.sourceforge.net">R-OSGi</a>.  
 		</p>
         </subsection>
         <subsection name="Introduction to OSGi">
         	<p>
-    		Yes, I know I should write a small tutorial. You will find it here very soon.
+    		Yes, I know I should write a small tutorial. Check back later.
         	</p>
         </subsection>
 		</section>
