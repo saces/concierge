@@ -113,10 +113,6 @@ final class RFC1960Filter implements Filter {
 		}
 	};
 
-	/**
-	 * the stack for parsing filter expressions.
-	 */
-	private static final Stack STACK = new Stack();
 
 	// fields
 
@@ -156,6 +152,8 @@ final class RFC1960Filter implements Filter {
 			return NULL_FILTER;
 		}
 
+		final Stack stack = new Stack();
+		
 		try {
 
 			final int len = filterString.length();
@@ -166,7 +164,7 @@ final class RFC1960Filter implements Filter {
 			int comparator = -1;
 
 			final char[] chars = filterString.toCharArray();
-			STACK.clear();
+			stack.clear();
 
 			for (int i = 0; i < chars.length; i++) {
 
@@ -175,13 +173,13 @@ final class RFC1960Filter implements Filter {
 					// lookahead ...
 					final char nextChar = chars[i + 1];
 					if (nextChar == '&') {
-						STACK.push(new RFC1960Filter(AND_OPERATOR));
+						stack.push(new RFC1960Filter(AND_OPERATOR));
 						continue;
 					} else if (nextChar == '|') {
-						STACK.push(new RFC1960Filter(OR_OPERATOR));
+						stack.push(new RFC1960Filter(OR_OPERATOR));
 						continue;
 					} else if (nextChar == '!') {
-						STACK.push(new RFC1960Filter(NOT_OPERATOR));
+						stack.push(new RFC1960Filter(NOT_OPERATOR));
 						continue;
 					} else {
 						if (last == -1) {
@@ -196,11 +194,11 @@ final class RFC1960Filter implements Filter {
 					continue;
 				case ')':
 					if (last == -1) {
-						RFC1960Filter filter = (RFC1960Filter) STACK.pop();
-						if (STACK.isEmpty()) {
+						RFC1960Filter filter = (RFC1960Filter) stack.pop();
+						if (stack.isEmpty()) {
 							return filter;
 						}
-						RFC1960Filter parent = (RFC1960Filter) STACK.peek();
+						RFC1960Filter parent = (RFC1960Filter) stack.peek();
 						if (parent.operator == NOT_OPERATOR
 								&& !parent.operands.isEmpty()) {
 							throw new InvalidSyntaxException(
@@ -219,7 +217,7 @@ final class RFC1960Filter implements Filter {
 							throw new InvalidSyntaxException(
 									"Missing operator.", filterString);
 						}
-						if (STACK.isEmpty()) {
+						if (stack.isEmpty()) {
 							if (i == len - 1) {
 
 								// just a single simple filter
@@ -241,7 +239,7 @@ final class RFC1960Filter implements Filter {
 						}
 
 						// get the parent from stack
-						RFC1960Filter parent = ((RFC1960Filter) STACK.peek());
+						RFC1960Filter parent = ((RFC1960Filter) stack.peek());
 
 						String value = filterString.substring(++oper, i);
 						if (value.equals("*") && comparator == EQUALS) {
@@ -304,7 +302,7 @@ final class RFC1960Filter implements Filter {
 				}
 			}
 
-			return (RFC1960Filter) STACK.pop();
+			return (RFC1960Filter) stack.pop();
 		} catch (EmptyStackException e) {
 			throw new InvalidSyntaxException(
 					"Filter expression not well-formed.", filterString);

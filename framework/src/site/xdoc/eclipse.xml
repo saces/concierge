@@ -26,15 +26,15 @@
         <subsection name="Screenshots">
         <p>
         <img src="/cte/project_wizard.png"/><br/>
-        Create new Concierge projects with the project wizard.
+        <i>Create new Concierge projects with the project wizard.</i>
         </p>
         <p>
         <img src="/cte/run.jpg"/><br/>
-        Run Concierge applications directly in Eclipse.
+        <i>Run Concierge applications directly in Eclipse.</i>
         </p>
         <p>
         <img src="/cte/debug.png"/><br/>
-        Debug Concierge applications in Eclipse.        
+        <i>Debug Concierge applications in Eclipse.</i>        
         </p>
         </subsection>
 		</section>

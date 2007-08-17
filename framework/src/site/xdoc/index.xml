@@ -13,14 +13,18 @@
 		<section name="Overview">
 		<p>
 			<b>Current release: 1.0_RC1</b><br/>
-			Fixed an issue with the native code loading.<br/>
-			Eclipse Plugin released<br/>
+			<ul>
+			<li>Fixed an issue with the native code loading.</li>
+			<li><a href="/eclipse.html">Eclipse Plugin</a> released.</li>
+			<li><a href="/bundles">Simple GUI controller</a> for PDAs and SmartPhones released.</li>
+			</ul>
+			<a href="/eclipse.html"><img src="/images/eclipse_plugin.png"/></a><a href="/bundles"><img src="/images/conciergeGUI.png"/></a>
 		</p>
 		<p>
 			Concierge is an optimized <a href="http://www.osgi.org">OSGi</a> R3 framework implementations with a file footprint of about 80 kBytes. This makes it ideal for mobile or embedded devices. Typically, these devices have VMs that are more focused on compactness and less optimized. For instance, purely interpreting VMs often kill the performance of existing OSGi framework implementations. The design of Concierge has been developed with respect to such platforms. Concierge uses resources in a very careful way and is able to provide significantly better performance in resource-constrained environments. 
         </p>
         <p>
-			Compatibility and interoperability with existing OSGi framework implementations was an important aspect during the design and implementation of Concierge. To allow for easy testing and migration, Concierge supports both <a href="http://www.knopflerfish.org">Knopflerfish</a>-like <code>init.xargs</code> startup files and <a href="http://oscar.objectweb.org">Oscar</a> style <code>system.properties</code>. So to test Concierge with your existing OSGi setup, just place the framework JAR in your working directory and in most cases, it should be able to run without special adaptations. To read more about migrating from existing setups, have a look at <a href="userguide.html">Getting Started</a>. A full overview of all configurable features is given in <a href="properties.html">Startup Properties</a>.
+			Compatibility and interoperability with existing OSGi framework implementations was an important aspect during the design and implementation of Concierge. To allow for easy testing and migration, Concierge supports both <a href="http://www.knopflerfish.org">Knopflerfish</a>-like <code>init.xargs</code> startup files and <a href="http://oscar.objectweb.org">Oscar</a> style <code>system.properties</code>. To test Concierge with your existing OSGi setup, just place the framework JAR in your working directory and in most cases, it should be able to run without special adaptations. To read more about migrating from existing setups, have a look at <a href="userguide.html">Getting Started</a>. A full overview of all configurable features is given in <a href="properties.html">Startup Properties</a>.
         </p>
         <p>
         	Concierge has been tested on a large range of devices. As a matter of fact, Java is not Java when it comes to small devices. So we really measured and tested a lot. Experiences with the particularities of some testing platforms and configuration hints are given in <a href="/platforms/index.html">Tested Platforms</a>.
@@ -28,6 +32,9 @@
         <br/>
         <p>
         	Concierge was developed as part of the <a href="http://">flowSGi</a> project, which is an ongoing research project at <a href="http://www.pc.inf.ethz.ch">Institute for Pervasive Computing</a>, <a href="http://www.ethz.ch">ETH Zurich</a>.
+        </p>
+        <p>
+			<i>Jan S. Rellermeyer, Gustavo Alonso: <a href="http://www.iks.inf.ethz.ch/publications/publications/eurosys07_concierge.html" target='new'>Concierge: A Service Platform for Resource-Constrained Devices</a>. In: Proceedings of the 2007 ACM EuroSys Conference, Lisbon, Portugal, 2007.</i>          	
         </p>
 		</section>
 	</body>
