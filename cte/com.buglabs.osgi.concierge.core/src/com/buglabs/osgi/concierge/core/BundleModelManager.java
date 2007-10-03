@@ -89,8 +89,7 @@ public class BundleModelManager implements IResourceChangeListener {
 					try {
 						updateProjectPackages(project);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						projects.remove(project);
 					}
 				}
 			}
@@ -129,7 +128,6 @@ public class BundleModelManager implements IResourceChangeListener {
 		if(manifest != null) {
 			if(manifest.exists()) {
 				List importedPackages = ManifestUtils.getImportedPackages(manifest.getContents());
-				importedPackages.addAll(ManifestUtils.getDynamicallyImportedPackages(manifest.getContents()));
 				List exportedPackages = ManifestUtils.getExportedPackages(manifest.getContents());
 
 				projectImports.put(project, importedPackages);

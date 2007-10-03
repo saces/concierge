@@ -109,7 +109,7 @@ public class ConciergeRuntime extends AbstractUIPlugin {
 				File[] libraries = bugKernelLoc.listFiles(new FilenameFilter(){
 
 					public boolean accept(File dir, String name) {
-						if(name.endsWith(".jar")) {
+						if(name.endsWith(".jar") && !name.startsWith("org.eclipse.swt")) {
 							return true;
 						}
 						return false;
