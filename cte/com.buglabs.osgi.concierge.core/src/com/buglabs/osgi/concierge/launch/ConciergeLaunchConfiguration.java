@@ -359,7 +359,7 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 	protected StringBuffer getSystemPropertiesContents(ILaunchConfiguration configuration) throws CoreException {
 		StringBuffer sb = new StringBuffer();
 
-		Map properties = configuration.getAttribute(ConciergeLaunchConfiguration.SYSTEM_PROPERTIES, new Hashtable());
+		Map properties = getSystemProperties(configuration);
 
 		for (Iterator i = properties.keySet().iterator(); i.hasNext();) {
 			String k = (String) i.next();
@@ -373,7 +373,18 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 
 		return sb;
 	}
-
+	
+	/**
+	 * Retrieve system properties map from the launch configuration
+	 * 
+	 * @param configuration
+	 * @return A map of system properties
+	 * @throws CoreException 
+	 */
+	public Map getSystemProperties(ILaunchConfiguration configuration) throws CoreException {
+		return configuration.getAttribute(ConciergeLaunchConfiguration.SYSTEM_PROPERTIES, new Hashtable());
+	}
+	
 	private List exportProjectsAsjars(List workspaceBundles) throws CoreException, IOException {
 		
 		jarToProjectName.clear();
