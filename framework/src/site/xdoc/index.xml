@@ -12,9 +12,9 @@
 	<body>
 		<section name="Overview">
 		<p>
-			<b>Current release: 1.0_RC1</b><br/>
+			<b>Current release: 1.0_RC2</b><br/>
 			<ul>
-			<li>Fixed an issue with the native code loading.</li>
+			<li>Minor bug fixes.</li>
 			<li><a href="/eclipse.html">Eclipse Plugin</a> released.</li>
 			<li><a href="/bundles">Simple GUI controller</a> for PDAs and SmartPhones released.</li>
 			</ul>
