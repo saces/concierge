@@ -112,14 +112,14 @@ final class ServiceReferenceImpl implements ServiceReference {
 		this.service = service;
 		this.properties = props == null ? new Hashtable(2) : new Hashtable(
 				props.size() + 2);
-		properties.put(Constants.OBJECTCLASS, clazzes);
-		properties.put(Constants.SERVICE_ID, new Long(++nextServiceID));
 		if (props != null) {
 			for (Enumeration keys = props.keys(); keys.hasMoreElements();) {
 				final Object key = keys.nextElement();
 				properties.put(key, props.get(key));
 			}
 		}
+		properties.put(Constants.OBJECTCLASS, clazzes);
+		properties.put(Constants.SERVICE_ID, new Long(++nextServiceID));
 		this.registration = new ServiceRegistrationImpl();
 	}
 

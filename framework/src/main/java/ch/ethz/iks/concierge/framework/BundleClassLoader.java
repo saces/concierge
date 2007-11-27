@@ -862,7 +862,7 @@ final class BundleClassLoader extends ClassLoader {
 		final String osversion = ";"
 				+ (String) Framework.properties.get("os.version");
 		final Locale language = new Locale((String) Framework.properties
-				.get("org.osgi.framework.language"));
+				.get("org.osgi.framework.language"), "");
 		final String cpu = ((String) Framework.properties.get("os.arch"))
 				.intern();
 		final String processor = ((cpu == "pentium" || cpu == "i386"
@@ -906,7 +906,7 @@ final class BundleClassLoader extends ClassLoader {
 							v |= Package.matches(";" + value, osversion);
 							no_v = false;
 						} else if (criterium == "language") {
-							l |= new Locale(value).getLanguage().equals(
+							l |= new Locale(value, "").getLanguage().equals(
 									language);
 							no_l = false;
 						} else if (criterium == "processor") {

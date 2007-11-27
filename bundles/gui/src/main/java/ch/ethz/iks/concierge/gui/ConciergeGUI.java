@@ -260,7 +260,7 @@ public class ConciergeGUI extends Frame implements BundleListener {
 		loc.setEditable(false);
 		loc.setText(text);
 		dialog.add(loc);
-		dialog.setIconImage(ICON);
+		// dialog.setIconImage(ICON);
 		// dialog.pack();
 		dialog.setModal(true);
 		dialog.addWindowListener(new WindowAdapter() {

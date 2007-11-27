@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>concierge-project</artifactId>
 		<groupId>ch.ethz.iks.concierge</groupId>
-		<version>1.0_RC1</version>
+		<version>1.0_RC2</version>
 	</parent>
 	<name>Concierge Framework</name>
 	<groupId>ch.ethz.iks.concierge</groupId>

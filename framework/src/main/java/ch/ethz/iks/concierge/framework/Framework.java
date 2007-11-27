@@ -473,7 +473,7 @@ public final class Framework {
 						}
 						level++;
 					} while (install != null || start != null
-							|| level < maxlevel);
+							|| level <= maxlevel);
 
 					initStartlevel = getProperty("osgi.startlevel.bundle", 1);
 					target = getProperty("osgi.startlevel.framework", 1);
@@ -2468,6 +2468,9 @@ public final class Framework {
 									+ toProcess[j].location);
 							toProcess[j].startBundle();
 						} else {
+							if (toProcess[j].getState() == Bundle.UNINSTALLED) {
+								continue;
+							}
 							System.out.println("STOPPING "
 									+ toProcess[j].location);
 							toProcess[j].stopBundle();

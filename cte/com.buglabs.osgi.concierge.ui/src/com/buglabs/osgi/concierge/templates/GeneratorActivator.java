@@ -13,7 +13,7 @@ import com.buglabs.osgi.concierge.ui.info.ProjectInfo;
     return result;
   }
 
-  protected final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
+  public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = "package ";
   protected final String TEXT_2 = ";";
   protected final String TEXT_3 = NL + NL + "import org.osgi.framework.BundleActivator;" + NL + "import org.osgi.framework.BundleContext;" + NL + "" + NL + "public class ";

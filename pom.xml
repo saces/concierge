@@ -5,7 +5,7 @@
   <artifactId>concierge-project</artifactId>
   <packaging>pom</packaging>
   <name>Concierge OSGi</name>
-  <version>1.0_RC1</version>
+  <version>1.0_RC2</version>
   <url>http://r-osgi.sourceforge.net</url>
   <issueManagement>
     <system>Sourceforge bug tracker</system>
@@ -32,7 +32,18 @@
       <organization>Bug Labs, Inc.</organization>
       <roles>
         <role>Committer</role>
-        <role>HTTPService, Eclipse Plugin</role>
+        <role>HTTPService, Concierge Tools for Eclipse</role>
+      </roles>
+      <timezone>+6</timezone>
+    </developer>
+    <developer>
+      <id>aroman</id>
+      <name>Angel Roman</name>
+      <email>angel.roman_at_mdesystems.com</email>
+      <organization>MDE Systems</organization>
+      <roles>
+        <role>Committer</role>
+        <role>Concierge Tools for Eclipse</role>
       </roles>
       <timezone>+6</timezone>
     </developer>
