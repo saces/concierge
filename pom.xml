@@ -56,8 +56,8 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://concierge.svn.sourceforge.net/svnroot/trunk</connection>
-    <developerConnection>scm:svn:user@https://concierge.svn.sourceforge.net/svnroot/trunk</developerConnection>
+    <connection>scm:svn:https://concierge.svn.sourceforge.net/svnroot</connection>
+    <developerConnection>scm:svn:user@https://concierge.svn.sourceforge.net/svnroot</developerConnection>
     <url>http://concierge.svn.sourceforge.net</url>
   </scm>
   <organization>
