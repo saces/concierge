@@ -20,23 +20,23 @@
 				<th>Description</th>
 			</tr>
 			<tr>			
-				<td><a href="./service-tracker-1.0_RC2.jar">Service Tracker</a></td>
+				<td><a href="./service-tracker-1.0.0.RC2.jar">Service Tracker</a></td>
 				<td>The OSGi service tracker. We have tuned it a bit for better performance.</td>
 			</tr>
 			<tr>			
-				<td><a href="./shell-1.0_RC2.jar">Shell</a></td>
+				<td><a href="./shell-1.0.0.RC2.jar">Shell</a></td>
 				<td>A minimalistic shell for resource-constrained environments. The shell is extensible at runtime, other bundles can register management extensions.</td>
 			</tr>
 			<tr>			
-				<td><a href="./splash_screen-1.0_RC2.jar">Splash Screen</a></td>
+				<td><a href="./splash_screen-1.0.0.RC2.jar">Splash Screen</a></td>
 				<td>Our "Yes, it runs with Concierge" splash screen. Not terribly useful but nice for testing and demos.</td>
 			</tr>
 			<tr>			
-				<td><a href="./concierge_gui-1.0_RC2.jar">Concierge GUI</a></td>
+				<td><a href="./concierge_gui-1.0.0.RC2.jar">Concierge GUI</a></td>
 				<td>A small GUI that runs on PDAs and smart phones. Can be used to manage bundles.</td>
 			</tr>						
 			<tr>			
-				<td><a href="./event-admin-1.0_RC2.jar">Event Admin</a></td>
+				<td><a href="./event-admin-1.0.0.RC2.jar">Event Admin</a></td>
 				<td>R4 EventAdmin backport for Concierge. Can be used with R-OSGi.</td>
 			</tr>
 		</table>        

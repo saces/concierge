@@ -5,7 +5,7 @@
   <artifactId>concierge-project</artifactId>
   <packaging>pom</packaging>
   <name>Concierge OSGi</name>
-  <version>1.0_RC2</version>
+  <version>1.0.0.RC2</version>
   <url>http://r-osgi.sourceforge.net</url>
   <issueManagement>
     <system>Sourceforge bug tracker</system>
@@ -56,15 +56,15 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://concierge.svn.sourceforge.net/svnroot</connection>
-    <developerConnection>scm:svn:user@https://concierge.svn.sourceforge.net/svnroot</developerConnection>
-    <tag>Sourceforge SVN Repository</tag>
+    <connection>scm:svn:https://concierge.svn.sourceforge.net/svnroot/trunk</connection>
+    <developerConnection>scm:svn:user@https://concierge.svn.sourceforge.net/svnroot/trunk</developerConnection>
     <url>http://concierge.svn.sourceforge.net</url>
   </scm>
   <organization>
     <name>IKS, ETH Zurich</name>
     <url>http://www.iks.inf.ethz.ch</url>
   </organization>
+
   <modules>
     <module>bundles/service_tracker</module>
     <module>bundles/splash_screen</module>
@@ -75,6 +75,7 @@
     <module>framework</module>
     <module>cte</module>
   </modules>
+  
   <repositories>
     <repository>
       <id>iks-repository</id>
