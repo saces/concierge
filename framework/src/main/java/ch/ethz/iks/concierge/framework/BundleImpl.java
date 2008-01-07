@@ -228,7 +228,7 @@ final class BundleImpl implements Bundle {
 
 		// create the bundle classloader
 		classloader = new BundleClassLoader(this, Framework.STORAGE_LOCATION
-				+ File.separatorChar + bundleID);
+				+ File.separatorChar + bundleID + File.separatorChar);
 
 		// we are just installing the bundle, if it is
 		// possible, resolve it, if not, wait until the
