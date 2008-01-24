@@ -18,6 +18,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.pde.core
 Eclipse-LazyStart: true
 Export-Package: com.buglabs.osgi.concierge.core,
+ com.buglabs.osgi.concierge.core.builder,
  com.buglabs.osgi.concierge.core.utils,
  com.buglabs.osgi.concierge.jdt,
  com.buglabs.osgi.concierge.launch,
