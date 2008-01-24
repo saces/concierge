@@ -959,8 +959,7 @@ final class BundleClassLoader extends ClassLoader {
 
 			byte[] buffer = new byte[bufferSize];
 			int len;
-			while (available > 0
-					&& (len = input.read(buffer, 0,
+			while ((len = input.read(buffer, 0,
 							available < bufferSize ? available : bufferSize)) > -1) {
 				fos.write(buffer, 0, len);
 				available = input.available();
