@@ -3,19 +3,16 @@ package com.buglabs.osgi.concierge.core.tests;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
+
+import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 
 import com.buglabs.osgi.concierge.core.utils.ManifestUtils;
-
-import junit.framework.TestCase;
 
 /**
  * 

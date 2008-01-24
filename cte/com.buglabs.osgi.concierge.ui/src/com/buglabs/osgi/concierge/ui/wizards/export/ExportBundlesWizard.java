@@ -34,6 +34,8 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -42,6 +44,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ui.IExportWizard;
 import org.eclipse.ui.IWorkbench;
 
+import com.buglabs.osgi.concierge.core.OSGiCore;
 import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
 import com.buglabs.osgi.concierge.natures.ConciergeProjectNature;
 import com.buglabs.osgi.concierge.ui.Activator;
@@ -108,10 +111,13 @@ public class ExportBundlesWizard extends Wizard implements IExportWizard {
 		while (projectsIter.hasNext()) {
 			IProject proj = (IProject) projectsIter.next();
 			try {
-				ProjectUtils.exporToJar(loc, proj);
+				File exporToJar = ProjectUtils.exporToJar(loc, proj);
+				
+				if(exporToJar == null)
+					return false;
+				
 			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Activator.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 			}
 		}
 		

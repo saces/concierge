@@ -35,8 +35,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -46,10 +48,12 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.buglabs.osgi.concierge.core.OSGiCore;
 import com.buglabs.osgi.concierge.core.utils.ConciergeUtils;
 import com.buglabs.osgi.concierge.jdt.ConciergeClasspathContainerInitializer;
 import com.buglabs.osgi.concierge.jdt.OSGiBundleClassPathContainerInitializer;
 import com.buglabs.osgi.concierge.natures.ConciergeProjectNature;
+import com.buglabs.osgi.concierge.ui.Activator;
 
 /**
  * 
@@ -82,8 +86,7 @@ public class ConvertProjectToConcierge extends Action {
 			checkProjectBinFolder(jproj);
 
 		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 		}
 	}
 
@@ -139,8 +142,7 @@ public class ConvertProjectToConcierge extends Action {
 				}
 			}
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 		}
 
 		return false;

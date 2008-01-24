@@ -30,12 +30,15 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
+import com.buglabs.osgi.concierge.core.OSGiCore;
 import com.buglabs.osgi.concierge.ui.Activator;
 import com.buglabs.osgi.concierge.ui.info.ProjectInfo;
 import com.buglabs.osgi.concierge.ui.jobs.CreateConciergeProject;
@@ -89,11 +92,9 @@ public class NewConciergeProjectWizard extends Wizard implements INewWizard {
 		try {
 			getContainer().run(false, false, new CreateConciergeProject(pinfo));
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 		}
 		
 		propertiesPage.saveDefaults();

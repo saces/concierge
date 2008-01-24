@@ -109,7 +109,12 @@ public class CreateConciergeProject extends WorkspaceModifyOperation {
 	protected void generateActivator(IProgressMonitor monitor) throws CoreException {
 		String contents = getActivatorContents().toString();
 		
-		Path activatorpath = new Path(projInfo.getActivator().replace('.', '/') + ".java");
+		String fileHandle = projInfo.getActivator().replace('.', '/');
+		/*char[] charArray = fileHandle.toCharArray();
+		charArray[0] = Character.toLowerCase(charArray[0]);
+		fileHandle = new String(charArray);*/
+		
+		Path activatorpath = new Path(fileHandle + ".java");
 		createDeepFile(srcContainer, activatorpath);
 		IFile activator = srcContainer.getFile(activatorpath);
 		writeContents(activator, contents, monitor);

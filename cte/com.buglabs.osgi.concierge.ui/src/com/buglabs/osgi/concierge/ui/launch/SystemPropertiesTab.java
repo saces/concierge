@@ -30,6 +30,8 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -59,7 +61,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 
+import com.buglabs.osgi.concierge.core.OSGiCore;
 import com.buglabs.osgi.concierge.launch.ConciergeLaunchConfiguration;
+import com.buglabs.osgi.concierge.ui.Activator;
 
 /**
  * 
@@ -419,8 +423,7 @@ public class SystemPropertiesTab extends AbstractLaunchConfigurationTab {
 				jvmArgs.setText(args);
 			}
 		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 		}
 
 	}

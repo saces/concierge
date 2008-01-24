@@ -26,6 +26,8 @@
  */
 package com.buglabs.osgi.concierge.ui;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
@@ -96,4 +98,11 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	/**
+	 * Log an exception to the Eclipse error log.
+	 * @param e
+	 */
+	public static void logException(Exception e) {
+		plugin.getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.OK, e.getMessage(), null));
+	}
 }

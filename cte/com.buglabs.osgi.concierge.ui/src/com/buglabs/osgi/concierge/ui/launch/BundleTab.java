@@ -45,7 +45,8 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -73,10 +74,12 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
+import com.buglabs.osgi.concierge.core.OSGiCore;
 import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
 import com.buglabs.osgi.concierge.launch.ConciergeLaunchConfiguration;
 import com.buglabs.osgi.concierge.natures.ConciergeProjectNature;
 import com.buglabs.osgi.concierge.runtime.ConciergeRuntime;
+import com.buglabs.osgi.concierge.ui.Activator;
 
 /**
  * 
@@ -385,7 +388,6 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 		try {
 			allBundles = getWSCGProjectNames();
 		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			allBundles = new Vector();
 		}
@@ -409,8 +411,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 
 			setViewerEnabled(initializeButton.getSelection());
 		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.logException(e);
 		}
 
 		viewer.refresh();
@@ -434,7 +435,7 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 			cgInstallList = configuration.getAttribute(ConciergeLaunchConfiguration.CORE_INSTALL_MAP, new ArrayList());
 			cgViewer.setCheckedElements(cgLaunchBundles.toArray());
 		} catch (CoreException e) {
-			// TODO Auto-generated catch block
+			Activator.logException(e);
 			e.printStackTrace();
 		}
 
@@ -597,11 +598,9 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 				try {
 					return getBundleName(f);
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 				}
 				return f.getName();
 			case 1:
@@ -659,14 +658,11 @@ public class BundleTab extends AbstractLaunchConfigurationTab {
 				try {
 					return getBundleName(p);
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 				}
 				return p.getName();
 			case 1:
