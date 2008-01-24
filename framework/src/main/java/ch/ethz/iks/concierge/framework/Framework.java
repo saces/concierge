@@ -522,14 +522,6 @@ public final class Framework {
 	 * @return
 	 */
 	private static boolean isBundle(final String location) {
-		// TODO Perhaps do real validation here by looking in the jar and seeing
-		// if the Manifest is valid.
-		//
-		// #rjan: opening the bundle and checking the Manifest is quite costy.
-		// A fail-early strategy might significantly slow down the startup.
-		// If the case that invalid bundles occur is rather rare, I would not
-		// introduce too much checking.#
-
 		if (location.toUpperCase().endsWith(".JAR")
 				|| location.toUpperCase().endsWith(".ZIP")) {
 			return true;
