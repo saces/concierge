@@ -36,6 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -98,7 +100,7 @@ public class ConciergeRuntime extends AbstractUIPlugin {
 			loc = getJarsLocation();
 			
 		} catch (Exception e) {
-			//TODO: Handle exception, log it.
+			this.getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.OK, e.getMessage(), null));
 		}
 
 		if(!loc.equals("")){
