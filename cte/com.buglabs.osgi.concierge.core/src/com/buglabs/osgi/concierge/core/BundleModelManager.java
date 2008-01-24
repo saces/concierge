@@ -43,13 +43,16 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import com.buglabs.osgi.concierge.core.builder.ManifestConsistencyChecker;
 import com.buglabs.osgi.concierge.core.utils.ManifestUtils;
 import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
 import com.buglabs.osgi.concierge.jdt.OSGiBundleClassPathContainer;
@@ -83,11 +86,13 @@ public class BundleModelManager implements IResourceChangeListener {
 	public synchronized void addProject(IProject project) throws CoreException {
 		if(!projects.contains(project)) {
 			projects.add(project);	
+		
 			IFile manifest = ProjectUtils.getManifestFile(project);
 			if(manifest != null) {
 				if(manifest.exists()) {
 					try {
 						updateProjectPackages(project);
+						ProjectUtils.configureBuilder(project, ManifestConsistencyChecker.ID);
 					} catch (IOException e) {
 						projects.remove(project);
 					}
@@ -204,8 +209,7 @@ public class BundleModelManager implements IResourceChangeListener {
 									updateProjectPackages(res.getProject());
 									updateProjectClasspathContainer();
 								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									throw new CoreException(new Status(Status.ERROR, "com.buglabs.osgi.concierge.core", IStatus.OK, e.getMessage(), null));
 								}
 							} 
 						}
@@ -217,8 +221,7 @@ public class BundleModelManager implements IResourceChangeListener {
 				try {
 					event.getDelta().accept(deltaVisitor);
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					OSGiCore.logException(e);
 				}
 				break;
 		}

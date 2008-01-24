@@ -30,6 +30,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
+import com.buglabs.osgi.concierge.core.builder.ManifestConsistencyChecker;
+import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
+
 /**
  * 
  * @author Angel Roman - roman@mdesystems.com
@@ -42,8 +45,7 @@ public class ConciergeProjectNature implements IProjectNature {
 	IProject project;
 	
 	public void configure() throws CoreException {
-		// TODO Auto-generated method stub
-
+		ProjectUtils.configureBuilder(project, ManifestConsistencyChecker.ID);
 	}
 
 	public void deconfigure() throws CoreException {

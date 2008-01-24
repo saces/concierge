@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -45,6 +43,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
@@ -55,6 +55,7 @@ import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 
+import com.buglabs.osgi.concierge.core.OSGiCore;
 import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
 import com.buglabs.osgi.concierge.jdt.ConciergeClasspathContainer;
 import com.buglabs.osgi.concierge.runtime.ConciergeRuntime;
@@ -129,11 +130,9 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 				vmargs.add(configuration.getAttribute(JVM_ARGUMENTS, ""));
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 		}
 
 		vmconfig.setVMArguments((String[]) vmargs.toArray(new String[vmargs.size()]));
@@ -357,9 +356,13 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 	 * @throws CoreException
 	 */
 	protected StringBuffer getSystemPropertiesContents(ILaunchConfiguration configuration) throws CoreException {
+		Map properties = configuration.getAttribute(ConciergeLaunchConfiguration.SYSTEM_PROPERTIES, new Hashtable());
+		
+		return generateSystemPropertiesContents(properties);
+	}
+	
+	protected StringBuffer generateSystemPropertiesContents(Map properties) {
 		StringBuffer sb = new StringBuffer();
-
-		Map properties = getSystemProperties(configuration);
 
 		for (Iterator i = properties.keySet().iterator(); i.hasNext();) {
 			String k = (String) i.next();
@@ -373,18 +376,7 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 
 		return sb;
 	}
-	
-	/**
-	 * Retrieve system properties map from the launch configuration
-	 * 
-	 * @param configuration
-	 * @return A map of system properties
-	 * @throws CoreException 
-	 */
-	public Map getSystemProperties(ILaunchConfiguration configuration) throws CoreException {
-		return configuration.getAttribute(ConciergeLaunchConfiguration.SYSTEM_PROPERTIES, new Hashtable());
-	}
-	
+
 	private List exportProjectsAsjars(List workspaceBundles) throws CoreException, IOException {
 		
 		jarToProjectName.clear();
@@ -407,8 +399,12 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 
 			if (workspaceBundles.contains(proj.getName())) {
 				File jar = ProjectUtils.exporToJar(bundlesLoc, proj);
-				jars.add(jar);
-				jarToProjectName.put(jar, proj.getName());
+				
+				// do not add project to export list if exporting to jar failed
+				if(jar != null){
+					jars.add(jar);
+					jarToProjectName.put(jar, proj.getName());
+				}
 			}
 		}
 
@@ -418,12 +414,18 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 	private static File getBundlesLocation() {
 		return ConciergeRuntime.getDefault().getBundlesLocation();
 	}
+	
+	
+	protected IProject[] getProjectsForProblemSearch(ILaunchConfiguration configuration, String mode) throws CoreException {
+		List projects = ProjectUtils.getWSCGProjects();
+	    return (IProject[])projects.toArray(new IProject[projects.size()]);
+	}
 
 	public static URL getProjectJarURL(IProject proj) throws IOException, URISyntaxException, CoreException {
 		return ProjectUtils.getProjectJarURL(getBundlesLocation(), proj);
 	}
 
-	public boolean buildForLaunch(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor) throws CoreException {
+/*	public boolean buildForLaunch(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor) throws CoreException {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -441,5 +443,5 @@ public class ConciergeLaunchConfiguration extends LaunchConfigurationDelegate im
 	public boolean preLaunchCheck(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor) throws CoreException {
 		// TODO Auto-generated method stub
 		return true;
-	}
+	}*/
 }

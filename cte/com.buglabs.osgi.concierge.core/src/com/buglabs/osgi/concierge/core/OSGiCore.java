@@ -26,6 +26,16 @@
  */
 package com.buglabs.osgi.concierge.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -38,12 +48,13 @@ public class OSGiCore extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.buglabs.osgi.concierge.core";
+	public static final String EXT_POINT_PACKAGE_PROVIDER = "com.buglabs.osgi.concierge.core.packageproviders";
 
 	// The shared instance
 	private static OSGiCore plugin;
-	
+
 	private BundleModelManager bundleModelManager;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -81,7 +92,37 @@ public class OSGiCore extends AbstractUIPlugin {
 		if(bundleModelManager == null) {
 			bundleModelManager = BundleModelManager.getInstance();
 		}
-		
+
 		return bundleModelManager;
+	}
+
+	/**
+	 * Log an exception to the Eclipse error log.
+	 * @param e
+	 */
+	public static void logException(Exception e) {
+		plugin.getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.OK, e.getMessage(), null));
+	}
+
+	public static IPackageProvider[] getPackageProviders() {
+
+		List pprovs = new ArrayList();
+
+		IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+		IExtension[] extensions = Platform.getExtensionRegistry().getExtensionPoint(PLUGIN_ID, "packageproviders").getExtensions();
+		for(int i = 0; i < extensions.length; ++i) {
+			IConfigurationElement[] confElements = extensions[i].getConfigurationElements();
+			for(int j = 0; j < confElements.length; ++j) {
+				try {
+					IPackageProvider prov = (IPackageProvider) confElements[j].createExecutableExtension("class");
+					pprovs.add(prov);
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, "Unable to create executable extension for " + confElements[j].getName(), e));
+				}
+			}
+		}
+
+		return (IPackageProvider[]) pprovs.toArray(new IPackageProvider[pprovs.size()]);
 	}
 }

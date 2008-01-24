@@ -35,7 +35,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -45,7 +47,6 @@ import com.buglabs.osgi.concierge.core.BundleModelManager;
 import com.buglabs.osgi.concierge.core.OSGiCore;
 import com.buglabs.osgi.concierge.core.utils.ManifestUtils;
 import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
-
 /**
  * 
  * @author Angel Roman - roman@mdesystems.com
@@ -110,11 +111,9 @@ IClasspathContainer {
 					}
 
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
 				}
 			}
 		}

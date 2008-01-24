@@ -38,8 +38,11 @@ import java.util.Vector;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -62,21 +65,26 @@ import com.buglabs.osgi.concierge.natures.ConciergeProjectNature;
  */
 public class ProjectUtils {
 	public static String formatName(String projectName) {
-		projectName = projectName.trim().replaceAll(" ", "");
+		projectName = projectName.trim().replaceAll(" ", "_");
 		return projectName;
 	}
 
 	public static IFile getManifestFile(IProject project) {
 		IFile file = project.getFile("META-INF/MANIFEST.MF");
-		
+
 		return file;
 	}
-	
+
 	public static File exporToJar(File location, IProject project) throws CoreException {
 		List jarContents = getJarContents(project);
 		IFile ManifestFile = project.getFile("META-INF/MANIFEST.MF");
+
+		String projectJarName = getProjectJarName(project);
 		
-		File jar = new File(location, getProjectJarName(project));
+		if(projectJarName == null)
+			return null;
+		
+		File jar = new File(location, projectJarName);
 		ManifestFile.refreshLocal(1, null);
 		JarPackageData jpd = new JarPackageData();
 		jpd.setElements(jarContents.toArray());
@@ -89,16 +97,6 @@ public class ProjectUtils {
 		jpd.setExportClassFiles(true);
 		jpd.setExportErrors(true);
 		jpd.setExportWarnings(true);
-
-		// try {
-		// jpd.createJarExportRunnable(null).run(new NullProgressMonitor());
-		// } catch (InvocationTargetException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
 
 		JarWriter3 jw = new JarWriter3(jpd, null);
 
@@ -114,24 +112,24 @@ public class ProjectUtils {
 		}
 
 		jw.close();
-		
-		
+
+
 		return jar;
 	}
-	
+
 	public static String getProjectJarName(IProject project) throws CoreException {
-	
+
 		IFile manifestFile = project.getFile("META-INF/MANIFEST.MF");
-		
+
 		String version = "";
-		
+
 		try {
 			version = ManifestUtils.getVersion(manifestFile.getContents());
 		} catch (IOException e) {
-			// TODO: Handle exception
-			e.printStackTrace();
+			//OSGiCore.getDefault().getLog().log(new Status(IStatus.ERROR, OSGiCore.PLUGIN_ID, IStatus.ERROR, e.getMessage(), null));
+			return null;
 		}
-		
+
 		return ProjectUtils.formatName(project.getName()) +  "_" + version + ".jar";
 	}
 
@@ -140,7 +138,7 @@ public class ProjectUtils {
 		File file = new File(jarsLocation + "/" + getProjectJarName(project));
 		return file.toURL();
 	}
-	
+
 	public static List getJarContents(IProject proj) throws CoreException {
 		final Vector objects = new Vector();
 
@@ -164,7 +162,7 @@ public class ProjectUtils {
 
 		return objects;
 	}
-	
+
 	/**
 	 * Builds a list of Concierge Projects
 	 * 
@@ -200,18 +198,79 @@ public class ProjectUtils {
 	public static void importProjectIntoWorkspace(IProject proj, File jarFile) throws ZipException, IOException, InvocationTargetException, InterruptedException {
 		ZipFile zipFile = new ZipFile(jarFile);
 		ZipFileStructureProvider prov = new ZipFileStructureProvider(zipFile);
-		
+
 		ImportOperation op = new ImportOperation(proj.getFullPath(), prov.getRoot(),  prov, new IOverwriteQuery(){
 
 			public String queryOverwrite(String pathString) {
 
 				return IOverwriteQuery.ALL;
 			}});
-		
+
 		op.run(new NullProgressMonitor());
 	}
 
 	public static String formatNameToPackage(String projectName) {
 		return formatName(projectName).toLowerCase();
+	}
+
+	/**
+	 * @param proj project that needs to be checked for errors
+	 * @return <code>true</code> if project has sever errors, <code>false</code> otherwise
+	 * @throws CoreException
+	 */
+	public static boolean existsProblems(IProject proj) throws CoreException {
+		if(proj != null){
+			IMarker[] markers = proj.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+
+			if (markers != null) {
+				for (int i = 0; i < markers.length; i++) {
+					if (isSevere(markers[i])) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean isSevere(IMarker problemMarker) throws CoreException {
+		Integer severity = (Integer)problemMarker.getAttribute(IMarker.SEVERITY);
+		if (severity != null) {
+			return severity.intValue() >= IMarker.SEVERITY_ERROR;
+		} 
+
+		return false;
+	}
+
+	/**
+	 * Configures given project with a builder. Will check if project already has builder associated with it, if not will add it.
+	 * @param project 
+	 * @param builderId
+	 * @throws CoreException
+	 */
+	public static void configureBuilder(IProject project, String builderId) throws CoreException{
+		IProjectDescription desc = project.getDescription();
+		ICommand[] commands = desc.getBuildSpec();
+		boolean found = false;
+
+		// check if builder exists
+		for (int i = 0; i < commands.length; ++i) {
+			if (commands[i].getBuilderName().equals(builderId)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) { 
+			//add builder to project
+			ICommand command = desc.newCommand();
+			command.setBuilderName(builderId);
+			ICommand[] newCommands = new ICommand[commands.length + 1];
+
+			// Add it before other builders.
+			System.arraycopy(commands, 0, newCommands, 1, commands.length);
+			newCommands[0] = command;
+			desc.setBuildSpec(newCommands);
+			project.setDescription(desc, null);
+		}
 	}
 }

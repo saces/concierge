@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="packageproviders" name="packageproviders" schema="schema/packageproviders.exsd"/>
 	<extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
@@ -28,6 +29,16 @@
       <runtime>
          <run class="com.buglabs.osgi.concierge.natures.ConciergeProjectNature"/>
       </runtime>
+      <builder id="com.buglabs.osgi.concierge.core.ManifestConsistencyChecker"/>
+   </extension>
+   
+   <!-- manifest builder -->
+   
+   <extension id="ManifestConsistencyChecker" name="Manifest Consistency Checker"
+   		 point="org.eclipse.core.resources.builders">
+   		<builder hasNature="true">
+   			<run class="com.buglabs.osgi.concierge.core.builder.ManifestConsistencyChecker"/>
+   		</builder>
    </extension>
    <extension
          point="org.eclipse.debug.core.sourceLocators">
