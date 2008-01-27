@@ -878,7 +878,7 @@ final class BundleClassLoader extends ClassLoader {
 		boolean p = false;
 		boolean no_p = false;
 		final List libs = new ArrayList();
-		
+
 		for (int i = 0; i < nativeStrings.length; i++) {
 			if (nativeStrings[i].indexOf(";") == -1) {
 				nativeLibraries
@@ -890,7 +890,7 @@ final class BundleClassLoader extends ClassLoader {
 			} else {
 				StringTokenizer tokenizer = new StringTokenizer(
 						nativeStrings[i], ";");
-				
+
 				while (tokenizer.hasMoreTokens()) {
 					final String token = tokenizer.nextToken();
 					final int a = token.indexOf("=");
@@ -921,7 +921,7 @@ final class BundleClassLoader extends ClassLoader {
 						}
 					} else {
 						libs.add(token.trim());
-					}					
+					}
 				}
 				if (!libs.isEmpty() && (no_p || p) && (no_n || n)
 						&& (no_v || v) && (no_l || l)) {
@@ -959,7 +959,8 @@ final class BundleClassLoader extends ClassLoader {
 
 			byte[] buffer = new byte[bufferSize];
 			int len;
-			while ((len = input.read(buffer, 0,
+			while (available > 0
+					&& (len = input.read(buffer, 0,
 							available < bufferSize ? available : bufferSize)) > -1) {
 				fos.write(buffer, 0, len);
 				available = input.available();
