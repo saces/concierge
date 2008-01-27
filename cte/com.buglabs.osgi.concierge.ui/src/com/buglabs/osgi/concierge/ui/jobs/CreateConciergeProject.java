@@ -51,6 +51,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 
 import com.buglabs.osgi.concierge.core.utils.ConciergeUtils;
+import com.buglabs.osgi.concierge.core.utils.ProjectUtils;
 import com.buglabs.osgi.concierge.jdt.ConciergeClasspathContainerInitializer;
 import com.buglabs.osgi.concierge.jdt.OSGiBundleClassPathContainerInitializer;
 import com.buglabs.osgi.concierge.natures.ConciergeProjectNature;
@@ -155,14 +156,14 @@ public class CreateConciergeProject extends WorkspaceModifyOperation {
 	protected StringBuffer getManifestContents() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("Manifest-Version: 1.0\n");
-		buffer.append("Bundle-Name: " + projInfo.getProjectName() + "\n");
+		buffer.append("Bundle-Name: " + ProjectUtils.formatName(projInfo.getProjectName()) + "\n");
 		
 		if(!projInfo.getActivator().trim().equals("")) {
 			buffer.append("Bundle-Activator: " + projInfo.getActivator() + "\n");
 		}
 		
 		if(!projInfo.getSymbolicName().trim().equals("")) {
-			buffer.append("Bundle-SymbolicName: " + projInfo.getSymbolicName() + "\n");
+			buffer.append("Bundle-SymbolicName: " + ProjectUtils.formatName(projInfo.getSymbolicName()) + "\n");
 		}
 		
 		if(!projInfo.getVersion().trim().equals("")) {
