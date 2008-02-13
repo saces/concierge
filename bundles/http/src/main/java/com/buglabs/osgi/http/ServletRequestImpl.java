@@ -244,7 +244,7 @@ class ServletRequestImpl implements HttpServletRequest {
 			int ep = httpHeader.indexOf(httpHeader, sp);
 
 			if (ep > sp) {
-				return new Locale(httpHeader.substring(sp, ep).trim());
+				return new Locale(httpHeader.substring(sp, ep).trim(), "");
 			}
 		}
 
@@ -346,11 +346,11 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getRemoteAddr() {
-		return connection.getRemoteSocketAddress().toString();
+		return connection.getLocalAddress().getHostName();
 	}
 
 	public String getRemoteHost() {
-		return connection.getRemoteSocketAddress().toString();
+		return connection.getInetAddress().getHostName();
 	}
 
 	public RequestDispatcher getRequestDispatcher(String arg0) {
