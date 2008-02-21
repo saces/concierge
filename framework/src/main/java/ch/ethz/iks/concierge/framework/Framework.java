@@ -2053,7 +2053,7 @@ public final class Framework {
 				logger = new LogServiceImpl(LOG_BUFFER_SIZE, LOG_LEVEL,
 						LOG_QUIET);
 				final ServiceReference logref = new ServiceReferenceImpl(
-						systemBundle, logger, null,
+						this, logger, null,
 						new String[] { LogService.class.getName() });
 				services.add(logref);
 				addValue(classes_services, LogService.class.getName(), logref);
