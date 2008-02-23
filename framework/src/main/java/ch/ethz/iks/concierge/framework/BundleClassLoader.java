@@ -839,7 +839,7 @@ final class BundleClassLoader extends ClassLoader {
 		final StringTokenizer tokenizer = new StringTokenizer(values, ",");
 		final String[] result = new String[tokenizer.countTokens()];
 		for (int i = 0; i < result.length; i++) {
-			result[i] = tokenizer.nextToken();
+			result[i] = tokenizer.nextToken().trim();
 		}
 		return result;
 	}
@@ -1012,17 +1012,17 @@ final class BundleClassLoader extends ClassLoader {
 			}
 		} else {
 			if (classpath.equals(".")) {
-				File file = new File(storageLocation + File.separatorChar
+				final File file = new File(storageLocation + File.separatorChar
 						+ "content", filename);
 				if (file.exists()) {
 					return new FileInputStream(file);
 				}
 				return null;
 			} else {
-				File file = new File(storageLocation + File.separatorChar
+				final File file = new File(storageLocation + File.separatorChar
 						+ "content", classpath);
 				if (file.exists()) {
-					JarFile jar = new JarFile(file);
+					final JarFile jar = new JarFile(file);
 					final ZipEntry entry = jar.getEntry(filename);
 					if (entry == null) {
 						return null;
