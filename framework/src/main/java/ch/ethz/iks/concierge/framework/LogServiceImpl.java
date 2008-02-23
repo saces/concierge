@@ -250,8 +250,6 @@ final class LogServiceImpl implements LogService, LogReaderService {
 
 		private String message;
 
-		private Bundle bundle;
-
 		private ServiceReference sref;
 
 		private Throwable exception;
@@ -307,7 +305,7 @@ final class LogServiceImpl implements LogService, LogReaderService {
 		 * @see org.osgi.service.log.LogEntry#getBundle()
 		 */
 		public Bundle getBundle() {
-			return bundle;
+			return sref == null ? null : sref.getBundle();
 		}
 
 		/**
@@ -352,12 +350,10 @@ final class LogServiceImpl implements LogService, LogReaderService {
 		public String toString() {
 			StringBuffer buffer = new StringBuffer("[").append(new Date(time))
 					.append("] [").append(LEVELS[level]).append("] ");
-			if (bundle != null) {
-				buffer.append("Bundle: ");
-				buffer.append(bundle);
-				buffer.append(" ");
-			}
 			if (sref != null) {
+				buffer.append("Bundle: ");
+				buffer.append(sref.getBundle());
+				buffer.append(" ");
 				buffer.append("ServiceReference: ");
 				buffer.append(sref);
 				buffer.append(" ");
