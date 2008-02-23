@@ -72,6 +72,7 @@ import org.osgi.framework.ServicePermission;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.SynchronousBundleListener;
+import org.osgi.service.log.LogReaderService;
 import org.osgi.service.log.LogService;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -185,7 +186,7 @@ public final class Framework {
 	/**
 	 * Version displayed upon startup and returned by System Bundle
 	 */
-	private static final String FRAMEWORK_VERSION = "1.0_RC1";
+	private static final String FRAMEWORK_VERSION = "1.0.0.RC2";
 
 	// registry data structures
 
@@ -2052,11 +2053,14 @@ public final class Framework {
 			if (LOG_ENABLED) {
 				logger = new LogServiceImpl(LOG_BUFFER_SIZE, LOG_LEVEL,
 						LOG_QUIET);
-				final ServiceReference logref = new ServiceReferenceImpl(
-						this, logger, null,
-						new String[] { LogService.class.getName() });
+				final ServiceReference logref = new ServiceReferenceImpl(this,
+						logger, null, new String[] {
+								LogService.class.getName(),
+								LogReaderService.class.getName() });
 				services.add(logref);
 				addValue(classes_services, LogService.class.getName(), logref);
+				addValue(classes_services, LogReaderService.class.getName(),
+						logref);
 
 				registeredServices = new ServiceReference[] { ref, logref };
 			} else {
