@@ -954,23 +954,17 @@ final class BundleClassLoader extends ClassLoader {
 			file.getParentFile().mkdirs();
 			final FileOutputStream fos = new FileOutputStream(file);
 
-			int available = input.available();
-			final int bufferSize = Framework.CLASSLOADER_BUFFER_SIZE;
-
-			byte[] buffer = new byte[bufferSize];
+			byte[] buffer = new byte[Framework.CLASSLOADER_BUFFER_SIZE];
 			int len;
-			while (available > 0
-					&& (len = input.read(buffer, 0,
-							available < bufferSize ? available : bufferSize)) > -1) {
+			while ((len = input.read(buffer, 0, Framework.CLASSLOADER_BUFFER_SIZE)) > -1) {
 				fos.write(buffer, 0, len);
-				available = input.available();
 			}
 			fos.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * retrieve a file from the storage.
 	 * 
