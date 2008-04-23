@@ -674,12 +674,18 @@ final class BundleClassLoader extends ClassLoader {
 	 * @category ClassLoader
 	 */
 	protected URL findResource(final String filename) {
+		// TODO: remove debug output
+		System.out.println("REQUESTED FIND RESOURCE '" + filename + "' in " + this.bundle.location) ;
 		final String name = stripTrailing(filename);
 		Vector results = findOwnResources(name, false);
 		if (results.size() > 0) {
+			// TODO: remove debug output
+			System.out.println("RETURNED " + results.elementAt(0));
 			return (URL) results.elementAt(0);
 		}
 		results = findImportedResources(name, false);
+		// TODO: remove debug output
+		System.out.println("RETURNED " + (results.size() > 0 ? (URL) results.elementAt(0) : null));
 		return results.size() > 0 ? (URL) results.elementAt(0) : null;
 	}
 

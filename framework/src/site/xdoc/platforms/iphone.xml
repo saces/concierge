@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<title>Concierge OSGi - An optimized OSGi R3 implementation for mobile and embedded systems - Concierge on the iPhone</title>
+		<author email="rellermeyer_AT_inf.ethz.ch">Jan S. Rellermeyer</author>
+	</properties>
+	<meta name="keyword" content="OSGi, R-OSGi, Concierge"/>
+	<meta name="description" content="Concierge is an optimized OSGi R3 implementation with a minimal file and memory footprint, which makes it ideal for small and embedded devices."/>
+	<meta http-equiv="cache-control" content="no-cache"/>
+	<meta http-equiv="pragma" content="no-cache"/>
+	<meta http-equiv="robots" content="index, follow"/>
+	<body>
+		<section name="Concierge on the iPhone">
+		<center>
+			<img src="/images/iphone1.jpg" alt="iPhone"/></br>
+			<img src="/images/iphone2.jpg" alt="iPhone"/>
+		</center>
+		<p>
+			With the JamVM port of <a href="http://apt.saurik.com/debs/">saurik.com</a>, Concierge runs out of the box.
+			Unfortunately, currently only headless because this build of JamVM does not come with an AWT peer.
+        </p>
+		</section>
+	</body>
+</document>
