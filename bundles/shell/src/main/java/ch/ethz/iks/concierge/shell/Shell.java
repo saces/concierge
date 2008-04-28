@@ -127,19 +127,19 @@ public class Shell extends Thread implements ServiceListener {
 		final BufferedReader in = new BufferedReader(new InputStreamReader(
 				System.in));
 
-		while (running) {
-			try {
+		try {
+			while (running) {
 				System.out.print("\r\nConcierge> ");
 				String s = in.readLine();
 
 				if (running) {
 					handleCommand(s);
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
-
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
 	}
 
 	/**
@@ -521,7 +521,7 @@ public class Shell extends Thread implements ServiceListener {
 				e.printStackTrace(err);
 			}
 		}
-		
+
 		/**
 		 * Format the bundle id.
 		 * 
