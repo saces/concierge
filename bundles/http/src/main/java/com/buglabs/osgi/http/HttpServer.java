@@ -32,6 +32,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -74,50 +75,63 @@ public class HttpServer extends Thread {
 
 		while (true) {
 			try {
-				ssm.log(LogService.LOG_INFO, "HTTP Server waiting for connections...");
+				ssm.log(LogService.LOG_INFO,
+						"HTTP Server waiting for connections...");
 				connection = socket.accept();
 
 				// Check to see if we got a poison pill. If so cleanup and exit.
 				if (this.isInterrupted()) {
-					ssm.log(LogService.LOG_INFO, "Server received shutdown-message.  Shutting down.");
+					ssm
+							.log(LogService.LOG_INFO,
+									"Server received shutdown-message.  Shutting down.");
 					connection.close();
 					socket.close();
 					return;
 				}
-				ssm.log(LogService.LOG_DEBUG, "Http Server received new request.");
+				ssm.log(LogService.LOG_DEBUG,
+						"Http Server received new request.");
 				// Now we wait until the client is sending us bytes, or give up
 				// if we wait too long.
 				int reqCount = 0;
-				while (reqCount < MAX_CLIENT_RETRY && connection.getInputStream().available() == 0) {
+				while (reqCount < MAX_CLIENT_RETRY
+						&& connection.getInputStream().available() == 0) {
 					try {
 						Thread.sleep(CLIENT_TIMEOUT);
 						reqCount++;
 					} catch (InterruptedException e) {
 						if (Thread.interrupted()) {
-							ssm.log(LogService.LOG_INFO, "Server received shutdown-message.  Shutting down.");
+							ssm
+									.log(LogService.LOG_INFO,
+											"Server received shutdown-message.  Shutting down.");
 							connection.close();
 							socket.close();
 							return;
 						}
 					}
 				}
-				ssm.log(LogService.LOG_DEBUG, "Server checked " + reqCount + " times before getting data from client.");
+				ssm.log(LogService.LOG_DEBUG, "Server checked " + reqCount
+						+ " times before getting data from client.");
 
 				// Chech to see if we have bytes available after max wait. If
 				// not, abort.
 				if (connection.getInputStream().available() == 0) {
-					ssm.log(LogService.LOG_WARNING, "Client did not send any data, aborting connection.");
+					ssm
+							.log(LogService.LOG_WARNING,
+									"Client did not send any data, aborting connection.");
 					continue;
 				}
 
 				// Build the HttpServletRequest object based on the client
 				// connection.
-				HttpServletRequest request = new ServletRequestImpl(connection, ssm);
+				HttpServletRequest request = new ServletRequestImpl(connection,
+						ssm);
 				// Determine relative path from HTTP headers.
 				String name = getAlias(request);
 
 				if (name == null) {
-					throw new ServletException("Unable to retrieve alias from servlet.  Request: " + request.getPathInfo());
+					throw new ServletException(
+							"Unable to retrieve alias from servlet.  Request: "
+									+ request.getPathInfo());
 				}
 
 				// Make sure relative path is valid
@@ -133,9 +147,8 @@ public class HttpServer extends Thread {
 				} else {
 					// Check to see if path can be resolved to sub alias.
 					String subName = getSubAlias(name);
-
 					if (subName != null) {
-						String pathInfo = name.substring(subName.length());
+						String pathInfo = name.substring(subName.length());		
 						((ServletRequestImpl) request).setUri(pathInfo);
 						name = subName;
 						servlet = getServlet(name);
@@ -146,7 +159,8 @@ public class HttpServer extends Thread {
 				// back.
 				// OutputStreamWriter writer = new
 				// OutputStreamWriter(connection.getOutputStream());
-				HttpServletResponse response = new ServletResponseImpl(connection.getOutputStream(), request);
+				HttpServletResponse response = new ServletResponseImpl(
+						connection.getOutputStream(), request);
 
 				if (servlet == null) {
 					handleNonMatchingAlias(response);
@@ -157,15 +171,21 @@ public class HttpServer extends Thread {
 						processRequest(s, request, response);
 						response.flushBuffer();
 					} else {
-						ssm.log(LogService.LOG_WARNING, "Client authentication unsuccesful.");
+						ssm.log(LogService.LOG_WARNING,
+								"Client authentication unsuccesful.");
 					}
 				}
 			} catch (IOException e) {
-				ssm.log(LogService.LOG_WARNING, "An I/O exception occurred: " + e.getMessage(), e);
+				ssm.log(LogService.LOG_WARNING, "An I/O exception occurred: "
+						+ e.getMessage(), e);
 			} catch (ServletException e) {
-				ssm.log(LogService.LOG_ERROR, "An exception occured in a servlet: " + e.getMessage(), e);
+				ssm.log(LogService.LOG_ERROR,
+						"An exception occured in a servlet: " + e.getMessage(),
+						e);
 			} catch (NamespaceException e) {
-				ssm.log(LogService.LOG_ERROR, "A namespace exception occured in a servlet: " + e.getMessage(), e);
+				ssm.log(LogService.LOG_ERROR,
+						"A namespace exception occured in a servlet: "
+								+ e.getMessage(), e);
 			} finally {
 				if (connection != null) {
 					try {
@@ -177,7 +197,8 @@ public class HttpServer extends Thread {
 		}
 	}
 
-	private void intializeServlet(String name, Servlet servlet) throws ServletException {
+	private void intializeServlet(String name, Servlet servlet)
+			throws ServletException {
 		servlet.init(ssm.getServletConfig(name));
 	}
 
@@ -188,7 +209,8 @@ public class HttpServer extends Thread {
 	 * @throws IOException
 	 * @throws NamespaceException
 	 */
-	private void handleNonMatchingAlias(HttpServletResponse bsresp) throws IOException {
+	private void handleNonMatchingAlias(HttpServletResponse bsresp)
+			throws IOException {
 		bsresp.sendError(404);
 	}
 
@@ -252,18 +274,21 @@ public class HttpServer extends Thread {
 	 * @return
 	 * @throws IOException
 	 */
-	private boolean authenticateRequest(String alias, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private boolean authenticateRequest(String alias,
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
 		HttpContext c = ssm.getHttpContext(alias);
 
 		if (c != null) {
 			return c.handleSecurity(request, response);
 		}
 
-		throw new RuntimeException("Servlet " + alias + " has no associated HttpContext.");
+		throw new RuntimeException("Servlet " + alias
+				+ " has no associated HttpContext.");
 	}
 
-	private void processRequest(Servlet servlet, HttpServletRequest request, HttpServletResponse response) throws ServletException,
-			IOException {
+	private void processRequest(Servlet servlet, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		if (servlet != null) {
 			servlet.service(request, response);
 		}
@@ -281,35 +306,31 @@ public class HttpServer extends Thread {
 	public static String[] split(String s, String seperator) {
 		if (s.length() == 0 || seperator.length() == 0) {
 			return (new String[0]);
+		} else if (s.indexOf(seperator) == -1) {
+			return new String[] { s };
 		}
 
-		List tokens = new ArrayList();
-		String token;
-		int index_a = 0;
-		int index_b = 0;
-
-		while (true) {
-			index_b = s.indexOf(seperator, index_a);
-			if (index_b == -1) {
-				token = s.substring(index_a);
-
-				if (token.length() > 0) {
-					tokens.add(token);
-				}
-
-				break;
-			}
-			token = s.substring(index_a, index_b);
-			token.trim();
-			if (token.length() >= 0) {
-				tokens.add(token);
-			}
-			index_a = index_b + seperator.length();
+		final StringTokenizer tokenizer = new StringTokenizer(s, seperator);
+		final String[] result = new String[tokenizer.countTokens()];
+		for (int i=0; tokenizer.hasMoreTokens(); i++) {
+			result[i] = tokenizer.nextToken();	
 		}
-		String[] str_array = new String[tokens.size()];
-		for (int i = 0; i < str_array.length; i++) {
-			str_array[i] = (String) (tokens.get(i));
-		}
-		return str_array;
+		return result;
+
+		/*
+		 * List tokens = new ArrayList(); String token; int index_a = 0; int
+		 * index_b = 0;
+		 * 
+		 * while (true) { index_b = s.indexOf(seperator, index_a); if (index_b ==
+		 * -1) { token = s.substring(index_a);
+		 * 
+		 * if (token.length() > 0) { tokens.add(token); }
+		 * 
+		 * break; } token = s.substring(index_a, index_b); token.trim(); if
+		 * (token.length() >= 0) { tokens.add(token); } index_a = index_b +
+		 * seperator.length(); } String[] str_array = new String[tokens.size()];
+		 * for (int i = 0; i < str_array.length; i++) { str_array[i] = (String)
+		 * (tokens.get(i)); } return str_array;
+		 */
 	}
 }

@@ -89,6 +89,8 @@ class ServletRequestImpl implements HttpServletRequest {
 	private Map parameterMap;
 
 	private boolean parsedParameters = false;
+	
+	private String query;
 
 	private BufferedReader reader;
 
@@ -101,6 +103,8 @@ class ServletRequestImpl implements HttpServletRequest {
 
 		header = getHeader();
 		uri = parseUri(header);
+		final int pos = uri.indexOf("?");
+		query = pos == -1 ? "" : uri.substring(pos+1);
 		headerMap = parseHeaderMap(header);
 		attribs = new Hashtable();
 
@@ -112,7 +116,7 @@ class ServletRequestImpl implements HttpServletRequest {
 
 		String kvh = h.substring(spos + 1);
 
-		String[] lines = HttpServer.split(kvh, "\n");
+		String[] lines = HttpServer.split(kvh, "\n"); 
 		Object lastKey = null;
 		String line;
 		String value;
@@ -270,13 +274,8 @@ class ServletRequestImpl implements HttpServletRequest {
 
 	private Map parseParameters(String header) {
 		parsedParameters = true;
-		final String[] c1 = HttpServer.split(uri, "?");
 
-		if (c1.length != 2) {
-			return null;
-		}
-
-		final String paramStr = c1[1];
+		final String paramStr = getQueryString();
 
 		final String[] c2 = HttpServer.split(paramStr, "&");
 
@@ -388,10 +387,7 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getAlias() {
-		if (uri == null) {
-			uri = parseUri(header);
-		}
-
+		// FIXME:		
 		return uri;
 	}
 
@@ -400,10 +396,7 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getContextPath() {
-		if (uri == null) {
-			uri = parseUri(header);
-		}
-
+		// FIXME:
 		return uri;
 	}
 
@@ -457,30 +450,17 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getPathInfo() {
-
+		// FIXME:
 		return uri;
 	}
 
 	public String getPathTranslated() {
-		if (uri == null) {
-			uri = parseUri(header);
-		}
-
+		// FIXME:
 		return uri;
 	}
 
 	public String getQueryString() {
-		if (uri == null) {
-			uri = parseUri(header);
-		}
-
-		String[] s = HttpServer.split(uri, "?");
-
-		if (s.length == 2) {
-			return s[1];
-		}
-
-		return null;
+		return query;
 	}
 
 	public String getRemoteUser() {
