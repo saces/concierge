@@ -113,7 +113,6 @@ final class RFC1960Filter implements Filter {
 		}
 	};
 
-
 	// fields
 
 	/**
@@ -153,7 +152,7 @@ final class RFC1960Filter implements Filter {
 		}
 
 		final Stack stack = new Stack();
-		
+
 		try {
 
 			final int len = filterString.length();
@@ -171,7 +170,11 @@ final class RFC1960Filter implements Filter {
 				switch (chars[i]) {
 				case '(':
 					// lookahead ...
-					final char nextChar = chars[i + 1];
+					char nextChar = chars[i + 1];
+					while (Character.isWhitespace(nextChar)) {
+						i++;
+						nextChar = chars[i + 1];
+					}
 					if (nextChar == '&') {
 						stack.push(new RFC1960Filter(AND_OPERATOR));
 						continue;
@@ -605,9 +608,9 @@ final class RFC1960Filter implements Filter {
 		 */
 		private static boolean compareString(final String val,
 				final int comparator, final String attr) {
-			final String value = comparator == APPROX ? stripWhitespaces(val)
+			final String value = comparator == APPROX ? stripWhitespaces(val).toLowerCase()
 					: val;
-			final String attribute = comparator == APPROX ? stripWhitespaces(attr)
+			final String attribute = comparator == APPROX ? stripWhitespaces(attr).toLowerCase()
 					: attr;
 			switch (comparator) {
 			case APPROX:

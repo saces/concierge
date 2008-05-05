@@ -30,12 +30,15 @@
 package ch.ethz.iks.concierge.framework;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
@@ -50,7 +53,7 @@ final class ServiceReferenceImpl implements ServiceReference {
 	/**
 	 * the bundle object.
 	 */
-	final Bundle bundle;
+	Bundle bundle;
 
 	/**
 	 * the service object.
@@ -75,13 +78,16 @@ final class ServiceReferenceImpl implements ServiceReference {
 	/**
 	 * the registration.
 	 */
-	final ServiceRegistration registration;
+	ServiceRegistration registration;
 
 	/**
 	 * the next service id.
 	 */
 	private static long nextServiceID = 0;
 
+	
+	private final boolean isServiceFactory;
+	
 	/**
 	 * these service properties must not be overwritten by property updates.
 	 */
@@ -107,7 +113,13 @@ final class ServiceReferenceImpl implements ServiceReference {
 	 */
 	ServiceReferenceImpl(final Bundle bundle, final Object service,
 			final Dictionary props, final String[] clazzes) {
-		// TODO: check if service implements all interfaces
+		if (service instanceof ServiceFactory) {
+			isServiceFactory = true;
+		} else {
+			isServiceFactory = false;
+			checkService(service.getClass(), clazzes);			
+		}
+		
 		this.bundle = bundle;
 		this.service = service;
 		this.properties = props == null ? new Hashtable(2) : new Hashtable(
@@ -120,7 +132,41 @@ final class ServiceReferenceImpl implements ServiceReference {
 		}
 		properties.put(Constants.OBJECTCLASS, clazzes);
 		properties.put(Constants.SERVICE_ID, new Long(++nextServiceID));
+		final Integer ranking = props == null ? null : (Integer) props.get(Constants.SERVICE_RANKING);
+		properties.put(Constants.SERVICE_RANKING, ranking == null ? new Integer(0): ranking);
 		this.registration = new ServiceRegistrationImpl();
+	}
+	
+	private void checkService(final Class service, final String[] clazzes) {
+		Class current = service;
+		final Set remaining = new HashSet(Arrays.asList(clazzes));
+		while (current != null) {
+			remaining.remove(current.getName());
+			final Class[] implIfaces = current.getInterfaces();
+			for (int i = 0; i < implIfaces.length; i++) {
+				remaining.remove(implIfaces[i].getName());
+				if (remaining.isEmpty()) {
+					return;
+				}
+			}
+			current = current.getSuperclass();
+		}
+		throw new IllegalArgumentException(
+				"Service " + service.getName() + " does not implement the interfaces " + remaining);
+	}
+
+	void invalidate() {
+		service = null;
+		useCounters.clear();
+		bundle = null;
+		registration = null;
+		if (cachedServices != null) {
+			cachedServices = null;
+		}
+		final String[] keys = getPropertyKeys();
+		for (int i=0; i<keys.length; i++) {
+			properties.remove(keys[i]);			
+		}
 	}
 
 	/**
@@ -207,6 +253,9 @@ final class ServiceReferenceImpl implements ServiceReference {
 	 * @return the service object.
 	 */
 	Object getService(final Bundle theBundle) {
+		if (service == null) {
+			return null;
+		}
 		Integer counter = (Integer) useCounters.get(theBundle);
 		if (counter == null) {
 			counter = new Integer(1);
@@ -215,20 +264,18 @@ final class ServiceReferenceImpl implements ServiceReference {
 		}
 		useCounters.put(theBundle, counter);
 
-		if (service instanceof ServiceFactory) {
-			Object theService;
-			if (cachedServices != null) {
-				theService = cachedServices.get(theBundle);
-				if (theService != null) {
-					return theService;
-				}
-			} else {
+		if (isServiceFactory) {			
+			if (cachedServices == null) {
 				cachedServices = new HashMap(1);
 			}
+			final Object cachedService = cachedServices.get(theBundle);
+			if (cachedService != null) {
+				return cachedService;
+			}
 			final ServiceFactory factory = (ServiceFactory) service;
-			theService = factory.getService(theBundle, registration);
-			cachedServices.put(theBundle, theService);
-			return theService;
+			final Object factoredService = factory.getService(theBundle, registration);
+			cachedServices.put(theBundle, factoredService);
+			return factoredService;
 		}
 		return service;
 	}
@@ -243,13 +290,20 @@ final class ServiceReferenceImpl implements ServiceReference {
 	 *         <tt>true</tt> otherwise.
 	 */
 	boolean ungetService(final Bundle theBundle) {
-		if (service instanceof ServiceFactory) {
-			((ServiceFactory) service).ungetService(theBundle, registration,
-					cachedServices.get(theBundle));
+		if (service == null) {
+			return false;
 		}
 		Integer counter = (Integer) useCounters.get(theBundle);
-		if (counter == null || counter.intValue() == 1) {
+		if (counter == null) {
+			return false;
+		}
+		if (counter.intValue() == 1) {
 			useCounters.remove(theBundle);
+			if (isServiceFactory) {
+				((ServiceFactory) service).ungetService(theBundle, registration,
+						cachedServices.get(theBundle));
+				cachedServices.remove(theBundle);
+			}			
 			return false;
 		} else {
 			counter = new Integer(counter.intValue() - 1);
@@ -302,8 +356,7 @@ final class ServiceReferenceImpl implements ServiceReference {
 		 */
 		public void setProperties(final Dictionary newProps) {
 			/*
-			 * the insertion has to be case insensitive, i.e. existing keys with
-			 * potentially different writings have to be replaced. The values
+			 * The values
 			 * for service.id and objectClass must not be overwritten
 			 */
 
@@ -320,17 +373,22 @@ final class ServiceReferenceImpl implements ServiceReference {
 					throw new IllegalArgumentException(
 							"Properties contain the same key in different case variants");
 				}
-				cases.put(key.toLowerCase(), key);
+				cases.put(lower, key);
 			}
 			for (Enumeration keys = newProps.keys(); keys.hasMoreElements();) {
 				final Object key = keys.nextElement();
 				final Object value = newProps.get(key);
 				final String lower = ((String) key).toLowerCase();
-
+				
 				if (!forbidden.contains(lower)) {
 					final Object existing = cases.get(lower);
 					if (existing != null) {
+						if (existing.equals(key)) {
 						properties.remove(existing);
+						} else {
+							throw new IllegalArgumentException(
+							"Properties already exists in a different case variant");												
+						}
 					}
 					properties.put(key, value);
 				}

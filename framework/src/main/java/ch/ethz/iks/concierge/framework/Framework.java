@@ -186,7 +186,7 @@ public final class Framework {
 	/**
 	 * Version displayed upon startup and returned by System Bundle
 	 */
-	private static final String FRAMEWORK_VERSION = "1.0.0.RC2";
+	private static final String FRAMEWORK_VERSION = "1.0.0.RC3";
 
 	// registry data structures
 
@@ -621,6 +621,39 @@ public final class Framework {
 			}
 		}
 
+		final StringBuffer myEEs = new StringBuffer();
+		final int minor = Integer.parseInt(System.getProperty(
+				"java.specification.version").substring(2));
+		if (System.getProperty("java.specification.name").equals(
+				"J2ME Foundation Specification")) {
+			switch (minor) {
+			case 1:
+				myEEs.append("CDC-1.1/Foundation-1.1,");
+			case 0:
+				myEEs.append("CDC-1.0/Foundation-1.0");
+			}
+		} else {
+			switch (minor) {
+			case 7:
+				myEEs.append("J2SE-1.7,");
+			case 6:
+				myEEs.append("J2SE-1.6,");
+			case 5:
+				myEEs.append("J2SE-1.5,");
+			case 4:
+				myEEs.append("J2SE-1.4,");
+				myEEs.append("OSGi/Minimum-1.1,");
+			case 3:
+				myEEs.append("J2SE-1.3,");
+			case 2:
+				myEEs.append("J2SE-1.2,");
+				myEEs.append("OSGi/Minimum-1.0,");
+			case 1:
+				myEEs.append("JRE-1.1");
+			}
+		}
+		properties.put("org.osgi.framework.executionenvironment", myEEs.toString());
+
 		// sanity checks
 		if (!LOG_ENABLED) {
 			if (DEBUG_BUNDLES || DEBUG_PACKAGES || DEBUG_SERVICES
@@ -640,16 +673,16 @@ public final class Framework {
 		}
 		// set framework properties
 		Object obj;
-		properties.put("org.osgi.framework.os.name", (obj = properties
+		properties.put(Constants.FRAMEWORK_OS_NAME, (obj = properties
 				.get("os.name")) != null ? obj : "undefined");
-		properties.put("org.osgi.framework.os.version", (obj = properties
+		properties.put(Constants.FRAMEWORK_OS_VERSION, (obj = properties
 				.get("os.version")) != null ? obj : "undefined");
-		properties.put("org.osgi.framework.processor", (obj = properties
+		properties.put(Constants.FRAMEWORK_PROCESSOR, (obj = properties
 				.get("os.arch")) != null ? obj : "undefined");
-		properties.put("org.osgi.framework.version", "1.2");
-		properties.put("org.osgi.framework.vendor", "concierge");
+		properties.put(Constants.FRAMEWORK_VERSION, "1.2");
+		properties.put(Constants.FRAMEWORK_VENDOR, "Concierge");
 		final String lang = java.util.Locale.getDefault().getLanguage();
-		properties.put("org.osgi.framework.language", lang != null ? lang
+		properties.put(Constants.FRAMEWORK_LANGUAGE, lang != null ? lang
 				: "en");
 
 		// try to set the properties. Does not work on all platforms
@@ -1252,9 +1285,11 @@ public final class Framework {
 
 		// unregister registered services
 		final ServiceReference[] regs = bundle.getRegisteredServices();
+
 		if (regs != null) {
 			for (int i = 0; i < regs.length; i++) {
 				Framework.unregisterService(regs[i]);
+				((ServiceReferenceImpl) regs[i]).invalidate();
 			}
 			bundle.registeredServices = null;
 		}
@@ -2038,7 +2073,7 @@ public final class Framework {
 		 * 
 		 */
 		SystemBundle() {
-			props.put(Constants.BUNDLE_NAME, "System Bundle");
+			props.put(Constants.BUNDLE_NAME, Constants.SYSTEM_BUNDLE_LOCATION);
 			props.put(Constants.BUNDLE_VERSION, FRAMEWORK_VERSION);
 			bundleID_bundles.put(new Long(0), this);
 
@@ -2623,7 +2658,9 @@ public final class Framework {
 							if (updateGraph.contains(bundle)) {
 								continue;
 							}
-
+							if (bundle.classloader.originalExporter == null) {
+								continue;
+							}
 							ExportedPackage[] exported = getExportedPackages(bundle);
 							if (exported != null) {
 								for (int i = 0; i < exported.length; i++) {
@@ -2663,8 +2700,12 @@ public final class Framework {
 
 						// perform a cleanup for all bundles
 						for (int i = 0; i < refreshArray.length; i++) {
-							((BundleImpl) refreshArray[i]).classloader
-									.cleanup(false);
+							try {
+								((BundleImpl) refreshArray[i]).classloader
+										.cleanup(false);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
 
 						// register all their packages as unresolved exports

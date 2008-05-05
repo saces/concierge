@@ -71,128 +71,154 @@ public class HttpServer extends Thread {
 	}
 
 	public void run() {
-		Socket connection = null;
 
-		while (true) {
+		while (!isInterrupted()) {
+
+			ssm.log(LogService.LOG_INFO,
+					"HTTP Server waiting for connections...");
 			try {
-				ssm.log(LogService.LOG_INFO,
-						"HTTP Server waiting for connections...");
-				connection = socket.accept();
-
-				// Check to see if we got a poison pill. If so cleanup and exit.
-				if (this.isInterrupted()) {
-					ssm
-							.log(LogService.LOG_INFO,
-									"Server received shutdown-message.  Shutting down.");
-					connection.close();
-					socket.close();
-					return;
-				}
-				ssm.log(LogService.LOG_DEBUG,
-						"Http Server received new request.");
-				// Now we wait until the client is sending us bytes, or give up
-				// if we wait too long.
-				int reqCount = 0;
-				while (reqCount < MAX_CLIENT_RETRY
-						&& connection.getInputStream().available() == 0) {
-					try {
-						Thread.sleep(CLIENT_TIMEOUT);
-						reqCount++;
-					} catch (InterruptedException e) {
-						if (Thread.interrupted()) {
+				final Socket connection = socket.accept();
+				new Thread() {
+					public void run() {
+						try {
+							// Check to see if we got a poison pill. If so
+							// cleanup
+							// and exit.
+							if (this.isInterrupted()) {
+								ssm
+										.log(LogService.LOG_INFO,
+												"Server received shutdown-message.  Shutting down.");
+								connection.close();
+								socket.close();
+								return;
+							}
+							ssm.log(LogService.LOG_DEBUG,
+									"Http Server received new request.");
+							// Now we wait until the client is sending us bytes,
+							// or
+							// give up
+							// if we wait too long.
+							int reqCount = 0;
+							while (reqCount < MAX_CLIENT_RETRY
+									&& connection.getInputStream().available() == 0) {
+								try {
+									Thread.sleep(CLIENT_TIMEOUT);
+									reqCount++;
+								} catch (InterruptedException e) {
+									if (Thread.interrupted()) {
+										ssm
+												.log(LogService.LOG_INFO,
+														"Server received shutdown-message.  Shutting down.");
+										connection.close();
+										socket.close();
+										return;
+									}
+								}
+							}
 							ssm
-									.log(LogService.LOG_INFO,
-											"Server received shutdown-message.  Shutting down.");
-							connection.close();
-							socket.close();
-							return;
+									.log(
+											LogService.LOG_DEBUG,
+											"Server checked "
+													+ reqCount
+													+ " times before getting data from client.");
+
+							// Chech to see if we have bytes available after max
+							// wait. If
+							// not, abort.
+							if (connection.getInputStream().available() == 0) {
+								ssm
+										.log(LogService.LOG_WARNING,
+												"Client did not send any data, aborting connection.");
+								return;
+							}
+
+							// Build the HttpServletRequest object based on the
+							// client
+							// connection.
+							HttpServletRequest request = new ServletRequestImpl(
+									connection, ssm);
+							// Determine relative path from HTTP headers.
+							String name = getAlias(request);
+
+							if (name == null) {
+								throw new ServletException(
+										"Unable to retrieve alias from servlet.  Request: "
+												+ request.getPathInfo());
+							}
+
+							// Make sure relative path is valid
+							SharedStateManager.validateAlias(name);
+							// Check to see if relative path as is maps to a
+							// registered
+							// servlet.
+
+							Servlet servlet = getServlet(name);
+
+							if (servlet != null) {
+								// Change the path to reflect the nesting of the
+								// servlet
+								((ServletRequestImpl) request).setUri(null);
+							} else {
+								// Check to see if path can be resolved to sub
+								// alias.
+								String subName = getSubAlias(name);
+								if (subName != null) {
+									String pathInfo = name.substring(subName
+											.length());
+									((ServletRequestImpl) request)
+											.setUri(pathInfo);
+									name = subName;
+									servlet = getServlet(name);
+								}
+							}
+
+							// Construct the response object as we may want to
+							// pass
+							// an error
+							// back.
+							// OutputStreamWriter writer = new
+							// OutputStreamWriter(connection.getOutputStream());
+							HttpServletResponse response = new ServletResponseImpl(
+									connection.getOutputStream(), request);
+
+							if (servlet == null) {
+								handleNonMatchingAlias(response);
+							} else {
+								if (authenticateRequest(name, request, response)) {
+									Servlet s = getServlet(name);
+									intializeServlet(name, s);
+									processRequest(s, request, response);
+									response.flushBuffer();
+								} else {
+									ssm
+											.log(LogService.LOG_WARNING,
+													"Client authentication unsuccesful.");
+								}
+							}
+						} catch (IOException e) {
+							ssm.log(LogService.LOG_WARNING,
+									"An I/O exception occurred: "
+											+ e.getMessage(), e);
+						} catch (ServletException e) {
+							ssm.log(LogService.LOG_ERROR,
+									"An exception occured in a servlet: "
+											+ e.getMessage(), e);
+						} catch (NamespaceException e) {
+							ssm.log(LogService.LOG_ERROR,
+									"A namespace exception occured in a servlet: "
+											+ e.getMessage(), e);
+						} finally {
+							if (connection != null) {
+								try {
+									connection.close();
+								} catch (IOException e) {
+								}
+							}
 						}
 					}
-				}
-				ssm.log(LogService.LOG_DEBUG, "Server checked " + reqCount
-						+ " times before getting data from client.");
-
-				// Chech to see if we have bytes available after max wait. If
-				// not, abort.
-				if (connection.getInputStream().available() == 0) {
-					ssm
-							.log(LogService.LOG_WARNING,
-									"Client did not send any data, aborting connection.");
-					continue;
-				}
-
-				// Build the HttpServletRequest object based on the client
-				// connection.
-				HttpServletRequest request = new ServletRequestImpl(connection,
-						ssm);
-				// Determine relative path from HTTP headers.
-				String name = getAlias(request);
-
-				if (name == null) {
-					throw new ServletException(
-							"Unable to retrieve alias from servlet.  Request: "
-									+ request.getPathInfo());
-				}
-
-				// Make sure relative path is valid
-				SharedStateManager.validateAlias(name);
-				// Check to see if relative path as is maps to a registered
-				// servlet.
-
-				Servlet servlet = getServlet(name);
-
-				if (servlet != null) {
-					// Change the path to reflect the nesting of the servlet
-					((ServletRequestImpl) request).setUri(null);
-				} else {
-					// Check to see if path can be resolved to sub alias.
-					String subName = getSubAlias(name);
-					if (subName != null) {
-						String pathInfo = name.substring(subName.length());		
-						((ServletRequestImpl) request).setUri(pathInfo);
-						name = subName;
-						servlet = getServlet(name);
-					}
-				}
-
-				// Construct the response object as we may want to pass an error
-				// back.
-				// OutputStreamWriter writer = new
-				// OutputStreamWriter(connection.getOutputStream());
-				HttpServletResponse response = new ServletResponseImpl(
-						connection.getOutputStream(), request);
-
-				if (servlet == null) {
-					handleNonMatchingAlias(response);
-				} else {
-					if (authenticateRequest(name, request, response)) {
-						Servlet s = getServlet(name);
-						intializeServlet(name, s);
-						processRequest(s, request, response);
-						response.flushBuffer();
-					} else {
-						ssm.log(LogService.LOG_WARNING,
-								"Client authentication unsuccesful.");
-					}
-				}
+				}.start();
 			} catch (IOException e) {
-				ssm.log(LogService.LOG_WARNING, "An I/O exception occurred: "
-						+ e.getMessage(), e);
-			} catch (ServletException e) {
-				ssm.log(LogService.LOG_ERROR,
-						"An exception occured in a servlet: " + e.getMessage(),
-						e);
-			} catch (NamespaceException e) {
-				ssm.log(LogService.LOG_ERROR,
-						"A namespace exception occured in a servlet: "
-								+ e.getMessage(), e);
-			} finally {
-				if (connection != null) {
-					try {
-						connection.close();
-					} catch (IOException e) {
-					}
-				}
+				e.printStackTrace();
 			}
 		}
 	}
@@ -312,8 +338,8 @@ public class HttpServer extends Thread {
 
 		final StringTokenizer tokenizer = new StringTokenizer(s, seperator);
 		final String[] result = new String[tokenizer.countTokens()];
-		for (int i=0; tokenizer.hasMoreTokens(); i++) {
-			result[i] = tokenizer.nextToken();	
+		for (int i = 0; tokenizer.hasMoreTokens(); i++) {
+			result[i] = tokenizer.nextToken();
 		}
 		return result;
 

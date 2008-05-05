@@ -40,6 +40,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.jar.Attributes;
@@ -259,8 +261,8 @@ final class BundleClassLoader extends ClassLoader {
 			throws BundleException {
 		final Attributes attrs = manifest.getMainAttributes();
 
-		// TODO: process and check the execution environment
-
+		checkEE(readProperty(attrs, Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT), splitString(System.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT)));
+		
 		// get the exports
 		exports = readProperty(attrs, Constants.EXPORT_PACKAGE);
 
@@ -302,6 +304,19 @@ final class BundleClassLoader extends ClassLoader {
 		bundle.headers = headers;
 	}
 
+	private void checkEE(final String[] req, final String[] having) throws BundleException {
+		if (req.length == 0) {
+			return;
+		}
+		final Set havingEEs = new HashSet(Arrays.asList(having));
+		for (int i=0; i<req.length; i++) {
+			if (havingEEs.contains(req[i])) {
+				return;
+			}
+		}		
+		throw new BundleException("Platform does not provide EEs " + Arrays.asList(req));
+	}
+	
 	/**
 	 * try to resolve the bundle.
 	 * 
@@ -551,24 +566,6 @@ final class BundleClassLoader extends ClassLoader {
 
 		Class clazz;
 
-		// if delegations exist, check if the class is imported
-		if (importDelegations != null) {
-			BundleClassLoader delegation = (BundleClassLoader) importDelegations
-					.get(packageOf(classname));
-			if (delegation != null) {
-				clazz = findDelegatedClass(delegation, classname);
-				if (clazz != null) {
-					return clazz;
-				}
-			}
-		}
-
-		// okay, check if it is in the scope of this classloader
-		clazz = findOwnClass(classname);
-		if (clazz != null) {
-			return clazz;
-		}
-
 		// check dynamic imports, if they are declared
 		if (dynamicImports.length > 0) {
 			for (int i = 0; i < dynamicImports.length; i++) {
@@ -596,6 +593,25 @@ final class BundleClassLoader extends ClassLoader {
 				}
 			}
 		}
+
+		// if delegations exist, check if the class is imported
+		if (importDelegations != null) {
+			BundleClassLoader delegation = (BundleClassLoader) importDelegations
+					.get(packageOf(classname));
+			if (delegation != null) {
+				clazz = findDelegatedClass(delegation, classname);
+				if (clazz != null) {
+					return clazz;
+				}
+			}
+		}
+
+		// okay, check if it is in the scope of this classloader
+		clazz = findOwnClass(classname);
+		if (clazz != null) {
+			return clazz;
+		}
+
 
 		throw new ClassNotFoundException(classname);
 	}
@@ -674,18 +690,12 @@ final class BundleClassLoader extends ClassLoader {
 	 * @category ClassLoader
 	 */
 	protected URL findResource(final String filename) {
-		// TODO: remove debug output
-		System.out.println("REQUESTED FIND RESOURCE '" + filename + "' in " + this.bundle.location) ;
 		final String name = stripTrailing(filename);
 		Vector results = findOwnResources(name, false);
 		if (results.size() > 0) {
-			// TODO: remove debug output
-			System.out.println("RETURNED " + results.elementAt(0));
 			return (URL) results.elementAt(0);
 		}
 		results = findImportedResources(name, false);
-		// TODO: remove debug output
-		System.out.println("RETURNED " + (results.size() > 0 ? (URL) results.elementAt(0) : null));
 		return results.size() > 0 ? (URL) results.elementAt(0) : null;
 	}
 
@@ -722,8 +732,9 @@ final class BundleClassLoader extends ClassLoader {
 				final InputStream inputStream = retrieveFile(jarFile,
 						classpath[i], storageLocation, name);
 				if (inputStream != null) {
-					results.add(new URL("bundle", name, 0, "",
-							new BundleURLHandler(inputStream)));
+//					results.add(new URL("bundle", name, 0, "",
+//							new BundleURLHandler(inputStream)));
+					results.add(new URL(null, "bundle://" + name, new BundleURLHandler(inputStream)));
 					if (!multiple) {
 						return results;
 					}
@@ -831,14 +842,18 @@ final class BundleClassLoader extends ClassLoader {
 	private static String[] readProperty(final Attributes attrs,
 			final String property) throws BundleException {
 		final String values = attrs.getValue(property);
-		if (values == null) {
-			return new String[0];
-		}
-		if (values.equals("")) {
+		if (values != null && values.equals("")) {
 			throw new BundleException("Broken manifest, " + property
 					+ " is empty.");
 		}
-
+		
+		return splitString(values);
+	}
+	
+	private static String[] splitString(final String values) {
+		if (values == null) {
+			return new String[0];
+		}
 		if (values.indexOf(",") == -1) {
 			return new String[] { values };
 		}
@@ -1100,7 +1115,16 @@ final class BundleClassLoader extends ClassLoader {
 		 *            the input stream.
 		 */
 		private BundleURLHandler(final InputStream stream) {
-			input = stream;
+			input = new InputStream() {
+
+				public int read() throws IOException {
+					return stream.read();
+				}
+			
+				public int read(final byte b[]) throws IOException {
+					return stream.read(b);
+				}
+			};
 		}
 
 		/**

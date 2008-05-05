@@ -177,6 +177,7 @@ final class BundleImpl implements Bundle {
 		} catch (BundleException be) {
 			throw be;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new BundleException("Could not install bundle " + location, e);
 		}
 		this.state = INSTALLED;
@@ -341,12 +342,10 @@ final class BundleImpl implements Bundle {
 		}
 
 		final ArrayList result = new ArrayList();
-		final Bundle bundle = (Bundle) Framework.bundleID_bundles.get(new Long(
-				bundleID));
 		final ServiceReferenceImpl[] srefs = (ServiceReferenceImpl[]) Framework.services
-				.toArray(new ServiceReferenceImpl[0]);
+				.toArray(new ServiceReferenceImpl[Framework.services.size()]);
 		for (int i = 0; i < srefs.length; i++) {
-			if (srefs[i].useCounters.get(bundle) != null) {
+			if (srefs[i].useCounters.get(this) != null) {
 				result.add(srefs[i]);
 			}
 		}
@@ -510,7 +509,7 @@ final class BundleImpl implements Bundle {
 			Framework.clearBundleTrace(this);
 			state = RESOLVED;
 			Framework.notifyBundleListeners(BundleEvent.STOPPED, this);
-			// context.isValid = false;
+			context.isValid = false;
 		}
 
 	}
