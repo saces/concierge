@@ -84,17 +84,6 @@ final class LogServiceImpl implements LogService, LogReaderService {
 	private static final String[] LEVELS = { "NULL", "ERROR", "WARNING",
 			"INFO", "DEBUG" };
 
-	/**
-	 * hidden default constructor.
-	 * 
-	 */
-	private LogServiceImpl() {
-		LOG_BUFFER_SIZE = 0;
-		LOG_LEVEL = 0;
-		QUIET = false;
-		logBuffer = null;
-	}
-
 	public LogServiceImpl(final int buffersize, final int loglevel,
 			final boolean quiet) {
 		LOG_BUFFER_SIZE = buffersize;
