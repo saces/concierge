@@ -261,8 +261,11 @@ final class BundleClassLoader extends ClassLoader {
 			throws BundleException {
 		final Attributes attrs = manifest.getMainAttributes();
 
-		checkEE(readProperty(attrs, Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT), splitString(System.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT)));
-		
+		checkEE(readProperty(attrs,
+				Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT),
+				splitString(System
+						.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT)));
+
 		// get the exports
 		exports = readProperty(attrs, Constants.EXPORT_PACKAGE);
 
@@ -304,19 +307,21 @@ final class BundleClassLoader extends ClassLoader {
 		bundle.headers = headers;
 	}
 
-	private void checkEE(final String[] req, final String[] having) throws BundleException {
+	private void checkEE(final String[] req, final String[] having)
+			throws BundleException {
 		if (req.length == 0) {
 			return;
 		}
 		final Set havingEEs = new HashSet(Arrays.asList(having));
-		for (int i=0; i<req.length; i++) {
+		for (int i = 0; i < req.length; i++) {
 			if (havingEEs.contains(req[i])) {
 				return;
 			}
-		}		
-		throw new BundleException("Platform does not provide EEs " + Arrays.asList(req));
+		}
+		throw new BundleException("Platform does not provide EEs "
+				+ Arrays.asList(req));
 	}
-	
+
 	/**
 	 * try to resolve the bundle.
 	 * 
@@ -612,7 +617,6 @@ final class BundleClassLoader extends ClassLoader {
 			return clazz;
 		}
 
-
 		throw new ClassNotFoundException(classname);
 	}
 
@@ -732,9 +736,10 @@ final class BundleClassLoader extends ClassLoader {
 				final InputStream inputStream = retrieveFile(jarFile,
 						classpath[i], storageLocation, name);
 				if (inputStream != null) {
-//					results.add(new URL("bundle", name, 0, "",
-//							new BundleURLHandler(inputStream)));
-					results.add(new URL(null, "bundle://" + name, new BundleURLHandler(inputStream)));
+					// results.add(new URL("bundle", name, 0, "",
+					// new BundleURLHandler(inputStream)));
+					results.add(new URL(null, "bundle://" + name,
+							new BundleURLHandler(inputStream)));
 					if (!multiple) {
 						return results;
 					}
@@ -846,10 +851,10 @@ final class BundleClassLoader extends ClassLoader {
 			throw new BundleException("Broken manifest, " + property
 					+ " is empty.");
 		}
-		
+
 		return splitString(values);
 	}
-	
+
 	private static String[] splitString(final String values) {
 		if (values == null) {
 			return new String[0];
@@ -879,13 +884,15 @@ final class BundleClassLoader extends ClassLoader {
 			final Map nativeLibraries) {
 		int pos = -1;
 
-		final String osname = (String) Framework.properties.get("os.name");
+		final String osname = (String) Framework.properties
+				.get(Constants.FRAMEWORK_OS_NAME);
 		final String osversion = ";"
-				+ (String) Framework.properties.get("os.version");
+				+ (String) Framework.properties
+						.get(Constants.FRAMEWORK_OS_VERSION);
 		final Locale language = new Locale((String) Framework.properties
-				.get("org.osgi.framework.language"), "");
-		final String cpu = ((String) Framework.properties.get("os.arch"))
-				.intern();
+				.get(Constants.FRAMEWORK_LANGUAGE), "");
+		final String cpu = ((String) Framework.properties
+				.get(Constants.FRAMEWORK_PROCESSOR)).intern();
 		final String processor = ((cpu == "pentium" || cpu == "i386"
 				|| cpu == "i486" || cpu == "i586" || cpu == "i686") ? "x86"
 				: cpu).intern();
@@ -920,17 +927,17 @@ final class BundleClassLoader extends ClassLoader {
 								.intern();
 						final String value = token.substring(a + 1).trim()
 								.intern();
-						if (criterium == "osname") {
+						if (criterium == Constants.BUNDLE_NATIVECODE_OSNAME) {
 							n |= value.equalsIgnoreCase(osname);
 							no_n = false;
-						} else if (criterium == "osversion") {
+						} else if (criterium == Constants.BUNDLE_NATIVECODE_OSVERSION) {
 							v |= Package.matches(";" + value, osversion);
 							no_v = false;
-						} else if (criterium == "language") {
+						} else if (criterium == Constants.BUNDLE_NATIVECODE_LANGUAGE) {
 							l |= new Locale(value, "").getLanguage().equals(
 									language);
 							no_l = false;
-						} else if (criterium == "processor") {
+						} else if (criterium == Constants.BUNDLE_NATIVECODE_PROCESSOR) {
 							if (processor == "x86") {
 								p |= (value == "x86" || value == "pentium"
 										|| value == "i386" || value == "i486"
@@ -977,7 +984,8 @@ final class BundleClassLoader extends ClassLoader {
 
 			byte[] buffer = new byte[Framework.CLASSLOADER_BUFFER_SIZE];
 			int len;
-			while ((len = input.read(buffer, 0, Framework.CLASSLOADER_BUFFER_SIZE)) > -1) {
+			while ((len = input.read(buffer, 0,
+					Framework.CLASSLOADER_BUFFER_SIZE)) > -1) {
 				fos.write(buffer, 0, len);
 			}
 			fos.close();
@@ -985,7 +993,7 @@ final class BundleClassLoader extends ClassLoader {
 			ioe.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * retrieve a file from the storage.
 	 * 
@@ -1120,7 +1128,7 @@ final class BundleClassLoader extends ClassLoader {
 				public int read() throws IOException {
 					return stream.read();
 				}
-			
+
 				public int read(final byte b[]) throws IOException {
 					return stream.read(b);
 				}
