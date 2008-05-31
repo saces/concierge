@@ -7,6 +7,7 @@ import org.eclipse.osgi.service.resolver.GenericDescription;
 import org.eclipse.osgi.service.resolver.GenericSpecification;
 import org.eclipse.osgi.service.resolver.HostSpecification;
 import org.eclipse.osgi.service.resolver.ImportPackageSpecification;
+import org.eclipse.osgi.service.resolver.NativeCodeSpecification;
 import org.eclipse.osgi.service.resolver.State;
 import org.osgi.framework.Version;
 
@@ -152,6 +153,16 @@ public class BundleDescriptionImpl implements BundleDescription{
 	}
 
 	public Version getVersion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public NativeCodeSpecification getNativeCodeSpecification() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ExportPackageDescription[] getSubstitutedExports() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -89,7 +89,7 @@ final class BundleClassLoader extends ClassLoader {
 	/**
 	 * the bundle activator's class name.
 	 */
-	private String activatorClassName = null;
+	String activatorClassName = null;
 
 	/**
 	 * the bundle activator instance.
@@ -460,31 +460,6 @@ final class BundleClassLoader extends ClassLoader {
 					// and remember this
 					importDelegations.put(Package
 							.parsePackageString(exports[i])[0], cl);
-				}
-			}
-		}
-
-		if (activatorClassName != null) {
-			try {
-				// resolve activator, if there is one declared in the manifest
-				final Class activatorClass = loadClass(activatorClassName, true);
-
-				if (activatorClass == null) {
-					if (critical) {
-						throw new ClassNotFoundException(activatorClassName);
-					} else {
-						return false;
-					}
-				}
-				activator = (BundleActivator) activatorClass.newInstance();
-				activatorClassName = null;
-			} catch (Throwable t) {
-				if (critical) {
-					throw new BundleException(
-							"Cannot resolve bundle activator "
-									+ bundle.toString(), t);
-				} else {
-					return false;
 				}
 			}
 		}

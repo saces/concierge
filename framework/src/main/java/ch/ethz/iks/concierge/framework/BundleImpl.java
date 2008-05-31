@@ -51,6 +51,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -440,7 +441,15 @@ final class BundleImpl implements Bundle {
 		state = STARTING;
 		try {
 			context.isValid = true;
-			if (classloader.activator != null) {
+			if (classloader.activatorClassName != null) {
+				final Class activatorClass = classloader
+						.loadClass(classloader.activatorClassName);
+				if (activatorClass == null) {
+					throw new ClassNotFoundException(
+							classloader.activatorClassName);
+				}
+				classloader.activator = (BundleActivator) activatorClass
+						.newInstance();
 				classloader.activator.start(context);
 				state = ACTIVE;
 				Framework.notifyBundleListeners(BundleEvent.STARTED, this);
@@ -506,6 +515,7 @@ final class BundleImpl implements Bundle {
 		} catch (Throwable t) {
 			throw new BundleException("Error stopping bundle " + toString(), t);
 		} finally {
+			classloader.activator = null;
 			Framework.clearBundleTrace(this);
 			state = RESOLVED;
 			Framework.notifyBundleListeners(BundleEvent.STOPPED, this);
