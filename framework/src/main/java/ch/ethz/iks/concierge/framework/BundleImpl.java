@@ -408,7 +408,9 @@ final class BundleImpl implements Bundle {
 		if (Framework.SECURITY_ENABLED) {
 			Framework.checkAdminPermission();
 		}
-		startBundle();
+		if (currentStartlevel <= Framework.startlevel) {
+			startBundle();
+		}
 		persistently = true;
 		updateMetadata();
 	}

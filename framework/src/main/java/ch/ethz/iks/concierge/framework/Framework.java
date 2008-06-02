@@ -2387,7 +2387,7 @@ public final class Framework {
 
 			theBundle.currentStartlevel = startLevel;
 			theBundle.updateMetadata();
-			if (startLevel <= startlevel && bundle.getState() != Bundle.ACTIVE) {
+			if (startLevel <= startlevel && bundle.getState() != Bundle.ACTIVE && theBundle.persistently) {
 				try {
 					theBundle.startBundle();
 				} catch (BundleException be) {
@@ -2443,7 +2443,7 @@ public final class Framework {
 			new Thread() {
 				public void run() {
 					setLevel((Bundle[]) bundles.toArray(new Bundle[bundles
-							.size()]), targetLevel, true);
+							.size()]), targetLevel, false);
 					notifyFrameworkListeners(FrameworkEvent.STARTLEVEL_CHANGED,
 							systemBundle, null);
 					storeMetadata();
@@ -2469,7 +2469,7 @@ public final class Framework {
 			final Map startLevels = new HashMap(0);
 			// prepare startlevels
 			for (int i = 0; i < bundleArray.length; i++) {
-				if (bundleArray[i] == systemBundle) {
+				if (bundleArray[i] == systemBundle || !(all || ((BundleImpl)bundleArray[i]).persistently)) {
 					continue;
 				}
 				final BundleImpl bundle = (BundleImpl) bundleArray[i];
@@ -2479,13 +2479,17 @@ public final class Framework {
 				} else {
 					offset = startlevel - bundle.currentStartlevel;
 				}
-				if (offset >= 0 && offset < levels
-						&& (all || bundle.persistently)) {
+				if (offset >= 0 && offset < levels) {
 					addValue(startLevels, new Integer(offset), bundle);
 				}
 			}
 
 			for (int i = 0; i < levels; i++) {
+				if (up) {
+					startlevel++;
+				} else {
+					startlevel--;
+				}
 				final List list = (List) startLevels.get(new Integer(i));
 				if (list == null) {
 					continue;
@@ -2504,8 +2508,9 @@ public final class Framework {
 							}
 							System.out.println("STOPPING "
 									+ toProcess[j].location);
-							toProcess[j].stopBundle();
+							toProcess[toProcess.length - j - 1].stopBundle();
 						}
+						// TODO: remove debug output
 					} catch (BundleException be) {
 						be.getNestedException().printStackTrace();
 						be.printStackTrace();
@@ -2518,6 +2523,7 @@ public final class Framework {
 					}
 				}
 			}
+			
 			startlevel = targetLevel;
 		}
 
