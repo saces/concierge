@@ -2539,6 +2539,10 @@ public final class Framework {
 		 * @category PackageAdmin
 		 */
 		public ExportedPackage[] getExportedPackages(final Bundle bundle) {
+			return getExportedPackages(bundle, false);
+		}
+
+		private ExportedPackage[] getExportedPackages(final Bundle bundle, final boolean addStale) {
 			synchronized (exportedPackages) {
 				if (bundle == null || bundle == systemBundle) {
 					return (ExportedPackage[]) exportedPackages
@@ -2549,7 +2553,7 @@ public final class Framework {
 
 				final BundleImpl theBundle = (BundleImpl) bundle;
 				if (theBundle.state == Bundle.UNINSTALLED) {
-					return null;
+					return addStale ? theBundle.staleExportedPackages : null;
 				}
 
 				final String[] exports = ((BundleImpl) bundle).classloader.exports;
@@ -2584,7 +2588,7 @@ public final class Framework {
 						.toArray(new ExportedPackage[result.size()]);
 			}
 		}
-
+		
 		/**
 		 * get the exported package by name.
 		 * 
@@ -2629,22 +2633,31 @@ public final class Framework {
 			new Thread() {
 				public void run() {
 					synchronized (exportedPackages) {
-						final List toProcess;
+						
 
+						Bundle[] initial;
 						// build the initial set of bundles
-						if (bundleArray == null) {
-							toProcess = new ArrayList(bundles.size());
-							toProcess.addAll(bundles);
-							toProcess.remove(systemBundle);
+						if (bundleArray == null) {							
+							initial = (Bundle[]) bundles.toArray(new Bundle[bundles.size()]);
 						} else {
-							toProcess = new ArrayList(bundleArray.length);
-							for (int i = 0; i < bundleArray.length; i++) {
-								if (((BundleImpl) bundleArray[i]).classloader != null) {
-									toProcess.add(bundleArray[i]);
-								}
+							initial = bundleArray;
+						}
+						
+						final List toProcess;
+						toProcess = new ArrayList(initial.length);
+						for (int i = 0; i < initial.length; i++) {
+							if (initial[i] == systemBundle) {
+								continue;
+							}
+							final BundleImpl theBundle = (BundleImpl) initial[i];
+							if (theBundle.classloader == null || theBundle.classloader.originalExporter != null) {
+								toProcess.add(initial[i]);
 							}
 						}
-
+						
+						// TODO: remove debug output
+						System.out.println("\t\tTO PROCESS " + toProcess);
+						
 						// nothing to do ? fine, so we are done.
 						if (toProcess.isEmpty()) {
 							return;
@@ -2664,10 +2677,11 @@ public final class Framework {
 							if (updateGraph.contains(bundle)) {
 								continue;
 							}
-							if (bundle.classloader.originalExporter == null) {
-								continue;
+							final ExportedPackage[] exported = getExportedPackages(bundle, true);
+							// TODO: remove debug output
+							if (exported != null) {
+							System.out.println("\t\tExported packages: " + java.util.Arrays.asList(exported));
 							}
-							ExportedPackage[] exported = getExportedPackages(bundle);
 							if (exported != null) {
 								for (int i = 0; i < exported.length; i++) {
 									final Bundle[] importers = exported[i]
@@ -2679,7 +2693,9 @@ public final class Framework {
 											.asList(importers));
 								}
 							}
-							updateGraph.add(bundle);
+							if (bundle.classloader != null) {
+								updateGraph.add(bundle);
+							}
 						}
 
 						if (LOG_ENABLED && DEBUG_PACKAGES) {
@@ -2687,6 +2703,9 @@ public final class Framework {
 									+ updateGraph);
 						}
 
+						// TODO: remove debug output
+						System.out.println("\t\tUpdate graph is " + updateGraph);
+						
 						// create a refresh array that is ordered by bundle IDs
 						final Bundle[] refreshArray = new Bundle[updateGraph
 								.size()];

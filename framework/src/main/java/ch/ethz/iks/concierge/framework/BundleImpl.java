@@ -136,6 +136,8 @@ final class BundleImpl implements Bundle {
 	 * lazy way.
 	 */
 	List registeredServiceListeners = null;
+	
+	Package[] staleExportedPackages = null;
 
 	/**
 	 * create a new bundle object from InputStream. This is used when a new
@@ -463,6 +465,8 @@ final class BundleImpl implements Bundle {
 				state = RESOLVED;
 			}
 		} catch (Throwable t) {
+			// TODO: remove debug output
+			t.printStackTrace();
 			Framework.clearBundleTrace(this);
 			state = RESOLVED;
 			Framework.notifyBundleListeners(BundleEvent.INSTALLED, this);

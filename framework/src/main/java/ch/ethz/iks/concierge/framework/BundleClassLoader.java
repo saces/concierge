@@ -482,17 +482,20 @@ final class BundleClassLoader extends ClassLoader {
 	 */
 	void cleanup(final boolean full) {
 		// remove all exported packages
+		final ArrayList stalePackages = new ArrayList();
 		for (int i = 0; i < exports.length; i++) {
 			final Package p = (Package) Framework.exportedPackages
-					.get(new Package(exports[i], null, false));
+					.get(new Package(exports[i], null, false));			
 			if (p != null) {
 				if (p.importingBundles == null) {
 					Framework.exportedPackages.remove(p);
 				} else {
 					p.removalPending = true;
+					stalePackages.add(p);
 				}
 			}
 		}
+		bundle.staleExportedPackages = (Package[]) stalePackages.toArray(new Package[stalePackages.size()]);
 
 		if (importDelegations != null) {
 			String[] allImports = (String[]) importDelegations.keySet()
