@@ -1,6 +1,5 @@
-/* Copyright (c) 2006 Jan S. Rellermeyer
- * Information and Communication Systems Research Group (IKS),
- * Institute for Pervasive Computing, ETH Zurich.
+/* Copyright (c) 2006-2008 Jan S. Rellermeyer
+ * Systems Group, ETH Zurich.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -652,7 +651,8 @@ public final class Framework {
 				myEEs.append("JRE-1.1");
 			}
 		}
-		properties.put("org.osgi.framework.executionenvironment", myEEs.toString());
+		properties.put("org.osgi.framework.executionenvironment", myEEs
+				.toString());
 
 		// sanity checks
 		if (!LOG_ENABLED) {
@@ -682,8 +682,8 @@ public final class Framework {
 		properties.put(Constants.FRAMEWORK_VERSION, "1.2");
 		properties.put(Constants.FRAMEWORK_VENDOR, "Concierge");
 		final String lang = java.util.Locale.getDefault().getLanguage();
-		properties.put(Constants.FRAMEWORK_LANGUAGE, lang != null ? lang
-				: "en");
+		properties
+				.put(Constants.FRAMEWORK_LANGUAGE, lang != null ? lang : "en");
 
 		// try to set the properties. Does not work on all platforms
 		try {
@@ -1196,6 +1196,7 @@ public final class Framework {
 	 */
 	static void notifyFrameworkListeners(final int state, final Bundle bundle,
 			final Throwable throwable) {
+		
 		if (frameworkListeners.isEmpty()) {
 			return;
 		}
@@ -1206,10 +1207,9 @@ public final class Framework {
 		final FrameworkListener[] listeners = (FrameworkListener[]) frameworkListeners
 				.toArray(new FrameworkListener[frameworkListeners.size()]);
 
-		final boolean secure = SECURITY_ENABLED;
 		for (int i = 0; i < listeners.length; i++) {
 			final FrameworkListener listener = listeners[i];
-			if (secure) {
+			if (SECURITY_ENABLED) {
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run() {
 						listener.frameworkEvent(event);
@@ -1241,13 +1241,12 @@ public final class Framework {
 		final ServiceListenerEntry[] entries = (ServiceListenerEntry[]) serviceListeners
 				.toArray(new ServiceListenerEntry[serviceListeners.size()]);
 
-		final boolean secure = SECURITY_ENABLED;
 		for (int i = 0; i < entries.length; i++) {
 			if (entries[i].filter == null
 					|| entries[i].filter
 							.match(((ServiceReferenceImpl) reference).properties)) {
 				final ServiceListener listener = entries[i].listener;
-				if (secure) {
+				if (SECURITY_ENABLED) {
 					AccessController.doPrivileged(new PrivilegedAction() {
 						public Object run() {
 							listener.serviceChanged(event);
@@ -1859,6 +1858,8 @@ public final class Framework {
 		 */
 		public Bundle installBundle(final String location)
 				throws BundleException {
+			// TODO: remove debug output
+			System.out.println("\t\tCALLED INSTALL " + location);
 			if (location == null) {
 				throw new IllegalArgumentException("Location must not be null");
 			}
@@ -2387,10 +2388,13 @@ public final class Framework {
 
 			theBundle.currentStartlevel = startLevel;
 			theBundle.updateMetadata();
-			if (startLevel <= startlevel && bundle.getState() != Bundle.ACTIVE && theBundle.persistently) {
+			if (startLevel <= startlevel && bundle.getState() != Bundle.ACTIVE
+					&& theBundle.persistently) {
 				try {
 					theBundle.startBundle();
 				} catch (BundleException be) {
+					// TODO: remove debug output
+					be.printStackTrace();
 					notifyFrameworkListeners(FrameworkEvent.ERROR, bundle, be);
 				}
 			} else if (startLevel > startlevel
@@ -2399,6 +2403,8 @@ public final class Framework {
 				try {
 					theBundle.stopBundle();
 				} catch (BundleException be) {
+					// TODO: remove debug output
+					be.printStackTrace();
 					notifyFrameworkListeners(FrameworkEvent.ERROR, bundle, be);
 				}
 			}
@@ -2469,7 +2475,8 @@ public final class Framework {
 			final Map startLevels = new HashMap(0);
 			// prepare startlevels
 			for (int i = 0; i < bundleArray.length; i++) {
-				if (bundleArray[i] == systemBundle || !(all || ((BundleImpl)bundleArray[i]).persistently)) {
+				if (bundleArray[i] == systemBundle
+						|| !(all || ((BundleImpl) bundleArray[i]).persistently)) {
 					continue;
 				}
 				final BundleImpl bundle = (BundleImpl) bundleArray[i];
@@ -2523,7 +2530,7 @@ public final class Framework {
 					}
 				}
 			}
-			
+
 			startlevel = targetLevel;
 		}
 
@@ -2542,7 +2549,8 @@ public final class Framework {
 			return getExportedPackages(bundle, false);
 		}
 
-		private ExportedPackage[] getExportedPackages(final Bundle bundle, final boolean addStale) {
+		private ExportedPackage[] getExportedPackages(final Bundle bundle,
+				final boolean addStale) {
 			synchronized (exportedPackages) {
 				if (bundle == null || bundle == systemBundle) {
 					return (ExportedPackage[]) exportedPackages
@@ -2556,21 +2564,19 @@ public final class Framework {
 					return addStale ? theBundle.staleExportedPackages : null;
 				}
 
-				final String[] exports = ((BundleImpl) bundle).classloader.exports;
+				final String[] exports = theBundle.classloader.exports;
 				if (exports == null) {
 					return null;
 				}
 
 				final ArrayList result = new ArrayList();
-				final BundleClassLoader exporter = theBundle.classloader.originalExporter != null ? theBundle.classloader.originalExporter
-						: theBundle.classloader;
 				for (int i = 0; i < exports.length; i++) {
 					final Package pkg = (Package) exportedPackages
 							.get(new Package(exports[i], null, false));
 					if (pkg == null) {
 						continue;
 					}
-					if (pkg.classloader == exporter) {
+					if (pkg.classloader == theBundle.classloader) {
 						if (!pkg.resolved) {
 							try {
 								pkg.classloader.resolveBundle(true,
@@ -2584,11 +2590,18 @@ public final class Framework {
 						}
 					}
 				}
+				
+				if (theBundle.staleExportedPackages != null) {
+					result.addAll(java.util.Arrays.asList(theBundle.staleExportedPackages));
+				}
+				
+				System.out.println("\tBundle " + theBundle + " has exported packages " + result);
+				
 				return result.isEmpty() ? null : (ExportedPackage[]) result
 						.toArray(new ExportedPackage[result.size()]);
 			}
 		}
-		
+
 		/**
 		 * get the exported package by name.
 		 * 
@@ -2633,16 +2646,16 @@ public final class Framework {
 			new Thread() {
 				public void run() {
 					synchronized (exportedPackages) {
-						
 
 						Bundle[] initial;
 						// build the initial set of bundles
-						if (bundleArray == null) {							
-							initial = (Bundle[]) bundles.toArray(new Bundle[bundles.size()]);
+						if (bundleArray == null) {
+							initial = (Bundle[]) bundles
+									.toArray(new Bundle[bundles.size()]);
 						} else {
 							initial = bundleArray;
 						}
-						
+
 						final List toProcess;
 						toProcess = new ArrayList(initial.length);
 						for (int i = 0; i < initial.length; i++) {
@@ -2650,14 +2663,15 @@ public final class Framework {
 								continue;
 							}
 							final BundleImpl theBundle = (BundleImpl) initial[i];
-							if (theBundle.classloader == null || theBundle.classloader.originalExporter != null) {
+							if (theBundle.classloader == null
+									|| theBundle.classloader.originalExporter != null) {
 								toProcess.add(initial[i]);
 							}
 						}
-						
+
 						// TODO: remove debug output
 						System.out.println("\t\tTO PROCESS " + toProcess);
-						
+
 						// nothing to do ? fine, so we are done.
 						if (toProcess.isEmpty()) {
 							return;
@@ -2677,10 +2691,12 @@ public final class Framework {
 							if (updateGraph.contains(bundle)) {
 								continue;
 							}
-							final ExportedPackage[] exported = getExportedPackages(bundle, true);
+							final ExportedPackage[] exported = getExportedPackages(
+									bundle, true);
 							// TODO: remove debug output
 							if (exported != null) {
-							System.out.println("\t\tExported packages: " + java.util.Arrays.asList(exported));
+								System.out.println("\t\tExported packages: "
+										+ java.util.Arrays.asList(exported));
 							}
 							if (exported != null) {
 								for (int i = 0; i < exported.length; i++) {
@@ -2704,8 +2720,9 @@ public final class Framework {
 						}
 
 						// TODO: remove debug output
-						System.out.println("\t\tUpdate graph is " + updateGraph);
-						
+						System.out
+								.println("\t\tUpdate graph is " + updateGraph);
+
 						// create a refresh array that is ordered by bundle IDs
 						final Bundle[] refreshArray = new Bundle[updateGraph
 								.size()];
@@ -2728,6 +2745,7 @@ public final class Framework {
 							try {
 								((BundleImpl) refreshArray[i]).classloader
 										.cleanup(false);
+								((BundleImpl) refreshArray[i]).staleExportedPackages = null;
 							} catch (Exception e) {
 								e.printStackTrace();
 							}

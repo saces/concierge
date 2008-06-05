@@ -485,7 +485,7 @@ final class BundleClassLoader extends ClassLoader {
 		final ArrayList stalePackages = new ArrayList();
 		for (int i = 0; i < exports.length; i++) {
 			final Package p = (Package) Framework.exportedPackages
-					.get(new Package(exports[i], null, false));			
+					.get(new Package(exports[i], null, false));
 			if (p != null) {
 				if (p.importingBundles == null) {
 					Framework.exportedPackages.remove(p);
@@ -495,7 +495,14 @@ final class BundleClassLoader extends ClassLoader {
 				}
 			}
 		}
-		bundle.staleExportedPackages = (Package[]) stalePackages.toArray(new Package[stalePackages.size()]);
+		if (bundle != null) {
+			if (full) {
+				bundle.staleExportedPackages = (Package[]) stalePackages
+						.toArray(new Package[stalePackages.size()]);
+			} else {
+				bundle.staleExportedPackages = null;
+			}
+		}
 
 		if (importDelegations != null) {
 			String[] allImports = (String[]) importDelegations.keySet()
@@ -630,6 +637,9 @@ final class BundleClassLoader extends ClassLoader {
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 					return null;
+				} catch (LinkageError le) {
+					System.err.println("ERROR in " + toString() + ":");
+					throw le;
 				}
 			}
 		} catch (IOException e) {
@@ -650,16 +660,10 @@ final class BundleClassLoader extends ClassLoader {
 
 	private static Class findDelegatedClass(final BundleClassLoader delegation,
 			final String classname) {
-		Class clazz;
-		// exporter could be an original classloader that has become stale after
-		// an update
-		BundleClassLoader exporter = delegation.originalExporter == null ? delegation
-				: delegation.originalExporter;
-		if ((clazz = exporter.findLoadedClass(classname)) != null) {
-			return clazz;
-		} else {
-			return delegation.findOwnClass(classname);
-		}
+		final Class clazz;
+		return ((clazz = delegation.findLoadedClass(classname)) == null) ? delegation
+				.findOwnClass(classname)
+				: clazz;
 	}
 
 	/**
@@ -837,10 +841,10 @@ final class BundleClassLoader extends ClassLoader {
 		if (values == null) {
 			return new String[0];
 		}
-		if (values.indexOf(",") == -1) {
+		final StringTokenizer tokenizer = new StringTokenizer(values, ",");
+		if (tokenizer.countTokens() == 0) {
 			return new String[] { values };
 		}
-		final StringTokenizer tokenizer = new StringTokenizer(values, ",");
 		final String[] result = new String[tokenizer.countTokens()];
 		for (int i = 0; i < result.length; i++) {
 			result[i] = tokenizer.nextToken().trim();

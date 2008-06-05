@@ -136,7 +136,7 @@ final class BundleImpl implements Bundle {
 	 * lazy way.
 	 */
 	List registeredServiceListeners = null;
-	
+
 	Package[] staleExportedPackages = null;
 
 	/**
@@ -410,11 +410,11 @@ final class BundleImpl implements Bundle {
 		if (Framework.SECURITY_ENABLED) {
 			Framework.checkAdminPermission();
 		}
+		persistently = true;
+		updateMetadata();
 		if (currentStartlevel <= Framework.startlevel) {
 			startBundle();
 		}
-		persistently = true;
-		updateMetadata();
 	}
 
 	/**
@@ -488,9 +488,9 @@ final class BundleImpl implements Bundle {
 		if (Framework.SECURITY_ENABLED) {
 			Framework.checkAdminPermission();
 		}
-		stopBundle();
 		persistently = false;
 		updateMetadata();
+		stopBundle();
 	}
 
 	/**
@@ -519,6 +519,8 @@ final class BundleImpl implements Bundle {
 						+ toString() + " stopped.");
 			}
 		} catch (Throwable t) {
+			// TODO: remove debug output
+			t.printStackTrace();
 			throw new BundleException("Error stopping bundle " + toString(), t);
 		} finally {
 			classloader.activator = null;
@@ -551,6 +553,8 @@ final class BundleImpl implements Bundle {
 			try {
 				stopBundle();
 			} catch (Throwable t) {
+				// TODO: remove debug output
+				t.printStackTrace();
 				Framework.notifyFrameworkListeners(FrameworkEvent.ERROR, this,
 						t);
 			}
@@ -642,6 +646,7 @@ final class BundleImpl implements Bundle {
 							// exporting bundle is going to be updates
 							p.removalPending = true;
 							inUse = true;
+
 						}
 					}
 				}

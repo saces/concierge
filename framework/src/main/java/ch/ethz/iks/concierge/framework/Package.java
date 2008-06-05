@@ -310,6 +310,7 @@ final class Package implements ExportedPackage {
 	 * @param version
 	 *            the version part of the package string.
 	 * @return the version number array.
+	 * TODO: optimize!!!
 	 */
 	private static short[] getVersionNumber(final String version) {
 		if (version.startsWith("specification-version=")) {
@@ -323,7 +324,7 @@ final class Package implements ExportedPackage {
 			}
 			StringTokenizer tokenizer = new StringTokenizer(versionString, ".");
 			short[] versionNumber = { 0, 0, 0 };
-			for (int i = 0; tokenizer.hasMoreTokens() && i < 2; i++) {
+			for (int i = 0; tokenizer.hasMoreTokens() && i <= 2; i++) {
 				versionNumber[i] = Short.parseShort(tokenizer.nextToken());
 			}
 
