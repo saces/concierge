@@ -226,7 +226,6 @@ final class BundleImpl implements Bundle {
 		this.context = bcontext;
 
 		if (Framework.SECURITY_ENABLED) {
-			// TODO: implement
 			domain = new ProtectionDomain(null, null);
 		}
 
@@ -465,8 +464,6 @@ final class BundleImpl implements Bundle {
 				state = RESOLVED;
 			}
 		} catch (Throwable t) {
-			// TODO: remove debug output
-			t.printStackTrace();
 			Framework.clearBundleTrace(this);
 			state = RESOLVED;
 			Framework.notifyBundleListeners(BundleEvent.INSTALLED, this);
@@ -519,8 +516,6 @@ final class BundleImpl implements Bundle {
 						+ toString() + " stopped.");
 			}
 		} catch (Throwable t) {
-			// TODO: remove debug output
-			t.printStackTrace();
 			throw new BundleException("Error stopping bundle " + toString(), t);
 		} finally {
 			classloader.activator = null;

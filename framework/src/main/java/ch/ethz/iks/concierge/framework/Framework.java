@@ -1842,8 +1842,6 @@ public final class Framework {
 		 */
 		public Bundle installBundle(final String location)
 				throws BundleException {
-			// TODO: remove debug output
-			System.out.println("\t\tCALLED INSTALL " + location);
 			if (location == null) {
 				throw new IllegalArgumentException("Location must not be null");
 			}
@@ -2390,8 +2388,6 @@ public final class Framework {
 				try {
 					theBundle.stopBundle();
 				} catch (BundleException be) {
-					// TODO: remove debug output
-					be.printStackTrace();
 					notifyFrameworkListeners(FrameworkEvent.ERROR, bundle, be);
 				}
 			}
@@ -2658,9 +2654,6 @@ public final class Framework {
 							}
 						}
 
-						// TODO: remove debug output
-						System.out.println("\t\tTO PROCESS " + toProcess);
-
 						// nothing to do ? fine, so we are done.
 						if (toProcess.isEmpty()) {
 							return;
@@ -2682,18 +2675,13 @@ public final class Framework {
 							}
 							final ExportedPackage[] exported = getExportedPackages(
 									bundle, true);
-							// TODO: remove debug output
-							if (exported != null) {
-								System.out.println("\t\tExported packages: "
-										+ java.util.Arrays.asList(exported));
-							}
 							if (exported != null) {
 								for (int i = 0; i < exported.length; i++) {
-									final Bundle[] importers = exported[i]
-											.getImportingBundles();
-									if (importers == null) {
+									final Package p = (Package) exported[i];
+									if (p.importingBundles == null) {
 										continue;
 									}
+									final Bundle[] importers = (Bundle[]) p.importingBundles.toArray(new Bundle[p.importingBundles.size()]);
 									toProcess.addAll(java.util.Arrays
 											.asList(importers));
 								}
@@ -2707,10 +2695,6 @@ public final class Framework {
 							logger.log(LogService.LOG_DEBUG, "UPDATE GRAPH IS "
 									+ updateGraph);
 						}
-
-						// TODO: remove debug output
-						System.out
-								.println("\t\tUpdate graph is " + updateGraph);
 
 						// create a refresh array that is ordered by bundle IDs
 						final Bundle[] refreshArray = new Bundle[updateGraph

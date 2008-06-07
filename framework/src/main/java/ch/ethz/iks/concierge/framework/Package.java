@@ -111,8 +111,17 @@ final class Package implements ExportedPackage {
 	 * @category ExportedPackage
 	 */
 	public Bundle[] getImportingBundles() {
-		return importingBundles == null ? null : (Bundle[]) importingBundles
-				.toArray(new Bundle[importingBundles.size()]);
+		// 		return importingBundles == null ? null : (Bundle[]) importingBundles
+		//		.toArray(new Bundle[importingBundles.size()]);
+		if (importingBundles == null) {
+			return new Bundle[] { classloader.bundle };
+		} 
+		Bundle[] bundles = new Bundle[importingBundles.size() + 1];
+		importingBundles.toArray(bundles);
+		bundles[importingBundles.size()] = classloader.bundle;
+		return bundles;
+		//importingBundles == null ? null : (Bundle[]) importingBundles
+				//		.toArray(new Bundle[importingBundles.size()]);
 	}
 
 	/**

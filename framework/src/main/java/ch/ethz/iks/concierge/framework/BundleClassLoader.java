@@ -528,7 +528,9 @@ final class BundleClassLoader extends ClassLoader {
 		originalExporter = null;
 
 		if (full) {
-			bundle = null;
+			if (stalePackages.size() == 0) {
+				bundle = null;
+			}
 			activatorClassName = null;
 			imports = null;
 			dynamicImports = null;
