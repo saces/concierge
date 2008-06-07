@@ -553,8 +553,6 @@ final class BundleImpl implements Bundle {
 			try {
 				stopBundle();
 			} catch (Throwable t) {
-				// TODO: remove debug output
-				t.printStackTrace();
 				Framework.notifyFrameworkListeners(FrameworkEvent.ERROR, this,
 						t);
 			}

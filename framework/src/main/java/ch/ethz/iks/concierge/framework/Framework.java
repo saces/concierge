@@ -48,7 +48,6 @@ import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -147,15 +146,6 @@ public final class Framework {
 	 * security.
 	 */
 	static boolean SECURITY_ENABLED;
-
-	/**
-	 * enable deep equality check on service listeners when adding and removing
-	 * from runtime instance. This is sometimes nessary due to the OSGi R3
-	 * implementation of the ServiceTracker. Different ServiceTrackers evaluate
-	 * as equal because they subclass Hashtable. Different Hashtables evaluate
-	 * to equal if they are empty.
-	 */
-	static boolean DEEP_SERVICE_LISTENER_CHECK;
 
 	/**
 	 * debug outputs from bundles ?
@@ -604,8 +594,6 @@ public final class Framework {
 				"ch.ethz.iks.concierge.decompressEmbedded", true);
 		SECURITY_ENABLED = getProperty(
 				"ch.ethz.iks.concierge.security.enabled", false);
-		DEEP_SERVICE_LISTENER_CHECK = getProperty(
-				"ch.ethz.iks.concierge.deepServiceListenerCheck", false);
 
 		final String ADDITIONAL_PACKAGES = properties
 				.getProperty("org.osgi.framework.system.packages");
@@ -1196,7 +1184,7 @@ public final class Framework {
 	 */
 	static void notifyFrameworkListeners(final int state, final Bundle bundle,
 			final Throwable throwable) {
-		
+
 		if (frameworkListeners.isEmpty()) {
 			return;
 		}
@@ -1581,19 +1569,15 @@ public final class Framework {
 		 */
 		private boolean isServiceListenerRegistered(
 				final ServiceListener listener) {
-			if (DEEP_SERVICE_LISTENER_CHECK) {
-				final Iterator iter = bundle.registeredServiceListeners
-						.iterator();
-				while (iter.hasNext()) {
-					Object obj = iter.next();
-					if (listener == obj) {
-						return true;
-					}
+			final ServiceListener[] listeners = (ServiceListener[]) bundle.registeredServiceListeners
+					.toArray(new ServiceListener[bundle.registeredServiceListeners
+							.size()]);
+			for (int i = 0; i < listeners.length; i++) {
+				if (listeners[i] == listener) {
+					return true;
 				}
-				return false;
-			} else {
-				return bundle.registeredServiceListeners.contains(listener);
 			}
+			return false;
 		}
 
 		/**
@@ -2076,6 +2060,9 @@ public final class Framework {
 		SystemBundle() {
 			props.put(Constants.BUNDLE_NAME, Constants.SYSTEM_BUNDLE_LOCATION);
 			props.put(Constants.BUNDLE_VERSION, FRAMEWORK_VERSION);
+			props
+					.put(Constants.BUNDLE_VENDOR,
+							"Jan S. Rellermeyer, ETH Zurich");
 			bundleID_bundles.put(new Long(0), this);
 
 			final ServiceReference ref = new ServiceReferenceImpl(this, this,
@@ -2590,13 +2577,15 @@ public final class Framework {
 						}
 					}
 				}
-				
+
 				if (theBundle.staleExportedPackages != null) {
-					result.addAll(java.util.Arrays.asList(theBundle.staleExportedPackages));
+					result.addAll(java.util.Arrays
+							.asList(theBundle.staleExportedPackages));
 				}
-				
-				System.out.println("\tBundle " + theBundle + " has exported packages " + result);
-				
+
+				System.out.println("\tBundle " + theBundle
+						+ " has exported packages " + result);
+
 				return result.isEmpty() ? null : (ExportedPackage[]) result
 						.toArray(new ExportedPackage[result.size()]);
 			}

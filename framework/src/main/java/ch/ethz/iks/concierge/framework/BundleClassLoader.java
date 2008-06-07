@@ -489,6 +489,7 @@ final class BundleClassLoader extends ClassLoader {
 			if (p != null) {
 				if (p.importingBundles == null) {
 					Framework.exportedPackages.remove(p);
+					p.importingBundles = null;				
 				} else {
 					p.removalPending = true;
 					stalePackages.add(p);

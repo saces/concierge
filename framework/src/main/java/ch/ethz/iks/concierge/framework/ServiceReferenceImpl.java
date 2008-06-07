@@ -117,7 +117,7 @@ final class ServiceReferenceImpl implements ServiceReference {
 			isServiceFactory = true;
 		} else {
 			isServiceFactory = false;
-			checkService(service.getClass(), clazzes);			
+			checkService(service.getClass(), clazzes);
 		}
 		
 		this.bundle = bundle;
@@ -139,6 +139,10 @@ final class ServiceReferenceImpl implements ServiceReference {
 	
 	private void checkService(final Class service, final String[] clazzes) {
 		Class current = service;
+		// is it an object registration?
+		if (current.getName().equals(clazzes[0]) && clazzes.length == 1) {
+			return;
+		}
 		final Set remaining = new HashSet(Arrays.asList(clazzes));
 		while (current != null) {
 			remaining.remove(current.getName());
