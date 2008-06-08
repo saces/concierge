@@ -30,7 +30,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<osgiManifest>
-						<bundleName>UPnP API</bundleName>
+						<bundleName>Permission Admin API</bundleName>
 						<exportPackage>org.osgi.service.permissionadmin</exportPackage>
 					</osgiManifest>
 				</configuration>
