@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>concierge-project</artifactId>
 		<groupId>ch.ethz.iks.concierge</groupId>
-		<version>1.0.0.RC2</version>
+		<version>1.0.0.RC3</version>
 	</parent>
 	<groupId>com.buglabs.osgi.concierge</groupId>
 	<artifactId>cte</artifactId>

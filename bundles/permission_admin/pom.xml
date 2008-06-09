@@ -4,10 +4,10 @@
 	<parent>
 		<artifactId>concierge-project</artifactId>
 		<groupId>ch.ethz.iks.concierge</groupId>
-		<version>1.0.0.RC2</version>
+		<version>1.0.0.RC3</version>
 	</parent>
 	<groupId>org.osgi</groupId>
-	<artifactId>permission-admin</artifactId>
+	<artifactId>permission-admin-api</artifactId>
 	<packaging>osgi-bundle</packaging>
 
 	<build>
@@ -31,6 +31,7 @@
 				<configuration>
 					<osgiManifest>
 						<bundleName>Permission Admin API</bundleName>
+						<bundleVendor>Jan S. Rellermeyer, ETH Zurich</bundleVendor>
 						<exportPackage>org.osgi.service.permissionadmin</exportPackage>
 					</osgiManifest>
 				</configuration>

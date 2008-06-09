@@ -1283,6 +1283,7 @@ public final class Framework {
 
 		// unget all using services
 		final ServiceReference[] refs = bundle.getServicesInUse();
+		// System.err.println("CLEANING USED SERVICES " + (refs != null ? java.util.Arrays.asList(refs).toString() : "none"));
 		for (int i = 0; i < refs.length; i++) {
 			((ServiceReferenceImpl) refs[i]).ungetService(bundle);
 		}

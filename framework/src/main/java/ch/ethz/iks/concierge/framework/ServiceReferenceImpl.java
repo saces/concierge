@@ -241,11 +241,13 @@ final class ServiceReferenceImpl implements ServiceReference {
 	 * @category ServiceReference
 	 */
 	public Bundle[] getUsingBundles() {
+		synchronized(useCounters) {
 		if (useCounters.isEmpty()) {
 			return null;
 		}
 		return (Bundle[]) useCounters.keySet().toArray(
 				new Bundle[useCounters.size()]);
+		}
 	}
 
 	/**
@@ -257,9 +259,12 @@ final class ServiceReferenceImpl implements ServiceReference {
 	 * @return the service object.
 	 */
 	Object getService(final Bundle theBundle) {
+		// TODO: remove debug output
+		// System.err.println(theBundle + " is getting service " + service);
 		if (service == null) {
 			return null;
 		}
+		synchronized(useCounters) {
 		Integer counter = (Integer) useCounters.get(theBundle);
 		if (counter == null) {
 			counter = new Integer(1);
@@ -268,6 +273,9 @@ final class ServiceReferenceImpl implements ServiceReference {
 		}
 		useCounters.put(theBundle, counter);
 
+		// TODO: remove debug output
+		// System.out.println("USE COUNTERS FOR " + service + " are " + useCounters);
+		
 		if (isServiceFactory) {			
 			if (cachedServices == null) {
 				cachedServices = new HashMap(1);
@@ -282,6 +290,7 @@ final class ServiceReferenceImpl implements ServiceReference {
 			return factoredService;
 		}
 		return service;
+		}
 	}
 
 	/**
@@ -294,6 +303,9 @@ final class ServiceReferenceImpl implements ServiceReference {
 	 *         <tt>true</tt> otherwise.
 	 */
 	boolean ungetService(final Bundle theBundle) {
+		synchronized(useCounters) {
+			// TODO: remove debug output
+		// System.err.println("UNGETTING SERVICE FOR BUNDLE " + theBundle);
 		if (service == null) {
 			return false;
 		}
@@ -313,6 +325,7 @@ final class ServiceReferenceImpl implements ServiceReference {
 			counter = new Integer(counter.intValue() - 1);
 			useCounters.put(theBundle, counter);
 			return true;
+		}
 		}
 	}
 

@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>concierge-project</artifactId>
 		<groupId>ch.ethz.iks.concierge</groupId>
-		<version>1.0.0.RC2</version>
+		<version>1.0.0.RC3</version>
 	</parent>
 	<groupId>ch.ethz.iks.concierge</groupId>
 	<artifactId>shell</artifactId>
@@ -33,8 +33,7 @@
 					<osgiManifest>
 						<bundleActivator>ch.ethz.iks.concierge.shell.ShellActivator</bundleActivator>
 						<bundleName>Concierge Shell</bundleName>
-						<bundleDescription>A shell.</bundleDescription>
-						<bundleVendor>Jan S. Rellermeyer, IKS, ETH Zurich</bundleVendor>
+						<bundleVendor>Jan S. Rellermeyer, ETH Zurich</bundleVendor>
 						<importPackage>org.osgi.framework;specification-version=1.2, org.osgi.service.packageadmin;specification-version=1.1, org.osgi.service.startlevel;specification-version=1.0</importPackage>
 						<exportPackage>ch.ethz.iks.concierge.shell.commands</exportPackage>
 					</osgiManifest>

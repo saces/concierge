@@ -346,9 +346,12 @@ final class BundleImpl implements Bundle {
 		final ArrayList result = new ArrayList();
 		final ServiceReferenceImpl[] srefs = (ServiceReferenceImpl[]) Framework.services
 				.toArray(new ServiceReferenceImpl[Framework.services.size()]);
+		
 		for (int i = 0; i < srefs.length; i++) {
+			synchronized(srefs[i].useCounters) {
 			if (srefs[i].useCounters.get(this) != null) {
 				result.add(srefs[i]);
+			}
 			}
 		}
 

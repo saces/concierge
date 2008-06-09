@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>concierge-project</artifactId>
 		<groupId>ch.ethz.iks.concierge</groupId>
-		<version>1.0.0.RC2</version>
+		<version>1.0.0.RC3</version>
 	</parent>
 	<groupId>ch.ethz.iks.concierge</groupId>
 	<artifactId>concierge_gui</artifactId>
@@ -33,7 +33,7 @@
 						<bundleActivator>ch.ethz.iks.concierge.gui.Activator</bundleActivator>
 						<bundleName>Concierge GUI</bundleName>
 						<bundleSymbolicName>Concierge GUI</bundleSymbolicName>						
-						<bundleVendor>Jan S. Rellermeyer, IKS, ETH Zurich</bundleVendor>
+						<bundleVendor>Jan S. Rellermeyer, ETH Zurich</bundleVendor>
 						<importPackage>org.osgi.framework</importPackage>
 					</osgiManifest>
 				</configuration>
