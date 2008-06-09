@@ -28,6 +28,16 @@
 				<td>IKS Stream Processing System. (Current research project of Michael Duller, ETH Zurich.)</td>
 				<td></td>
 			</tr>			
+			<tr>
+				<td>BUG</td>
+				<td>BugLabs' award-winning modular device runs Concierge</td>
+				<td><a href="http://www.buglabs.net>BugLabs</a></td>
+			</tr>
+			<tr>
+				<td>aJile</td>
+				<td>aJile's Java processor and software stack runs their own customized version of Concierge</td>
+				<td><a href="http://www.ajile.com/index.php?option=com_content&task=view&id=60&Itemid=1">aJile</a></td>
+			</tr>
 		</table>
 		</p>
 		<p>
