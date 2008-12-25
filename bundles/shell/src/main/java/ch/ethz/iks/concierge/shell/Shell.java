@@ -131,7 +131,9 @@ public class Shell extends Thread implements ServiceListener {
 			while (running) {
 				System.out.print("\r\nConcierge> ");
 				String s = in.readLine();
-
+				if (s == null) {
+					running = false;
+				}
 				if (running) {
 					handleCommand(s);
 				}
@@ -151,7 +153,7 @@ public class Shell extends Thread implements ServiceListener {
 	private void handleCommand(final String s) {
 		try {
 			int pos;
-			if (s == null || s.equals("")) {
+			if (s.equals("")) {
 				return;
 			}
 

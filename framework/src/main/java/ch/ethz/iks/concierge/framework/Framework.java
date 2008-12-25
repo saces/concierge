@@ -837,6 +837,7 @@ public final class Framework {
 						System.err.println("Bundle " + token
 								+ " is marked to be started but has not been "
 								+ "installed before. Ignoring the command !");
+					} else {
 						removeValue(installMap, new Object[] { level }, token);
 						addValue(startMap, level, token);
 					}
