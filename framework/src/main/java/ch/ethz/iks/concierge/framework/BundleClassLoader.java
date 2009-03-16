@@ -664,9 +664,11 @@ final class BundleClassLoader extends ClassLoader {
 	private static Class findDelegatedClass(final BundleClassLoader delegation,
 			final String classname) {
 		final Class clazz;
-		return ((clazz = delegation.findLoadedClass(classname)) == null) ? delegation
+		synchronized(delegation) {
+			return ((clazz = delegation.findLoadedClass(classname)) == null) ? delegation
 				.findOwnClass(classname)
 				: clazz;
+		}
 	}
 
 	/**
