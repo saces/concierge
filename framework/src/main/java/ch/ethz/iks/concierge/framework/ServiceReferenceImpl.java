@@ -30,17 +30,16 @@
 package ch.ethz.iks.concierge.framework;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceReference;
@@ -117,7 +116,7 @@ final class ServiceReferenceImpl implements ServiceReference {
 			isServiceFactory = true;
 		} else {
 			isServiceFactory = false;
-			checkService(service.getClass(), clazzes);
+			checkService(service, clazzes);
 		}
 		
 		this.bundle = bundle;
@@ -137,26 +136,24 @@ final class ServiceReferenceImpl implements ServiceReference {
 		this.registration = new ServiceRegistrationImpl();
 	}
 	
-	private void checkService(final Class service, final String[] clazzes) {
-		Class current = service;
-		// is it an object registration?
-		if (current.getName().equals(clazzes[0]) && clazzes.length == 1) {
-			return;
-		}
-		final Set remaining = new HashSet(Arrays.asList(clazzes));
-		while (current != null) {
-			remaining.remove(current.getName());
-			final Class[] implIfaces = current.getInterfaces();
-			for (int i = 0; i < implIfaces.length; i++) {
-				remaining.remove(implIfaces[i].getName());
-				if (remaining.isEmpty()) {
-					return;
+	private void checkService(final Object service, final String[] clazzes) {
+		for (int i = 0; i < clazzes.length; i++) {
+			final Class current;
+			try {
+				current = Class.forName(clazzes[i], false, service.getClass()
+						.getClassLoader());
+				if (!current.isInstance(service)) {
+					throw new IllegalArgumentException("Service "
+							+ service.getClass().getName()
+							+ " does not implement the interface " + clazzes[i]);
 				}
+			} catch (ClassNotFoundException e) {
+				throw new IllegalArgumentException("Interface " + clazzes[i]
+						+ " implemented by service "
+						+ service.getClass().getName() + " cannot be located: "
+						+ e.getMessage());
 			}
-			current = current.getSuperclass();
 		}
-		throw new IllegalArgumentException(
-				"Service " + service.getName() + " does not implement the interfaces " + remaining);
 	}
 
 	void invalidate() {
@@ -259,8 +256,6 @@ final class ServiceReferenceImpl implements ServiceReference {
 	 * @return the service object.
 	 */
 	Object getService(final Bundle theBundle) {
-		// TODO: remove debug output
-		// System.err.println(theBundle + " is getting service " + service);
 		if (service == null) {
 			return null;
 		}
@@ -273,9 +268,6 @@ final class ServiceReferenceImpl implements ServiceReference {
 		}
 		useCounters.put(theBundle, counter);
 
-		// TODO: remove debug output
-		// System.out.println("USE COUNTERS FOR " + service + " are " + useCounters);
-		
 		if (isServiceFactory) {			
 			if (cachedServices == null) {
 				cachedServices = new HashMap(1);
@@ -285,7 +277,15 @@ final class ServiceReferenceImpl implements ServiceReference {
 				return cachedService;
 			}
 			final ServiceFactory factory = (ServiceFactory) service;
-			final Object factoredService = factory.getService(theBundle, registration);
+			final Object factoredService;
+			try {
+				factoredService = factory.getService(theBundle, registration);
+				checkService(factoredService, (String[])properties.get(Constants.OBJECTCLASS));
+				// catch failed check and exceptions thrown in factory
+			} catch (Exception e) {
+				Framework.notifyFrameworkListeners(FrameworkEvent.ERROR, null, e);
+				return null;
+			}
 			cachedServices.put(theBundle, factoredService);
 			return factoredService;
 		}
