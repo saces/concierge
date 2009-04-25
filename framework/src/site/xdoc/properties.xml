@@ -101,6 +101,11 @@ java -jar concierge-0.6.0.jar <i>myprofile</i>
 				<th>Comment</th>
 			</tr>
 			<tr>
+				<td><code>org.osgi.framework.system.packages</code></td>
+				<td></td>
+				<td>Comma-separated list of additional packages provided by the system and used to resolve package imports. This can be, e.g., <code>javax.*</code> packages.</td>
+			</tr>
+			<tr>
 				<td><code>ch.ethz.iks.concierge.basedir</code></td>
 				<td><i>.</i></td>
 				<td>All paths that are not explicitly defined are considered to be relative to the basedir.</td>

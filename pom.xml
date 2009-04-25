@@ -5,7 +5,7 @@
   <artifactId>concierge-project</artifactId>
   <packaging>pom</packaging>
   <name>Concierge OSGi</name>
-  <version>1.0.0.RC3</version>
+  <version>1.0.0</version>
   <url>http://r-osgi.sourceforge.net</url>
   <issueManagement>
     <system>Sourceforge bug tracker</system>

@@ -175,7 +175,7 @@ public final class Framework {
 	/**
 	 * Version displayed upon startup and returned by System Bundle
 	 */
-	private static final String FRAMEWORK_VERSION = "1.0.0.RC3";
+	private static final String FRAMEWORK_VERSION = "1.0.0";
 
 	// registry data structures
 
