@@ -609,10 +609,18 @@ public final class Framework {
 		}
 
 		final StringBuffer myEEs = new StringBuffer();
-		final int minor = Integer.parseInt(System.getProperty(
-				"java.specification.version").substring(2));
-		if (System.getProperty("java.specification.name").equals(
-				"J2ME Foundation Specification")) {
+		final String sv = System.getProperty("java.specification.version");
+		final int minor;
+		if (sv == null) {
+			System.err
+					.println("WARNING: java.specification.version not set by the VM, assuming Java 1.2 Execution Environment");
+			// assume an 1.2 VM
+			minor = 2;
+		} else {
+			minor = Integer.parseInt(sv.substring(2));
+		}
+		if ("J2ME Foundation Specification".equals(System
+				.getProperty("java.specification.name"))) {
 			switch (minor) {
 			case 1:
 				myEEs.append("CDC-1.1/Foundation-1.1,");
@@ -1284,7 +1292,8 @@ public final class Framework {
 
 		// unget all using services
 		final ServiceReference[] refs = bundle.getServicesInUse();
-		// System.err.println("CLEANING USED SERVICES " + (refs != null ? java.util.Arrays.asList(refs).toString() : "none"));
+		// System.err.println("CLEANING USED SERVICES " + (refs != null ?
+		// java.util.Arrays.asList(refs).toString() : "none"));
 		for (int i = 0; i < refs.length; i++) {
 			((ServiceReferenceImpl) refs[i]).ungetService(bundle);
 		}
@@ -2683,7 +2692,9 @@ public final class Framework {
 									if (p.importingBundles == null) {
 										continue;
 									}
-									final Bundle[] importers = (Bundle[]) p.importingBundles.toArray(new Bundle[p.importingBundles.size()]);
+									final Bundle[] importers = (Bundle[]) p.importingBundles
+											.toArray(new Bundle[p.importingBundles
+													.size()]);
 									toProcess.addAll(java.util.Arrays
 											.asList(importers));
 								}

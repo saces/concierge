@@ -12,8 +12,9 @@
 	<body>
 		<section name="Overview">
 		<p>
-			<b>Current release: 1.0.0.RC3</b><br/>
+			<b>Current release: 1.0.0</b><br/>
 			<ul>
+			<li>Some minor issues resolved.</li>
 			<li>Greatly improved compliance with the specs.</li>
 			<li><a href="/eclipse.html">Eclipse Plugin</a> released.</li>
 			<li><a href="/bundles">Simple GUI controller</a> for PDAs and SmartPhones released.</li>
