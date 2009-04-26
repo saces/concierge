@@ -11,9 +11,6 @@
 	<meta http-equiv="robots" content="index, follow"/>
 	<body>
 		<section name="Concierge on Chumby">
-		<center>
-			<img src="/images/nokia-770.jpg" alt="Nokia 770 running Concierge in a shell"/>
-		</center>
 		<p>
 			Julian Schuette from Fraunhofer SIT, Germany has tried Concierge on a <a href="http://www.chumby.com/">Chumby</a>. Instructions on how to build JamVM for this device are <a href="http://wiki.chumby.com/mediawiki/index.php/Java">
 			here</a>.
