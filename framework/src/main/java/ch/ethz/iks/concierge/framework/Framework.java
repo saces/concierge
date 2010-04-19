@@ -75,6 +75,8 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
+import org.tanukisoftware.wrapper.WrapperListener;
+import org.tanukisoftware.wrapper.WrapperManager;
 
 /**
  * The core class of the Concierge OSGi framework. Maintains the central bundle
@@ -82,7 +84,7 @@ import org.osgi.service.startlevel.StartLevel;
  * 
  * @author Jan S. Rellermeyer, ETH Zurich
  */
-public final class Framework {
+public final class Framework implements WrapperListener {
 
 	// the runtime args
 
@@ -289,19 +291,11 @@ public final class Framework {
 	 *             if something goes wrong.
 	 */
 	public static void main(final String[] args) throws BundleException {
-		final String profile;
-		if (args.length > 0) {
-			String p = args[0];
-			p.replace('\n', ' ').trim();
-			if ("".equals(p)) {
-				profile = null;
-			} else {
-				profile = p;
-			}
-		} else {
-			profile = null;
-		}
-		Framework.startup(profile);
+		// Start the application.  If the JVM was launched from the native
+		//  Wrapper then the application will wait for the native Wrapper to
+		//  call the application's start method.  Otherwise the start method
+		//  will be called immediately.
+		WrapperManager.start(new Framework(), args);
 	}
 
 	/**
@@ -2846,5 +2840,54 @@ public final class Framework {
 		public String toString() {
 			return listener + " " + filter;
 		}
+	}
+
+	/**
+	 * Called whenever the native wrapper code traps a system control signal
+	 *  against the Java process.  It is up to the callback to take any actions
+	 *  necessary.  Possible values are: WrapperManager.WRAPPER_CTRL_C_EVENT, 
+	 *    WRAPPER_CTRL_CLOSE_EVENT, WRAPPER_CTRL_LOGOFF_EVENT, or 
+	 *    WRAPPER_CTRL_SHUTDOWN_EVENT
+	 *
+	 * @param event The system control signal.
+	 */
+	public void controlEvent(int event) {
+		if(WrapperManager.isControlledByNativeWrapper()) {
+			// The Wrapper will take care of this event
+		} else
+			// We are not being controlled by the Wrapper, so
+			//  handle the event ourselves.
+			if((event == WrapperManager.WRAPPER_CTRL_C_EVENT) ||
+				(event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT) ||
+				(event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT))
+				WrapperManager.stop(0);
+	}
+
+	public Integer start(String[] args) {
+		final String profile;
+		if (args.length > 0) {
+			String p = args[0];
+			p.replace('\n', ' ').trim();
+			if ("".equals(p)) {
+				profile = null;
+			} else {
+				profile = p;
+			}
+		} else {
+			profile = null;
+		}
+		try {
+			Framework.startup(profile);
+		} catch (BundleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Integer.valueOf(-1);
+		}
+		return null;
+	}
+
+	public int stop(int exitCode) {
+		shutdown(false);
+		return exitCode;
 	}
 }
