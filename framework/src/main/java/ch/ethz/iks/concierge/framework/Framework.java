@@ -520,6 +520,7 @@ public final class Framework implements WrapperListener {
 	 *            true is a restart is requested.
 	 */
 	static void shutdown(final boolean restart) {
+		new Error("shutdown").printStackTrace();
 		System.out.println("----------------------------"
 				+ "-----------------------------");
 		System.out.println("  Concierge OSGi shutting down ...");
@@ -2256,6 +2257,7 @@ public final class Framework implements WrapperListener {
 		 *            perform a restart ?
 		 */
 		private void shutdownThread(final boolean restart) {
+			new Error("shutdownThread").printStackTrace();
 			new Thread() {
 				public void run() {
 					shutdown(restart);
