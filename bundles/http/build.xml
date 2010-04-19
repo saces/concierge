@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="concierge-http" default="bundle" basedir=".">
+
+	<property name="src" location="src/main/java" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+
+	<target name="compile" description="Compile the code">
+		<mkdir dir="${build}" />
+		<javac srcdir="${src}" destdir="${build}" nowarn="false" debug="false" optimize="true" deprecation="true" target="1.1" verbose="false" fork="false" source="1.2">
+			<src>
+				<pathelement location="${src}" />
+			</src>
+			<classpath refid="build.classpath" />
+		</javac>
+	</target>
+
+	<target name="bundle" depends="compile" description="Package the application">
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/concierge-http.jar" compress="true" index="false" basedir="${build}" excludes="**/package.html">
+			<manifest>
+				<!-- attribute name="Main-Class" value="ch.ethz.iks.concierge.framework.Framework" / -->
+				<attribute name="Bundle-ManifestVersion" value="2" />
+				<!-- attribute name="Bundle-SymbolicName" value="org.foo.example.Example" / -->
+				<attribute name="Bundle-Version" value="1" />
+				<attribute name="Bundle-Activator" value="com.buglabs.osgi.http.Activator" />
+				<attribute name="Import-Package" value="org.osgi.framework;version=1.3.0" />
+				<attribute name="Export-Package" value="org.osgi.service.http" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean" description="Clean the output directory">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+</project>
