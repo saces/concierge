@@ -268,7 +268,7 @@ public final class Framework implements WrapperListener {
 	/**
 	 * framework thread.
 	 */
-	private static Thread frameworkThread;
+	//private static Thread frameworkThread;
 
 	/**
 	 * restart ?
@@ -318,8 +318,11 @@ public final class Framework implements WrapperListener {
 	private static void startup(final String profileName)
 			throws BundleException {
 		{
+			//FIXME the 'keep alive thread' is off to fred for now.
+			// move it back here if fred is finally a proper bundle.
+
 			frameworkStartupShutdown = true;
-			frameworkThread = Thread.currentThread();
+			//frameworkThread = Thread.currentThread();
 			properties = System.getProperties();
 
 			System.out.println("------------------"
@@ -490,13 +493,13 @@ public final class Framework implements WrapperListener {
 
 		}
 
-		synchronized (frameworkThread) {
-			try {
-				frameworkThread.wait();
-			} catch (InterruptedException e) {
-				// we have been interrupted.
-			}
-		}
+//		synchronized (frameworkThread) {
+//			try {
+//				frameworkThread.wait();
+//			} catch (InterruptedException e) {
+//				// we have been interrupted.
+//			}
+//		}
 	}
 
 	/**
@@ -536,12 +539,12 @@ public final class Framework implements WrapperListener {
 		bundleID_bundles.clear();
 		systemBundle.state = Bundle.UNINSTALLED;
 
-		synchronized (frameworkThread) {
-			frameworkThread.notify();
-		}
+//		synchronized (frameworkThread) {
+//			frameworkThread.notify();
+//		}
 
 		if (!restart) {
-			System.exit(0);
+			//System.exit(0);
 		} else {
 			try {
 				bundleID_bundles.put(new Long(0), systemBundle);
