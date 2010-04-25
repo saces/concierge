@@ -316,7 +316,13 @@ public class HttpServer extends Thread {
 	private void processRequest(Servlet servlet, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		if (servlet != null) {
-			servlet.service(request, response);
+			ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(servlet.getClass().getClassLoader());
+			try {
+				servlet.service(request, response);
+			} finally {
+				Thread.currentThread().setContextClassLoader(oldCL);
+			}
 		}
 	}
 
