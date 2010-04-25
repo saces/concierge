@@ -31,6 +31,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
@@ -69,10 +72,13 @@ public class ServletResponseImpl implements HttpServletResponse {
 
 	private BinaryOutputBuffer binaryBuffer;
 
+	private final Dictionary header;
+
 	public ServletResponseImpl(OutputStream outputStream, HttpServletRequest request) {
 		this.outputStream = outputStream;
 		this.request = request;
 		httpStatus = 200;
+		header = new Hashtable();
 	}
 
 	public void flushBuffer() throws IOException {
@@ -149,6 +155,17 @@ public class ServletResponseImpl implements HttpServletResponse {
 
 			sb.append(CRLF);
 		}
+
+		Enumeration en = header.keys();
+		while (en.hasMoreElements()) {
+			String k = (String) en.nextElement();
+			sb.append(k);
+			sb.append(": ");
+			String v = (String) header.get(k);
+			sb.append(v);
+			sb.append(CRLF);
+		}
+
 		sb.append("Connection: close");
 
 		sb.append(CRLF);
@@ -225,16 +242,16 @@ public class ServletResponseImpl implements HttpServletResponse {
 		throw new RuntimeException("This feature is not implmemented: setDateHeader()");
 	}
 
-	public void setHeader(String arg0, String arg1) {
-		throw new RuntimeException("This feature is not implmemented: setHeader()");
+	public void setHeader(String name, String value) {
+		header.put(name, value);
 	}
 
-	public void setIntHeader(String arg0, int arg1) {
-		throw new RuntimeException("This feature is not implmemented: setIntHeader()");
+	public void setIntHeader(String name, int value) {
+		header.put(name, Integer.toString(value));
 	}
 
-	public void setStatus(int arg0) {
-		throw new RuntimeException("This feature is not implmemented: setStatus()");
+	public void setStatus(int status) {
+		httpStatus = status;
 	}
 
 	public void setStatus(int arg0, String arg1) {
@@ -265,8 +282,8 @@ public class ServletResponseImpl implements HttpServletResponse {
 		throw new RuntimeException("This feature is not implmemented: setBufferSize()");
 	}
 
-	public void setContentLength(int arg0) {
-		throw new RuntimeException("This feature is not implmemented: setContentLength()");
+	public void setContentLength(int length) {
+		setIntHeader("Content-Length", length);
 	}
 
 	public void setContentType(String arg0) {
