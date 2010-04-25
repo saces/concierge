@@ -129,7 +129,7 @@ class ServletRequestImpl implements HttpServletRequest {
 
 					int cl = line.indexOf(':');
 
-					lastKey = line.substring(0, cl).trim();
+					lastKey = line.substring(0, cl).trim().toLowerCase();
 					value = line.substring(cl + 1).trim();
 
 					header.put(lastKey, value);
@@ -215,15 +215,19 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getCharacterEncoding() {
-		return null;
+		return "charset=utf-8";
 	}
 
 	public int getContentLength() {
-		return 0;
+		String s = getHeader("Content-Length");
+		if (s == null) {
+			return 0;
+		}
+		return Integer.parseInt(s);
 	}
 
 	public String getContentType() {
-		return (String) headerMap.get("Content-Type");
+		return getHeader("Content-Type");
 	}
 
 	public ServletInputStream getInputStream() throws IOException {
@@ -396,8 +400,12 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getContextPath() {
-		// FIXME:
-		return uri;
+		if (uri == null) {
+			uri = parseUri(header);
+		}
+		int idx = uri.lastIndexOf('/');
+
+		return uri.substring(0, idx);
 	}
 
 	public Cookie[] getCookies() {
@@ -409,7 +417,7 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getHeader(String arg0) {
-		return (String) headerMap.get(arg0);
+		return (String) headerMap.get(arg0.toLowerCase());
 	}
 
 	public Enumeration getHeaderNames() {
