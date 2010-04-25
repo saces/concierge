@@ -61,6 +61,7 @@ class HttpServiceImpl implements HttpService {
 	public HttpServiceImpl(SharedStateManager sm, Dictionary headers) {
 		this.sm = sm;
 		this.bundleHeaders = headers;
+		httpContexts = new Hashtable();
 	}
 
 	public HttpContext createDefaultHttpContext() {
@@ -89,12 +90,10 @@ class HttpServiceImpl implements HttpService {
 			if (defaultHttpContext == null) {
 				// Initialize contexts
 				defaultHttpContext = new DefaultHttpContext();
-				httpContexts = new Hashtable();
-				httpContexts.put(defaultHttpContext, new ServletContextImpl(initparams, bundleHeaders, alias, defaultHttpContext, sm));
 			}
-
 			context = defaultHttpContext;
 		}
+		httpContexts.put(context, new ServletContextImpl(initparams, bundleHeaders, alias, context, sm));
 
 		sm.addHttpContext(alias, context);
 		sm.addServletConfig(alias, (ServletConfig) httpContexts.get(context));
