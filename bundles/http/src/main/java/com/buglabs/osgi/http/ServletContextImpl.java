@@ -139,8 +139,28 @@ public class ServletContextImpl implements ServletContext, ServletConfig {
 	}
 
 	public String getServerInfo() {
-		return bundleHeaders.get("Bundle-Name").toString() + " " + bundleHeaders.get("Bundle-Version") + " by "
-				+ bundleHeaders.get("Bundle-Vendor");
+		//return bundleHeaders.get("Bundle-Name").toString() + " " + bundleHeaders.get("Bundle-Version") + " by "
+		//				+ bundleHeaders.get("Bundle-Vendor");
+		// Origin code is NPEing if headers not set...
+		// print the whole bundle info for now.
+		StringBuilder sb = new StringBuilder();
+		Enumeration en = bundleHeaders.keys();
+		boolean isFirst = true;
+		while (en.hasMoreElements()) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				sb.append("; ");
+			}
+			sb.append('\'');
+			String k = (String) en.nextElement();
+			sb.append(k);
+			sb.append("'='");
+			String v = (String) bundleHeaders.get(k);
+			sb.append(v);
+			sb.append('\'');
+		}
+		return sb.toString();
 	}
 
 	public Servlet getServlet(String arg0) throws ServletException {
