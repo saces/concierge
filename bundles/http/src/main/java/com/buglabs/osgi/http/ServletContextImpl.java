@@ -130,8 +130,8 @@ public class ServletContextImpl implements ServletContext, ServletConfig {
 		return defaultHttpContext.getResource(arg0);
 	}
 
-	public InputStream getResourceAsStream(String arg0) {
-		throw new RuntimeException("Unimplemented feature.");
+	public InputStream getResourceAsStream(String path) {
+		return sm.getServlet(alias).getClass().getClassLoader().getResourceAsStream(path);
 	}
 
 	public Set getResourcePaths(String arg0) {
