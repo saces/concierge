@@ -34,7 +34,7 @@
 						<bundleActivator>ch.ethz.iks.concierge.shell.ShellActivator</bundleActivator>
 						<bundleName>Concierge Shell</bundleName>
 						<bundleVendor>Jan S. Rellermeyer, ETH Zurich</bundleVendor>
-						<importPackage>org.osgi.framework;specification-version=1.2, org.osgi.service.packageadmin;specification-version=1.1, org.osgi.service.startlevel;specification-version=1.0</importPackage>
+						<importPackage>org.osgi.framework, org.osgi.service.packageadmin, org.osgi.service.startlevel</importPackage>
 						<exportPackage>ch.ethz.iks.concierge.shell.commands</exportPackage>
 					</osgiManifest>
 				</configuration>
