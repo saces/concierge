@@ -28,6 +28,7 @@
 package com.buglabs.osgi.http;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
@@ -78,6 +79,7 @@ public class HttpServer extends Thread {
 				final Socket connection = socket.accept();
 				new Thread() {
 					public void run() {
+						OutputStream os;
 						try {
 							// Check to see if we got a poison pill. If so
 							// cleanup
@@ -135,6 +137,13 @@ public class HttpServer extends Thread {
 							// connection.
 							HttpServletRequest request = new ServletRequestImpl(
 									connection, ssm);
+							os = connection.getOutputStream();
+
+							// request is parsed, send 100 if wanted.
+							if ("100-continue".equalsIgnoreCase(request.getHeader("expect"))) {
+								os.write("HTTP/1.1 100 Continue\r\n\r\n".getBytes());
+								os.flush();
+							}
 							// Determine relative path from HTTP headers.
 							String name = getAlias(request);
 
@@ -177,7 +186,7 @@ public class HttpServer extends Thread {
 							// OutputStreamWriter writer = new
 							// OutputStreamWriter(connection.getOutputStream());
 							HttpServletResponse response = new ServletResponseImpl(
-									connection.getOutputStream(), request);
+									os, request);
 
 							if (servlet == null) {
 								handleNonMatchingAlias(response);
