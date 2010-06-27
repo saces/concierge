@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -238,8 +239,8 @@ public class ServletResponseImpl implements HttpServletResponse {
 		throw new RuntimeException("This feature is not implmemented: sendRedirect()");
 	}
 
-	public void setDateHeader(String arg0, long arg1) {
-		throw new RuntimeException("This feature is not implmemented: setDateHeader()");
+	public void setDateHeader(String name, long time) {
+		setHeader(name, ServletRequestImpl.headerdateformat.format(new Date(time)));
 	}
 
 	public void setHeader(String name, String value) {

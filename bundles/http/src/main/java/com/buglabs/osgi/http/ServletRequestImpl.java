@@ -27,13 +27,15 @@
 package com.buglabs.osgi.http;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.security.Principal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -50,7 +52,8 @@ import javax.servlet.http.HttpSession;
 
 import org.osgi.service.log.LogService;
 
-import com.buglabs.osgi.http.pub.DynamicByteBuffer;
+import freenet.support.URIPreEncoder;
+import freenet.support.io.LineReadingInputStream;
 
 /**
  * A ServletRequest implementation in part based on tutorial available at
@@ -76,7 +79,6 @@ class ServletRequestImpl implements HttpServletRequest {
 
 	private String header;
 
-	private byte[] body;
 
 	private static int[] terminator = { 13, 10, 13, 10 };
 
@@ -97,15 +99,20 @@ class ServletRequestImpl implements HttpServletRequest {
 	private ServletInputStream servletInputStream;
 
 	private Map headerMap;
+	InputStream inputStream;
+
+	final static SimpleDateFormat headerdateformat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US); // rfc1123-date
+
+	private final SimpleDateFormat rfc850DateFmt = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss 'GMT'", Locale.US); // rfc850-date
+
+	private final SimpleDateFormat asciiDateFmt = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy", Locale.US); // ASCII date, used in headers 
 
 	public ServletRequestImpl(Socket connection, LogService logService) {
 		this.connection = connection;
-
+		headerMap = new Hashtable();
 		header = getHeader();
-		uri = parseUri(header);
 		final int pos = uri.indexOf("?");
 		query = pos == -1 ? "" : uri.substring(pos+1);
-		headerMap = parseHeaderMap(header);
 		attribs = new Hashtable();
 
 	}
@@ -154,41 +161,67 @@ class ServletRequestImpl implements HttpServletRequest {
 			if (index2 > index1)
 				return requestString.substring(index1 + 1, index2);
 		}
-		return null;
+		throw new RuntimeException("parseURi shoiuld have a path!!!! "+requestString);
+		// return null;
 	}
 
 	private String getHeader() {
 
 		try {
-			InputStream is = connection.getInputStream();
-			StringBuffer hb = new StringBuffer();
-			DynamicByteBuffer bb = new DynamicByteBuffer();
-			boolean isHeader = true;
-			int b = -1;
-			HeaderStack hs = new HeaderStack();
+			
+			inputStream = connection.getInputStream();
+			
+			LineReadingInputStream lis = new LineReadingInputStream(inputStream);
 
-			byte[] buff = new byte[BUFFER_SIZE];
-			int br = 1;
-
-			while (is.available() > 0) {
-				br = is.read(buff);
-
-				for (int i = 0; i < br; ++i) {
-					b = buff[i];
-					if (isHeader) {
-						hs.push(b);
-						hb.append((char) b);
-						if (hs.isTerminator()) {
-							isHeader = false;
-						}
-					} else {
-						bb.append((byte) b);
-					}
+			String firstLine;
+			while (true) {
+				firstLine = lis.readLine(32768, 128, false); // ISO-8859-1 or US-ASCII, _not_ UTF-8
+				if (firstLine == null) {
+					connection.close();
+					return null;
+				} else if (firstLine.equals("")) {
+					continue;
 				}
+				break;
 			}
 
-			body = bb.toArray();
-			return hb.toString();
+			String[] split = firstLine.split(" ");
+
+			if(split.length != 3)
+				throw new IOException("Could not parse request line (split.length="+split.length+"): "+firstLine);
+
+			if(!split[2].startsWith("HTTP/1."))
+				throw new IOException("Unrecognized protocol "+split[2]);
+
+			
+			try {
+				uri = URIPreEncoder.encodeURI(split[1]).normalize().toString();
+				//if(logMINOR) Logger.minor(ToadletContextImpl.class, "URI: "+uri+" path "+uri.getPath()+" host "+uri.getHost()+" frag "+uri.getFragment()+" port "+uri.getPort()+" query "+uri.getQuery()+" scheme "+uri.getScheme());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+				//sendURIParseError(connection.getOutputStream(), true, e);
+				return null;
+			}
+			method = split[0];
+
+			while(true) {
+				String line = lis.readLine(32768, 128, false); // ISO-8859 or US-ASCII, not UTF-8
+				if (line == null) {
+					connection.close();
+					return null;
+				}
+				//System.out.println("Length="+line.length()+": "+line);
+				if(line.length() == 0) break;
+				int index = line.indexOf(':');
+				if (index < 0) {
+					throw new IOException("Missing ':' in request header field");
+				}
+				String before = line.substring(0, index).toLowerCase();
+				String after = line.substring(index+1);
+				after = after.trim();
+				headerMap.put(before, after);
+			}
+
 
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -221,7 +254,7 @@ class ServletRequestImpl implements HttpServletRequest {
 	public int getContentLength() {
 		String s = getHeader("Content-Length");
 		if (s == null) {
-			return 0;
+			return -1;
 		}
 		return Integer.parseInt(s);
 	}
@@ -232,7 +265,10 @@ class ServletRequestImpl implements HttpServletRequest {
 
 	public ServletInputStream getInputStream() throws IOException {
 		if (servletInputStream == null) {
-			servletInputStream = new ServletInputStreamImpl(body);
+			if ("chunked".equalsIgnoreCase(getHeader("transfer-encoding")))
+				servletInputStream = new ServletInputStreamImpl(new ChunkedInputStream(inputStream));
+			else
+				servletInputStream = new ServletInputStreamImpl(inputStream);
 		}
 
 		return servletInputStream;
@@ -334,7 +370,7 @@ class ServletRequestImpl implements HttpServletRequest {
 
 	public BufferedReader getReader() throws IOException {
 		if (reader == null) {
-			reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(body)));
+			reader = new BufferedReader(new InputStreamReader(inputStream));
 		}
 
 		return reader;
@@ -378,12 +414,11 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public void removeAttribute(String arg0) {
-		throw new RuntimeException("This feature is not implmemented: removeAttribute()");
-
+		attribs.remove(arg0);
 	}
 
 	public void setAttribute(String arg0, Object arg1) {
-		throw new RuntimeException("This feature is not implmemented: setAttribute()");
+		attribs.put(arg0, arg1);
 	}
 
 	public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
@@ -412,8 +447,25 @@ class ServletRequestImpl implements HttpServletRequest {
 		throw new RuntimeException("This feature is not implmemented: getCookies()");
 	}
 
-	public long getDateHeader(String arg0) {
-		throw new RuntimeException("This feature is not implmemented: getDateHeader()");
+	public long getDateHeader(String name) {
+		String val = getHeader(name);
+		if (val == null)
+			return -1;
+		try {
+			return headerdateformat.parse(val).getTime();
+		} catch (ParseException pe) {
+			try {
+				return rfc850DateFmt.parse(val).getTime();
+			} catch (ParseException pe1) {
+				try {
+					return asciiDateFmt.parse(val).getTime();
+				} catch (ParseException pe3) {
+					throw new IllegalArgumentException("Value " + val
+							+ " can't be converted to Date using any of formats: [" + headerdateformat.toPattern()
+							+ "][ " + rfc850DateFmt.toPattern() + "][" + asciiDateFmt.toPattern());
+				}
+			}
+		}
 	}
 
 	public String getHeader(String arg0) {
@@ -451,9 +503,6 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getMethod() {
-		if (method == null) {
-			method = parseMethod(header);
-		}
 		return method;
 	}
 
@@ -472,7 +521,8 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getRemoteUser() {
-		throw new RuntimeException("This feature is not implmemented: getRemoteUser()");
+		// TODO add Auth
+		return "anonymous";
 	}
 
 	public String getRequestURI() {
@@ -488,7 +538,7 @@ class ServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getServletPath() {
-		throw new RuntimeException("This feature is not implmemented: getServletPath()");
+		return uri;
 	}
 
 	public HttpSession getSession() {
@@ -555,14 +605,18 @@ class ServletRequestImpl implements HttpServletRequest {
 	 */
 	private class ServletInputStreamImpl extends ServletInputStream {
 
-		private ByteArrayInputStream is;
+		private InputStream _is;
 
-		public ServletInputStreamImpl(byte[] body) {
-			is = new ByteArrayInputStream(body);
+		public ServletInputStreamImpl(InputStream is) {
+			_is = is;
 		}
 
 		public int read() throws IOException {
-			return is.read();
+			return _is.read();
+		}
+
+		public int read(byte[] b, int off, int len) throws IOException {
+			return _is.read(b, off, len);
 		}
 	}
 
