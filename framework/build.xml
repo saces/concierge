@@ -22,7 +22,7 @@
 
 	<target name="package" depends="compile" description="Package the application">
 		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/fconcierce.jar" compress="true" index="false" basedir="${build}" excludes="**/package.html">
+		<jar jarfile="${dist}/fconcierge.jar" compress="true" index="false" basedir="${build}" excludes="**/package.html">
 			<manifest>
 				<attribute name="Main-Class" value="ch.ethz.iks.concierge.framework.Framework" />
 			</manifest>
