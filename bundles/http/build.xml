@@ -5,13 +5,18 @@
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
 
+	<property name="fred.jar.location" location="../../../fred/lib/FreenetService.jar"/>
+	<property name="framework.jar.location" location="../../framework/dist/fconcierge.jar"/>
+	<property name="servletapi.jar.location" location="../../../foe/orbit/lib/servlet-api-2.3.jar"/>
+
 	<target name="compile" description="Compile the code">
 		<mkdir dir="${build}" />
 		<javac srcdir="${src}" destdir="${build}" nowarn="false" debug="false" optimize="true" deprecation="true" target="1.1" verbose="false" fork="false" source="1.2">
-			<src>
-				<pathelement location="${src}" />
-			</src>
-			<classpath refid="build.classpath" />
+			<classpath>
+				<pathelement location="${fred.jar.location}"/>
+				<pathelement location="${framework.jar.location}"/>
+				<pathelement location="${servletapi.jar.location}"/>
+			</classpath>
 		</javac>
 	</target>
 
@@ -24,9 +29,11 @@
 				<!-- attribute name="Bundle-SymbolicName" value="org.foo.example.Example" / -->
 				<attribute name="Bundle-Version" value="1" />
 				<attribute name="Bundle-Activator" value="com.buglabs.osgi.http.Activator" />
-				<attribute name="Import-Package" value="org.osgi.framework;version=1.3.0" />
+				<attribute name="Import-Package" value="org.osgi.framework;version=1.3.0, freenet.support, freenet.support.io" />
 				<attribute name="Export-Package" value="org.osgi.service.http" />
 			</manifest>
+			<zipfileset src="${servletapi.jar.location}">
+			</zipfileset>
 		</jar>
 	</target>
 
