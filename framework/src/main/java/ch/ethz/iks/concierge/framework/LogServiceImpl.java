@@ -29,11 +29,14 @@
 
 package ch.ethz.iks.concierge.framework;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import org.osgi.framework.Bundle;
@@ -86,6 +89,7 @@ final class LogServiceImpl implements LogService, LogReaderService {
 
 	public LogServiceImpl(final int buffersize, final int loglevel,
 			final boolean quiet) {
+		setDateFormat("MMM dd, yyyy HH:mm:ss:SSS");
 		LOG_BUFFER_SIZE = buffersize;
 		if (loglevel < 0) {
 			LOG_LEVEL = 0;
@@ -102,6 +106,21 @@ final class LogServiceImpl implements LogService, LogReaderService {
 		}
 	}
 
+	private static DateFormat df;
+	private static Date myDate = new Date();
+
+	private void setDateFormat(String dfmt) {
+		if ((dfmt != null) && (dfmt.length() != 0)) {
+			try {
+				df = new SimpleDateFormat(dfmt);
+			} catch (RuntimeException e) {
+				df = DateFormat.getDateTimeInstance();
+			}
+		} else
+			df = DateFormat.getDateTimeInstance();
+
+		df.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
 	/**
 	 * log an entry.
 	 * 
@@ -110,6 +129,8 @@ final class LogServiceImpl implements LogService, LogReaderService {
 	 */
 	private void log(final int level, final String message,
 			final Throwable throwable, final ServiceReference sref) {
+//		System.out.println("Log: "+level+" "+LOG_LEVEL+" -> "+(level <= LOG_LEVEL?"yo":"nö"));
+//		new Error("Trace log call").printStackTrace();
 		if (level <= LOG_LEVEL) {
 			final LogEntryImpl entry = LogEntryImpl.getEntry(level, message,
 					throwable, sref);
@@ -337,7 +358,7 @@ final class LogServiceImpl implements LogService, LogReaderService {
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
-			StringBuffer buffer = new StringBuffer("[").append(new Date(time))
+			StringBuffer buffer = new StringBuffer("[").append(formatDate(time))
 					.append("] [").append(LEVELS[level]).append("] ");
 			if (sref != null) {
 				buffer.append("Bundle: ");
@@ -349,10 +370,37 @@ final class LogServiceImpl implements LogService, LogReaderService {
 			}
 			buffer.append(message);
 			if (exception != null) {
-				buffer.append("\n\tException: ");
-				buffer.append(exception.getMessage());
+				Throwable e = exception;
+				// Write stacktrace if available
+				for(int j=0;j<20 && e != null;j++) {
+					buffer.append(e.toString());
+					
+					StackTraceElement[] trace = e.getStackTrace();
+					
+					if(trace == null)
+						buffer.append("(null)\n");
+					else if(trace.length == 0)
+						buffer.append("(no stack trace)\n");
+					else {
+						buffer.append('\n');
+						for(int i=0;i<trace.length;i++) {
+							buffer.append("\tat ");
+							buffer.append(trace[i].toString());
+							buffer.append('\n');
+						}
+					}
+					
+					Throwable cause = e.getCause();
+					if(cause != e) e = cause;
+					else break;
+				}
 			}
 			return buffer.toString();
 		}
+	}
+
+	static synchronized String formatDate(long time) {
+		myDate.setTime(time);
+		return df.format(myDate);
 	}
 }
