@@ -30,7 +30,7 @@
 				<attribute name="Bundle-Version" value="1" />
 				<attribute name="Bundle-Activator" value="com.buglabs.osgi.http.Activator" />
 				<attribute name="Import-Package" value="org.osgi.framework;version=1.3.0, freenet.support, freenet.support.io" />
-				<attribute name="Export-Package" value="org.osgi.service.http" />
+				<attribute name="Export-Package" value="org.osgi.service.http, javax.servlet, javax.servlet.http" />
 			</manifest>
 			<zipfileset src="${servletapi.jar.location}">
 			</zipfileset>
