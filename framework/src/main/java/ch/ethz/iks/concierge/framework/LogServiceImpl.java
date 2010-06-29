@@ -371,6 +371,7 @@ final class LogServiceImpl implements LogService, LogReaderService {
 			buffer.append(message);
 			if (exception != null) {
 				Throwable e = exception;
+				buffer.append('\n');
 				// Write stacktrace if available
 				for(int j=0;j<20 && e != null;j++) {
 					buffer.append(e.toString());
@@ -386,7 +387,8 @@ final class LogServiceImpl implements LogService, LogReaderService {
 						for(int i=0;i<trace.length;i++) {
 							buffer.append("\tat ");
 							buffer.append(trace[i].toString());
-							buffer.append('\n');
+							if (i<(trace.length-1))
+								buffer.append('\n');
 						}
 					}
 					
