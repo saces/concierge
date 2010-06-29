@@ -13,7 +13,7 @@
 
 	<target name="compile" description="Compile the code">
 		<mkdir dir="${build}" />
-		<javac srcdir="${src}" destdir="${build}" nowarn="false" debug="false" optimize="true" deprecation="true" target="1.1" verbose="false" fork="false" source="1.2">
+		<javac srcdir="${src}" destdir="${build}" nowarn="false" debug="true" optimize="true" deprecation="true" target="1.1" verbose="false" fork="false" source="1.2">
 			<classpath>
 				<pathelement location="${wrapper.jar.location}"/>
 			</classpath>
