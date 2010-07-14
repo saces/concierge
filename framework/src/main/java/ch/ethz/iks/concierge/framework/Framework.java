@@ -617,7 +617,7 @@ public final class Framework {
 			// assume an 1.2 VM
 			minor = 2;
 		} else {
-			minor = Integer.parseInt(sv.substring(2, 4));
+			minor = Integer.parseInt(sv.substring(2, 3));
 		}
 		if ("J2ME Foundation Specification".equals(System
 				.getProperty("java.specification.name"))) {
