@@ -418,4 +418,12 @@ public class ServletResponseImpl implements HttpServletResponse {
 		}
 
 	}
+
+	public String getContentType() {
+		throw new RuntimeException("This feature is not implmemented: getContentType()");
+	}
+
+	public void setCharacterEncoding(String charset) {
+		throw new RuntimeException("This feature is not implmemented: setCharacterEncoding()");
+	}
 }

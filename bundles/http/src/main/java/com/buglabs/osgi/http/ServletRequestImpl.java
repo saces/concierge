@@ -668,4 +668,20 @@ class ServletRequestImpl implements HttpServletRequest {
 		}
 	}
 
+	public String getLocalAddr() {
+		throw new RuntimeException("This feature is not implmemented: getLocalAddr()");
+	}
+
+	public String getLocalName() {
+		throw new RuntimeException("This feature is not implmemented: getLocalName()");
+	}
+
+	public int getLocalPort() {
+		throw new RuntimeException("This feature is not implmemented: getLocalPort()");
+	}
+
+	public int getRemotePort() {
+		throw new RuntimeException("This feature is not implmemented: getRemotePort()");
+	}
+
 }

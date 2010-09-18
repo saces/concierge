@@ -247,4 +247,8 @@ public class ServletContextImpl implements ServletContext, ServletConfig {
 	public String getServletName() {
 		return alias;
 	}
+
+	public String getContextPath() {
+		throw new RuntimeException("This feature is not implmemented: getContextPath()");
+	}
 }
