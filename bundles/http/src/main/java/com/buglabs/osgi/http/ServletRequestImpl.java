@@ -74,6 +74,7 @@ class ServletRequestImpl implements HttpServletRequest {
 	private final Socket connection;
 
 	private String uri = null;
+	private String origUri = null;
 
 	private String method;
 
@@ -196,6 +197,7 @@ class ServletRequestImpl implements HttpServletRequest {
 			
 			try {
 				uri = URIPreEncoder.encodeURI(split[1]).normalize().toString();
+				origUri = uri;
 				//if(logMINOR) Logger.minor(ToadletContextImpl.class, "URI: "+uri+" path "+uri.getPath()+" host "+uri.getHost()+" frag "+uri.getFragment()+" port "+uri.getPort()+" query "+uri.getQuery()+" scheme "+uri.getScheme());
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
@@ -436,7 +438,7 @@ class ServletRequestImpl implements HttpServletRequest {
 
 	public String getContextPath() {
 		if (uri == null) {
-			uri = parseUri(header);
+			uri = origUri;
 		}
 		int idx = uri.lastIndexOf('/');
 
