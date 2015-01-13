@@ -1,0 +1,28 @@
+<project name="org.eclipse.concierge" default="jar">
+	<property name="project.version" value="0.0.0.alpha1" />
+
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<property name="dist.dir" value="dist" />
+	<property name="classes.dir" value="${build.dir}/classes" />
+	<property name="jar.dir" value="${dist.dir}" />
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${classes.dir}" />
+		<javac includeantruntime="false" source="1.5" target="1.5" srcdir="${src.dir}" destdir="${classes.dir}" />
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar
+			destfile="${jar.dir}/${ant.project.name}.jar"
+			basedir="${classes.dir}" manifest="META-INF/MANIFEST.MF">
+			<metainf dir="META-INF" excludes="MANIFEST" />
+			<fileset dir="." includes="about_files/* about.html"/>
+		</jar>
+	</target>
+
+</project>
