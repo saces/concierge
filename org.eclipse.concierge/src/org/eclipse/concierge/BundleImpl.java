@@ -117,7 +117,8 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 		Method classloader;
 		Method fileloader;
 		try {
-			Class<?> dexFileClass = Class.forName("dalvik.system.DexFile");
+			final Class<?> dexFileClass = Class
+					.forName("dalvik.system.DexFile");
 
 			classloader = dexFileClass.getMethod("loadClass", new Class[] {
 					String.class, ClassLoader.class });
@@ -185,7 +186,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 
 	private Locale lastDefaultLocale;
 
-	private int nextRev = -1;
+	private int currentRevisionNumber = -1;
 
 	public BundleImpl(final Concierge framework,
 			final BundleContext installingContext, final String location,
@@ -234,15 +235,53 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 	}
 
 	// framework restart case
-	// TODO: fix it
 	public BundleImpl(final Concierge framework, final File metadata)
-			throws IOException {
+			throws IOException, BundleException {
 		this.framework = framework;
+
 		// this.content = new JarBundle(new JarFile(file));
 		final DataInputStream in = new DataInputStream(new FileInputStream(
 				metadata));
+		// read current revision from metadata
+		this.currentRevisionNumber = in.readInt();
+
 		this.bundleId = in.readLong();
 		this.location = in.readUTF();
+
+		this.storageLocation = framework.STORAGE_LOCATION + bundleId
+				+ File.separatorChar;
+
+		// locate current revision
+		final File file = new File(storageLocation, BUNDLE_FILE_NAME
+				+ currentRevisionNumber);
+		final File contentDir = new File(storageLocation
+				+ CONTENT_DIRECTORY_NAME + currentRevisionNumber);
+
+		if (file.exists() && file.isFile()) {
+			final JarFile jarFile = new JarFile(file);
+			final Manifest manifest = jarFile.getManifest();
+			final String[] classpathStrings = readProperties(
+					manifest.getMainAttributes(), Constants.BUNDLE_CLASSPATH,
+					new String[] { "." });
+
+			this.currentRevision = new JarBundleRevision(currentRevisionNumber,
+					jarFile, manifest, classpathStrings);
+		} else if (contentDir.exists() && contentDir.isDirectory()) {
+			final Manifest manifest = new Manifest(new FileInputStream(
+					new File(contentDir, JarFile.MANIFEST_NAME)));
+			final String[] classpathStrings = readProperties(
+					manifest.getMainAttributes(), Constants.BUNDLE_CLASSPATH,
+					new String[] { "." });
+
+			this.currentRevision = new ExplodedJarBundleRevision(
+					currentRevisionNumber, contentDir.getAbsolutePath(),
+					manifest, classpathStrings);
+		} else {
+			in.close();
+			throw new BundleException("Bundle revision "
+					+ currentRevisionNumber + " does not exist",
+					BundleException.READ_ERROR);
+		}
 
 		this.startlevel = in.readInt();
 		this.state = Bundle.INSTALLED;
@@ -258,6 +297,34 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 	}
 
 	/**
+	 * update the bundle's metadata on the storage.
+	 */
+	void updateMetadata() {
+		DataOutputStream out = null;
+		try {
+			out = new DataOutputStream(new FileOutputStream(new File(
+					storageLocation, "meta")));
+			out.writeInt(currentRevisionNumber);
+			out.writeLong(bundleId);
+			out.writeUTF(location);
+			out.writeInt(startlevel);
+			out.writeShort(autostart);
+			out.writeBoolean(lazyActivation);
+			out.writeLong(lastModified);
+		} catch (final IOException ioe) {
+			ioe.printStackTrace();
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (final Exception e) {
+					// ignore
+				}
+			}
+		}
+	}
+
+	/**
 	 * Reads and processes input stream: - writes bundle to storage - processes
 	 * manifest
 	 * 
@@ -268,7 +335,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 	private Revision readAndProcessInputStream(final InputStream inStream)
 			throws BundleException {
 
-		final int revisionNumber = ++nextRev;
+		final int revisionNumber = ++currentRevisionNumber;
 
 		try {
 			// write the JAR file to the storage
@@ -289,8 +356,8 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 					manifest.getMainAttributes(), Constants.BUNDLE_CLASSPATH,
 					new String[] { "." });
 
-			if (framework.ALWAYS_DECOMPRESS
-					|| (framework.DECOMPRESS_EMBEDDED && classpathStrings.length > 1)) {
+			if (framework.ALWAYS_DECOMPRESS || framework.DECOMPRESS_EMBEDDED
+					&& classpathStrings.length > 1) {
 				final File contentDir = new File(storageLocation
 						+ CONTENT_DIRECTORY_NAME + revisionNumber);
 				if (contentDir.exists()) {
@@ -763,7 +830,8 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 				updateLastModified();
 
 				if (currentRevision != null) {
-					// do not close here, e.g. old wirings should still be available
+					// do not close here, e.g. old wirings should still be
+					// available
 					currentRevision.cleanup(false);
 				}
 			}
@@ -1189,37 +1257,6 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 		return framework.isSecurityEnabled();
 	}
 
-	/**
-	 * update the bundle's metadata on the storage.
-	 */
-	void updateMetadata() {
-		if (currentRevision.isFragment()) {
-			return;
-		}
-
-		DataOutputStream out = null;
-		try {
-			out = new DataOutputStream(new FileOutputStream(new File(
-					storageLocation, "meta")));
-			out.writeLong(bundleId);
-			out.writeUTF(location);
-			out.writeInt(startlevel);
-			out.writeShort(autostart);
-			out.writeBoolean(lazyActivation);
-			out.writeLong(lastModified);
-		} catch (final IOException ioe) {
-			ioe.printStackTrace();
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (final Exception e) {
-					// ignore
-				}
-			}
-		}
-	}
-
 	final InputStream getURLResource(final URL url, final int rev)
 			throws IOException {
 		String frag;
@@ -1264,7 +1301,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 		}
 
 		return -1;
@@ -2024,18 +2061,12 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 		}
 
 		/**
-		 * FIXME: this is no longer correct. Split the responsibilities!
-		 * 
-		 * perform a cleanup. All exported packages that are removed from the
-		 * framework's package registry. All imported packages are returned.
-		 * 
 		 * @param uninstall
 		 *            if false, the bundle is only prepared for an update or
 		 *            refresh. If true, it is prepared for the uninstalled
 		 *            state.
 		 */
 		void cleanup(final boolean uninstall) {
-			// framework.removeCapabilities(capabilities.getAllValues());
 			framework.removeCapabilities(this);
 
 			// if this is the final cleanup, remove this resource from all other
@@ -2123,7 +2154,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 						.getRequirements(PackageNamespace.PACKAGE_NAMESPACE);
 				final Set<String> importPkgs = new HashSet<String>();
 				for (final Requirement pkgImport : imports) {
-					importPkgs.add((String) pkgImport.getDirectives().get(
+					importPkgs.add(pkgImport.getDirectives().get(
 							Concierge.DIR_INTERNAL));
 				}
 				importPkgs.remove("org.osgi.framework");
@@ -2299,17 +2330,18 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 				final String attr = element.getDirectives().get(
 						Concierge.DIR_INTERNAL);
 				if (attr != null && index.containsKey(attr)) {
-					T element2 = index.get(attr);
+					// JR: temporarily disabled due to TCK regression
+					//
+					// T element2 = index.get(attr);
 					// check if directives are equals
 					// TODO must compare version statements including semantics
-					if (!element.getDirectives().equals(
-							element2.getDirectives())) {
-						throw new BundleException("Conflicting " + s
-								+ " statement "
-								+ element.getAttributes().get(namespace)
-								+ " from " + element,
-								BundleException.RESOLVE_ERROR);
-					}
+					// if (!element.getDirectives().equals(
+					// element2.getDirectives())) {
+					throw new BundleException("Conflicting " + s
+							+ " statement "
+							+ element.getAttributes().get(namespace) + " from "
+							+ element, BundleException.RESOLVE_ERROR);
+					// }
 				}
 			}
 		}
@@ -2321,10 +2353,11 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 					&& activationList.get(0) == BundleImpl.this) {
 				activationChain.set(new ArrayList<AbstractBundle>());
 				for (int i = activationList.size() - 1; i >= 0; i--) {
-					final BundleImpl toActivate = ((BundleImpl) activationList
-							.get(i));
-					if (toActivate.beingLazy)
+					final BundleImpl toActivate = (BundleImpl) activationList
+							.get(i);
+					if (toActivate.beingLazy) {
 						toActivate.triggerActivation();
+					}
 				}
 				activationChain.set(null);
 			}
@@ -2495,7 +2528,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 					final Vector<URL> results = (Vector<URL>) findResource0(
 							packageOf(pseudoClassname(strippedName)),
 							strippedName, false, true);
-					return (results == null || results.isEmpty()) ? null
+					return results == null || results.isEmpty() ? null
 							: results.elements();
 				} catch (final ClassNotFoundException e) {
 					// does not happen
@@ -2642,7 +2675,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 					for (final BundleWire wire : requireBundleWires) {
 						if (wire.getProvider().getBundle().getBundleId() == 0) {
 							// if provider is system bundle: nothing
-							// to do as system bundle is yet loaded
+							// to do as system bundle is already loaded
 						} else {
 							final Object result = ((Revision) wire
 									.getProvider()).classloader
@@ -2767,19 +2800,13 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 				return resources;
 			}
 
-			List<String> listResources(final String path,
+			Set<String> listResources(final String path,
 					final String filePattern, final int options,
 					final HashSet<String> visited) {
 				final String pkg = pseudoClassname(stripTrailing(path
 						.endsWith("/") ? path.substring(0, path.length() - 1)
 						: path));
 
-				//System.err.println();
-				//System.err.println("NOW LISTING RESOURCES FOR " + path
-				//		+ " pattern " + filePattern+" IN "+this.getBundle().getSymbolicName());
-
-				// HashSet here will make sure old entries are not overridden on add()
-				// in case of multiple required bundles and split packages
 				final HashSet<String> result = new HashSet<String>();
 
 				if (wiring != null) {
@@ -2794,15 +2821,18 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 								if (!cap.hasExcludes()
 										|| cap.filter(classOf(filePattern))) {
 
-									// if LISTRESOURCES_LOCAL not set : add to results 
+									// if LISTRESOURCES_LOCAL not set : add to
+									// results
 									if ((options & BundleWiring.LISTRESOURCES_LOCAL) == 0) {
 										result.addAll(((Revision) delegation
 												.getProvider()).classloader
-												.listResources(importPackage.replace('.', '/'),
+												.listResources(importPackage
+														.replace('.', '/'),
 														filePattern, options,
 														visited));
 									}
-									// always search imports to ignore overridden packages from imports
+									// always search imports to ignore
+									// overridden packages from imports
 									visited.add(importPackage);
 								}
 							}
@@ -2826,77 +2856,24 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 							}
 						}
 					}
-				
-	
+
 					if (requireBundleWires != null
 							&& (options & BundleWiring.LISTRESOURCES_LOCAL) == 0) {
 						for (final BundleWire wire : requireBundleWires) {
 							result.addAll(((Revision) wire.getProvider()).classloader
-									.listResources(path, filePattern, options, new HashSet<String>()));
+									.listResources(path, filePattern, options,
+											new HashSet<String>()));
 						}
 					}
-				
+
+					// Step 5: search the bundle class path
+					// Step 6: search fragments bundle class path
+					// if (!visited.isEmpty()) {
+					result.addAll(listOwnResources(path, filePattern, options,
+							visited));
 				}
+				return new HashSet<String>(result);
 
-				// List own (and attached fragment) resources
-				result.addAll(listOwnResources(path, filePattern, options,
-						visited));
-
-
-				/*
-				 * check dynamic imports if
-				 * (!dynamicImports.isEmpty()) {
-				 * 
-				 * for (final Iterator<BundleRequirement> iter = dynamicImports
-				 * .iterator(); iter.hasNext();) { final BundleRequirement
-				 * dynImport = iter.next();
-				 * 
-				 * // TODO: think of something better final String
-				 * dynImportPackage = dynImport
-				 * .getDirectives().get(Concierge.DIR_INTERNAL);
-				 * 
-				 * // TODO: first check if dynImport could apply to the //
-				 * requested package!!! if (RFC1960Filter.stringCompare(
-				 * dynImportPackage.toCharArray(), 0, pkg.toCharArray(), 0) !=
-				 * 0) { continue; }
-				 * 
-				 * final boolean wildcard = Namespace.CARDINALITY_MULTIPLE
-				 * .equals(dynImport .getDirectives()
-				 * .get(Namespace.REQUIREMENT_CARDINALITY_DIRECTIVE));
-				 * List<BundleCapability> matches; matches =
-				 * framework.resolveDynamic(Revision.this, pkg,
-				 * dynImportPackage, dynImport, wildcard); if (matches != null
-				 * && matches.size() > 0) { final BundleCapability bundleCap =
-				 * matches.get(0);
-				 * 
-				 * final BundleWire wire = new ConciergeBundleWire( bundleCap,
-				 * dynImport); if (wiring == null) { setWiring(new
-				 * ConciergeBundleWiring( Revision.this, null)); }
-				 * wiring.addWire(wire);
-				 * 
-				 * ((ConciergeBundleWiring) bundleCap.getRevision()
-				 * .getWiring()).addWire(wire);
-				 * 
-				 * packageImportWires .put((String) bundleCap .getAttributes()
-				 * .get(PackageNamespace.PACKAGE_NAMESPACE), wire);
-				 * 
-				 * if (!wildcard) { // FIXME: iter.remove(); }
-				 * 
-				 * final BundleRevision rev = bundleCap.getRevision(); if (!(rev
-				 * instanceof Revision)) { if (isClass) { return
-				 * framework.systemBundleClassLoader .loadClass(name); } else {
-				 * if (multiple) { try { final Enumeration<URL> e =
-				 * framework.systemBundleClassLoader .getResources(name); while
-				 * (e.hasMoreElements()) { resources.add(e.nextElement()); } }
-				 * catch (final IOException ioe) { // nothing we can do about it
-				 * // FIXME: to log } } else { return
-				 * framework.systemBundleClassLoader .getResource(name); } } }
-				 * else { return ((Revision)
-				 * bundleCap.getRevision()).classloader .findResource1(pkg,
-				 * name, isClass, multiple, resources); } } } }
-				 */
-				
-				return new ArrayList<String>(result);
 			}
 
 			/**
@@ -3063,6 +3040,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 								} catch (final LinkageError le) {
 									System.err.println("ERROR in " + toString()
 											+ ":");
+									le.printStackTrace();
 									throw le;
 								}
 							}
@@ -3095,7 +3073,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 								new Object[] { classname.replace('.', '/'),
 										this });
 					}
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					return null;
 				}
 				return null;
@@ -3104,6 +3082,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 			List<String> listOwnResources(final String path,
 					final String filePattern, final int options,
 					final HashSet<String> visited) {
+
 				final List<String> result = new ArrayList<String>();
 				for (int i = 0; i < classpath.length; i++) {
 					final Vector<URL> urls = searchFiles(classpath[i], path,
@@ -3111,11 +3090,12 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 							(options & BundleWiring.LISTRESOURCES_RECURSE) != 0);
 					if (urls != null) {
 						for (final URL url : urls) {
-							// ignore already visited packages
-							String pkg = url.getPath().substring(1, url.getPath().lastIndexOf("/")).replace("/", ".");
-							if(!visited.contains(pkg)){
+							final int pos = url.getPath().lastIndexOf('/');
+							final String pkg = pseudoClassname(url.getPath()
+									.substring(1, pos));
+							if (!visited.contains(pkg)) {
 								result.add(url.getPath().substring(1));
-							} 
+							}
 						}
 					}
 				}
@@ -3131,11 +3111,13 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 											(options & BundleWiring.LISTRESOURCES_RECURSE) != 0);
 							if (urls != null) {
 								for (final URL url : urls) {
-									// ignore already visited packages
-									String pkg = url.getPath().substring(1, url.getPath().lastIndexOf("/")).replace("/", ".");
-									if(!visited.contains(pkg)){
+									final int pos = url.getPath().lastIndexOf(
+											'/');
+									final String pkg = pseudoClassname(url
+											.getPath().substring(1, pos));
+									if (!visited.contains(pkg)) {
 										result.add(url.getPath().substring(1));
-									} 
+									}
 								}
 							}
 						}
@@ -3174,6 +3156,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 							}
 						}
 					}
+
 					if (useFragments && fragments != null) {
 						// look in fragments
 						for (final Revision fragment : fragments) {
@@ -3185,7 +3168,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 							for (int i = 0; i < classpath.length; i++) {
 								final URL url = fragment.lookupFile(
 										classpath[i], name);
-								if(url!=null){
+								if (url != null) {
 									if (!multiple) {
 										return url;
 									} else {
@@ -3211,10 +3194,11 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 			 * @param visited
 			 * @return
 			 */
+			@SuppressWarnings("unchecked")
 			private Object requireBundleLookup(final String pkg,
 					final String name, final boolean isClass,
 					final boolean multiple, final Vector<URL> resources,
-					final Set<Bundle> visited) throws ClassNotFoundException{
+					final Set<Bundle> visited) throws ClassNotFoundException {
 				if (visited.contains(BundleImpl.this)) {
 					return null;
 				}
@@ -3234,47 +3218,50 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 											multiple, resources, visited);
 							if (!multiple && result != null) {
 								return result;
+							} else if (result != null) {
+								resources.addAll((Vector<URL>) result);
 							}
 						}
 					}
 				}
-				
+
 				if (exportIndex.contains(pkg)) {
-					// could be delegated when the export was imported as well, 
+					// could be delegated when the export was imported as well,
 					// so check packageImportWires first
 					BundleClassLoader exportLoader;
 					final BundleWire delegation = packageImportWires.get(pkg);
 					if (delegation != null) {
-						exportLoader = ((Revision)delegation.getProvider()).classloader;
+						exportLoader = ((Revision) delegation.getProvider()).classloader;
 					} else {
 						exportLoader = this;
 					}
-					
+
 					if (isClass) {
 						return exportLoader.findOwnClass(name);
 					} else {
-						final Object result = exportLoader.findOwnResources(name, true,
-								multiple, resources);
+						final Object result = exportLoader.findOwnResources(
+								name, true, multiple, resources);
 						if (!multiple) {
 							return result;
+						} else if (result != null) {
+							resources.addAll((Vector<URL>) result);
 						}
-						// FIXME: ELSE???
 					}
-
 				}
-				
-				// instead of inspecting exportIndex and imports, just delegate findResources?
-				//return findResource0(pkg, name, isClass, multiple);
-				
+
+				// instead of inspecting exportIndex and imports, just delegate
+				// findResources?
+				// return findResource0(pkg, name, isClass, multiple);
+
 				return null;
 			}
 
-			private void definePackage(String pkg) {
+			private void definePackage(final String pkg) {
 				// TODO fill in version/spec/vendor attributes according to
 				// bundle manifest headers?
 				try {
 					definePackage(pkg, null, null, null, null, null, null, null);
-				} catch (IllegalArgumentException e) {
+				} catch (final IllegalArgumentException e) {
 					// ignore
 				}
 			}
@@ -3458,7 +3445,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 			}
 
 			if (headerCache != null) {
-				HeaderDictionary cached = headerCache.get(locale);
+				final HeaderDictionary cached = headerCache.get(locale);
 				if (cached != null) {
 					return cached;
 				}
@@ -3542,16 +3529,19 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 
 		public long retrieveFileLength(final String classpath,
 				final String filename) throws IOException {
-			Object res = findFile(classpath, filename, GET_CONTENT_LENGTH);
+			final Object res = findFile(classpath, filename, GET_CONTENT_LENGTH);
 			if (res == null) {
 				if (framework.DEBUG_CLASSLOADING) {
-					System.err.println("Could not retrieveFileLength for filename=" + 
-							filename + " from bundle=" + this.toString());
+					framework.logger.log(
+							LogService.LOG_DEBUG,
+							"Could not retrieveFileLength for filename="
+									+ filename + " from bundle="
+									+ this.toString());
 				}
 				return -1;
 			} else {
 				return (Long) res;
- 			}
+			}
 		}
 
 		private Object findFile(final String classpath, String filename,
@@ -3581,7 +3571,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 					return null;
 				}
 
-				InputStream in = jarFile.getInputStream(entry);
+				final InputStream in = jarFile.getInputStream(entry);
 				if (in == null) {
 					// classpath is a directory
 					final ZipEntry entry2 = jarFile.getEntry(classpath + "/"
@@ -3631,13 +3621,11 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 					: pathString + "/";
 
 			final int cpOffset;
-			final String comp;
+			final String comp = pathString;
 			if (classpath != null && !".".equals(classpath)) {
-				comp = pathString;
 				pathString = classpath + "/" + pathString;
 				cpOffset = classpath.length() + 1;
 			} else {
-				comp = pathString;
 				cpOffset = 0;
 			}
 
@@ -3647,12 +3635,11 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 				final String name;
 				if (cpOffset == 0 || cpOffset >= ze.getName().length()) {
 					name = ze.getName().replace('\\', '/');
+				} else if (ze.getName().length() < cpOffset) {
+					continue;
 				} else {
 					name = ze.getName().substring(cpOffset).replace('\\', '/');
 				}
-
-				// System.err.println("NAME " + name);
-				// System.err.println("PATH STRING " + pathString);
 
 				if (name.startsWith(comp)) {
 					final String rest = name.substring(comp.length(),
@@ -3664,9 +3651,6 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 						if (file.getParent() != null & !recurse) {
 							continue;
 						}
-
-						// System.err.println("FILE PATTERN " + filePattern);
-						// System.err.println("FILE " + file.getName());
 
 						if (filePattern == null
 								|| RFC1960Filter.stringCompare(filePattern
@@ -3835,8 +3819,10 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 					final File toTest = files[i];
 
 					if (framework.DEBUG_CLASSLOADING) {
-						System.err.println("testing " + toTest.getAbsolutePath()
-								+ (toTest.isDirectory() ? "/" : ""));
+						framework.logger.log(
+								LogService.LOG_DEBUG,
+								"testing " + toTest.getAbsolutePath()
+										+ (toTest.isDirectory() ? "/" : ""));
 					}
 
 					// get basename
@@ -3851,7 +3837,7 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 							results.add(createURL(
 									absPath.substring(absPath
 											.indexOf(storageLocation)
-											+ (storageLocation).length() + 1)
+											+ storageLocation.length() + 1)
 									// TODO File.separatorChar instead of "/" ?
 											+ (toTest.isDirectory() ? "/" : ""),
 									null));
@@ -3946,11 +3932,6 @@ public class BundleImpl extends AbstractBundle implements BundleStartLevel {
 		} catch (final IOException ioe) {
 			ioe.printStackTrace();
 		}
-	}
-
-	// FIXME: for debugging only
-	public String printFragments() {
-		return currentRevision.fragments.toString();
 	}
 
 }
