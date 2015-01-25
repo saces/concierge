@@ -6,6 +6,7 @@
 	<property name="dist.dir" value="dist" />
 	<property name="classes.dir" value="${build.dir}/classes" />
 	<property name="jar.dir" value="${dist.dir}" />
+	<property name="wrapper.jar.location" location="../../foe/orbit/lib/wrapper.jar"/>
 
 	<target name="clean">
 		<delete dir="${build.dir}" />
@@ -13,7 +14,11 @@
 
 	<target name="compile">
 		<mkdir dir="${classes.dir}" />
-		<javac includeantruntime="false" debug="on" source="1.5" target="1.5" srcdir="${src.dir}" destdir="${classes.dir}" />
+		<javac includeantruntime="false" debug="on" source="1.5" target="1.5" srcdir="${src.dir}" destdir="${classes.dir}">
+			<classpath>
+				<pathelement location="${wrapper.jar.location}"/>
+			</classpath>
+		</javac>
 	</target>
 
 	<target name="jar" depends="compile">
